@@ -95,6 +95,22 @@
         <h5 class="fw-bold m-0 text-white" style="font-size: 18px;">All Executives ({{ $executives->total() }})</h5>
     </div>
     <div class="d-flex align-items-center gap-2">
+
+     <!-- Active University Switcher -->
+                    <form action="{{ route('active_university.switch') }}" method="POST" id="global-univ-switcher" class="m-0">
+                        @csrf
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text bg-dark border-secondary border-opacity-10 text-secondary" style="font-size: 11px;"><i class="fa-solid fa-graduation-cap"></i></span>
+                            <select name="university_id" class="form-select bg-dark text-white border-secondary border-opacity-10" style="font-size: 11.5px; border-radius: 0 10px 10px 0;" onchange="document.getElementById('global-univ-switcher').submit();">
+                                <option value="">All Universities (TIMS)</option>
+                                @foreach($allUniversities as $uni)
+                                    <option value="{{ $uni->id }}" {{ $activeUniversity && $activeUniversity->id == $uni->id ? 'selected' : '' }}>
+                                        {{ $uni->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </form>
         <!-- Filter Toggle -->
         <button class="tims-table-control-btn" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" title="Toggle Filters">
             <i class="fa-solid fa-sliders"></i>

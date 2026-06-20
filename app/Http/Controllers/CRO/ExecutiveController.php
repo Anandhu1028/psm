@@ -67,9 +67,24 @@ class ExecutiveController extends Controller
         $zones = Zone::all();
         $departments = Department::all();
         $managers = User::role(['Zonal Manager', 'CRO', 'Super Admin'])->get();
-        $universities = University::all();
+       $universities = University::all();
+        $allUniversities = $universities;
 
-        return view('executives.index', compact('executives', 'zones', 'departments', 'managers', 'universities'));
+        $activeUniversity = null;
+
+        if ($activeUniId) {
+            $activeUniversity = University::find($activeUniId);
+        }
+
+       return view('executives.index', [
+            'executives'      => $executives,
+            'zones'           => $zones,
+            'universities'    => $universities,
+            'allUniversities' => $allUniversities,
+            'departments'     => $departments,
+            'managers'        => $managers,
+            'activeUniversity'=> $activeUniversity,
+        ]);
     }
 
     public function create()
