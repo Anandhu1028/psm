@@ -7,7 +7,7 @@
 @section('page_actions')
 <a href="{{ route('admin.universities.create') }}" class="tims-add-user-btn">
     <i class="fa-solid fa-plus"></i>
-    <span>Add University</span>
+    <span>Add Academies</span>
 </a>
 @endsection
 
@@ -15,7 +15,7 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
-        <h5 class="fw-bold m-0 text-white" style="font-size: 18px;">All Universities ({{ $universities->count() }})</h5>
+        <h5 class="fw-bold m-0 text-white" style="font-size: 18px;">All Academies ({{ $universities->count() }})</h5>
     </div>
 </div>
 
@@ -25,7 +25,7 @@
             <thead>
                 <tr>
                     <th>Logo</th>
-                    <th>University Name</th>
+                    <th>Academy Name</th>
                     <th>Code</th>
                     <th>Total Executives</th>
                     <th>Active Executives</th>
@@ -52,12 +52,12 @@
                         @endif
                     </td>
 
-                    {{-- University Name --}}
+                    {{-- Company Name --}}
                     <td>
                         <a href="{{ route('admin.universities.show', $uni->id) }}" class="fw-bold text-white fs-14.5">
                             {{ $uni->name }}
                         </a>
-                        <span class="d-block text-secondary small text-truncate" style="max-width: 250px;">{{ $uni->description ?? 'No description provided.' }}</span>
+                      
                     </td>
 
                     {{-- Code --}}

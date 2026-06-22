@@ -33,6 +33,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('executives/{executive}', [ExecutiveController::class, 'destroy'])->name('executives.destroy');
 
     // Daily Logs (Performance Recording)
+    Route::get('daily-logs/crm-metrics', [DailyLogController::class, 'fetchCrmMetrics'])->name('daily_logs.crm_metrics');
+    Route::get('daily-logs/executive-dashboard', [DailyLogController::class, 'getExecutiveDashboardData'])->name('daily_logs.executive_dashboard');
+    Route::post('daily-logs/preview-score', [DailyLogController::class, 'previewScore'])->name('daily_logs.preview_score');
     Route::get('daily-logs', [DailyLogController::class, 'index'])->name('daily_logs.index');
     Route::get('daily-logs/create', [DailyLogController::class, 'create'])->name('daily_logs.create');
     Route::post('daily-logs', [DailyLogController::class, 'store'])->name('daily_logs.store');
@@ -68,4 +71,3 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('admin/universities/{university}/logo', [UniversityController::class, 'removeLogo'])->name('admin.universities.logo.remove');
     Route::post('active-university/switch', [DashboardController::class, 'switchActiveUniversity'])->name('active_university.switch');
 });
-

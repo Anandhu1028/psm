@@ -18,76 +18,7 @@
 @section('content')
 
 {{-- ── Collapsible Search & Filter Bar ── --}}
-<div class="collapse {{ request()->anyFilled(['search', 'zone_id', 'university_id', 'tier', 'status']) ? 'show' : '' }} mb-4" id="filterCollapse">
-    <div class="tims-filter-card">
-        <form method="GET" action="{{ route('executives.index') }}" class="row g-3 align-items-end">
-            <!-- Search Text -->
-            <div class="col-md-2">
-                <label class="tims-filter-label">Search</label>
-                <input type="text"
-                       name="search"
-                       class="form-control tims-filter-input"
-                       placeholder="Name, ID or Email..."
-                       value="{{ request('search') }}">
-            </div>
-            <!-- Zone Selection -->
-            <div class="col-md-2">
-                <label class="tims-filter-label">Zone</label>
-                <select name="zone_id" class="form-select tims-filter-select">
-                    <option value="">All Zones</option>
-                    @foreach($zones as $zone)
-                    <option value="{{ $zone->id }}" {{ request('zone_id') == $zone->id ? 'selected' : '' }}>
-                        {{ $zone->name }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            <!-- University Selection -->
-            <div class="col-md-2">
-                <label class="tims-filter-label">University</label>
-                <select name="university_id" class="form-select tims-filter-select">
-                    <option value="">All Universities</option>
-                    @foreach($universities as $uni)
-                    <option value="{{ $uni->id }}" {{ request('university_id') == $uni->id ? 'selected' : '' }}>
-                        {{ $uni->name }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-            <!-- Tier Selection -->
-            <div class="col-md-2">
-                <label class="tims-filter-label">Tier</label>
-                <select name="tier" class="form-select tims-filter-select">
-                    <option value="">All Tiers</option>
-                    <option value="platinum"    {{ request('tier') === 'platinum'    ? 'selected' : '' }}>Platinum</option>
-                    <option value="gold"        {{ request('tier') === 'gold'        ? 'selected' : '' }}>Gold</option>
-                    <option value="silver"      {{ request('tier') === 'silver'      ? 'selected' : '' }}>Silver</option>
-                    <option value="bronze"      {{ request('tier') === 'bronze'      ? 'selected' : '' }}>Bronze</option>
-                    <option value="review_zone" {{ request('tier') === 'review_zone' ? 'selected' : '' }}>Review Zone</option>
-                </select>
-            </div>
-            <!-- Probation Status Selection -->
-            <div class="col-md-2">
-                <label class="tims-filter-label">Probation Status</label>
-                <select name="status" class="form-select tims-filter-select">
-                    <option value="">All Statuses</option>
-                    <option value="active"    {{ request('status') === 'active'    ? 'selected' : '' }}>Active</option>
-                    <option value="probation" {{ request('status') === 'probation' ? 'selected' : '' }}>Probation</option>
-                    <option value="inactive"  {{ request('status') === 'inactive'  ? 'selected' : '' }}>Expired (Inactive)</option>
-                </select>
-            </div>
-            <!-- Actions -->
-            <div class="col-md-2 d-flex gap-2">
-                <button type="submit" class="btn btn-search-filters flex-fill">
-                    <i class="fa-solid fa-magnifying-glass"></i> Search
-                </button>
-                <a href="{{ route('executives.index') }}" class="btn btn-clear-filters" title="Clear Filters">
-                    <i class="fa-solid fa-xmark"></i>
-                </a>
-            </div>
-        </form>
-    </div>
-</div>
+
 
 {{-- ── Table Controls Row (User Management Mockup style) ── --}}
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
@@ -112,10 +43,13 @@
                         </div>
                     </form>
         <!-- Filter Toggle -->
-        <button class="tims-table-control-btn" type="button" data-bs-toggle="collapse" data-bs-target="#filterCollapse" aria-expanded="false" aria-controls="filterCollapse" title="Toggle Filters">
-            <i class="fa-solid fa-sliders"></i>
-            <span>Filter</span>
-        </button>
+        <button class="tims-table-control-btn"
+        type="button"
+        data-bs-toggle="modal"
+        data-bs-target="#filterModal">
+    <i class="fa-solid fa-sliders"></i>
+    <span>Filters</span>
+</button>
         <!-- Export Button -->
         <a href="#" class="tims-table-control-btn" title="Export Data" onclick="alert('Exporting data as CSV...'); return false;">
             <i class="fa-solid fa-download"></i>
@@ -134,7 +68,7 @@
                     <th>User</th>
                     <th>Email</th>
                     <th>Zone</th>
-                    <th>University</th>
+                    <th>Academy</th>
                     <th>Status</th>
                     <th>Tier</th>
                     <th>Productivity Score</th>
@@ -329,7 +263,7 @@
 @foreach($executives as $exec)
 <div class="modal fade" id="viewExecutiveModal{{ $exec->id }}" tabindex="-1" aria-labelledby="viewExecutiveModalLabel{{ $exec->id }}" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="background: #09090e; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.8);">
+        <div class="modal-content" style="background: #0f1322; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.8);">
             <div class="modal-header border-bottom border-secondary border-opacity-10 px-4 py-3">
                 <h5 class="modal-title fw-bold text-white" id="viewExecutiveModalLabel{{ $exec->id }}">
                     <i class="fa-regular fa-user text-primary me-2"></i>Executive Profile
@@ -451,7 +385,7 @@
 @can('manage_executives')
 <div class="modal fade" id="addExecutiveModal" tabindex="-1" aria-labelledby="addExecutiveModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
-        <div class="modal-content" style="background: #09090e; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.8);">
+        <div class="modal-content" style="background: #0f1322; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; box-shadow: 0 15px 50px rgba(0,0,0,0.8);">
             <div class="modal-header border-bottom border-secondary border-opacity-10 px-4 py-3">
                 <h5 class="modal-title fw-bold text-white" id="addExecutiveModalLabel">
                     <i class="fa-solid fa-user-plus text-primary me-2"></i>Add New Executive
@@ -546,4 +480,146 @@
 </div>
 @endcan
 
+
+<div class="modal fade" id="filterModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content bg-dark border-secondary">
+
+            <div class="modal-header border-secondary">
+                <h5 class="modal-title text-white">
+                    <i class="fa-solid fa-sliders me-2"></i>
+                    Advanced Filters
+                </h5>
+
+                <button type="button"
+                        class="btn-close btn-close-white"
+                        data-bs-dismiss="modal"></button>
+            </div>
+
+            <form method="GET" action="{{ route('executives.index') }}">
+
+                <div class="modal-body">
+
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">
+                                Search
+                            </label>
+
+                            <input type="text"
+                                   name="search"
+                                   class="form-control"
+                                   value="{{ request('search') }}"
+                                   placeholder="Name, Email, Employee ID">
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">
+                                Zone
+                            </label>
+
+                            <select name="zone_id" class="form-select">
+                                <option value="">All Zones</option>
+
+                                @foreach($zones as $zone)
+                                    <option value="{{ $zone->id }}"
+                                        {{ request('zone_id') == $zone->id ? 'selected' : '' }}>
+                                        {{ $zone->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">
+                                University
+                            </label>
+
+                            <select name="university_id" class="form-select">
+                                <option value="">All Universities</option>
+
+                                @foreach($universities as $uni)
+                                    <option value="{{ $uni->id }}"
+                                        {{ request('university_id') == $uni->id ? 'selected' : '' }}>
+                                        {{ $uni->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">
+                                Tier
+                            </label>
+
+                            <select name="tier" class="form-select">
+                                <option value="">All Tiers</option>
+                                <option value="platinum">Platinum</option>
+                                <option value="gold">Gold</option>
+                                <option value="silver">Silver</option>
+                                <option value="bronze">Bronze</option>
+                                <option value="review_zone">Review Zone</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label text-secondary">
+                                Status
+                            </label>
+
+                            <select name="status" class="form-select">
+                                <option value="">All Status</option>
+                                <option value="active">Active</option>
+                                <option value="probation">Probation</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label text-secondary">
+                                From Date
+                            </label>
+
+                            <input type="date"
+                                   name="from_date"
+                                   value="{{ request('from_date') }}"
+                                   class="form-control">
+                        </div>
+
+                        <div class="col-md-3">
+                            <label class="form-label text-secondary">
+                                To Date
+                            </label>
+
+                            <input type="date"
+                                   name="to_date"
+                                   value="{{ request('to_date') }}"
+                                   class="form-control">
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <div class="modal-footer border-secondary">
+
+                    <a href="{{ route('executives.index') }}"
+                       class="btn btn-outline-secondary">
+                        Reset
+                    </a>
+
+                    <button type="submit"
+                            class="btn btn-primary">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Apply Filters
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+</div>
 @endsection

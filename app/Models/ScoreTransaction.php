@@ -11,7 +11,10 @@ class ScoreTransaction extends Model
         'executive_id',
         'daily_log_id',
         'rule_id',
+        'rule_set_id',
+        'rule_evaluation_result_id',
         'type',
+        'component',
         'points',
         'running_total',
         'description',
@@ -35,5 +38,15 @@ class ScoreTransaction extends Model
     public function rule(): BelongsTo
     {
         return $this->belongsTo(ScoreRule::class);
+    }
+
+    public function ruleSet(): BelongsTo
+    {
+        return $this->belongsTo(RuleSet::class);
+    }
+
+    public function ruleEvaluationResult(): BelongsTo
+    {
+        return $this->belongsTo(RuleEvaluationResult::class);
     }
 }

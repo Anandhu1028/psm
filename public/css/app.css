@@ -39,7 +39,7 @@
     /* Text */
     --text-primary: #ffffff;
     --text-secondary: #8b93a7;
-    --text-muted: #4e5568;
+    --text-muted: #8f8f8f;
     --text-accent: #C084FC;
 
     /* Status */
@@ -528,7 +528,7 @@ h1.fw-bold {
    METRIC / STAT CARDS
    ============================================================ */
 .tims-metric-card {
-    background: var(--card-bg) !important;
+    background:#0f1322;
     border: 1px solid var(--card-border) !important;
     border-radius: 16px !important;
     padding: 24px !important;
@@ -655,7 +655,7 @@ h1.fw-bold {
    FILTER BAR
    ============================================================ */
 .tims-filter-card {
-    background: var(--card-bg) !important;
+    background: #0f1322;
     border: 1px solid var(--card-border) !important;
     border-radius: 14px !important;
     padding: 18px 20px !important;
@@ -775,7 +775,7 @@ h1.fw-bold {
    ROSTER TABLE
    ============================================================ */
 .tims-roster-card {
-    background: var(--card-bg) !important;
+    background: #0f1322;
     border: 1px solid var(--card-border) !important;
     border-radius: 14px !important;
     box-shadow: var(--shadow-card) !important;
@@ -1078,7 +1078,7 @@ h1.fw-bold {
    ============================================================ */
 .form-control,
 .form-select {
-    background: #0c0b12 !important;
+    background: #292542  !important;
     border: 1px solid rgba(190, 190, 255, 0.10) !important;
     color: var(--text-primary) !important;
     border-radius: 8px !important;
@@ -1586,7 +1586,7 @@ h1.fw-bold {
 
 /* ── Modal shell — floating glass card ── */
 .modal-content {
-    background: var(--card-bg, #1A1826) !important;
+    background:  #0f1322 !important;
     border: 1px solid rgba(255, 255, 255, 0.10) !important;
     border-radius: 20px !important;
     box-shadow:

@@ -18,7 +18,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- App CSS -->
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     @yield('styles')
 
     @if($activeUniversity)
@@ -78,6 +78,15 @@
                            href="{{ route('dashboard') }}">
                             <i class="fa-solid fa-table-cells-large"></i>
                             Dashboard
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="tims-nav-link {{ Route::is('admin.universities.*') ? 'active' : '' }}"
+                           href="{{ route('admin.universities.index') }}">
+                            <i class="fa-regular fa-building"></i>
+                            Company
+                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
                         </a>
                     </li>
 
@@ -187,7 +196,7 @@
             <!-- Top Bar -->
             <div class="d-flex justify-content-between align-items-center mb-4">
                 <!-- Search & Switcher -->
-                <div class="d-none d-lg-flex align-items-center gap-3">
+                <!-- <div class="d-none d-lg-flex align-items-center gap-3">
                     <div class="tims-search-input-wrapper">
                         <i class="fa-solid fa-magnifying-glass search-icon"></i>
                         <input type="text" class="form-control tims-search-input" placeholder="Search something...">
@@ -195,38 +204,10 @@
                     </div>
 
                    
-                </div>
+                </div> -->
                 <div class="d-block d-lg-none"></div>
 
-                <!-- Right controls -->
-                <div class="d-flex align-items-center gap-2">
-                    <!-- Notification bell -->
-                    <button class="tims-topbar-action-btn" type="button" title="Notifications">
-                        <i class="fa-regular fa-bell"></i>
-                        <span class="alert-badge-dot"></span>
-                    </button>
-                    <!-- Messages -->
-                    <button class="tims-topbar-action-btn" type="button" title="Messages">
-                        <i class="fa-regular fa-comment-dots"></i>
-                    </button>
-                    <!-- Settings -->
-                    <button class="tims-topbar-action-btn" type="button" title="Settings">
-                        <i class="fa-regular fa-gear"></i>
-                    </button>
-
-                    <div style="width:1px; height:20px; background:rgba(255,255,255,0.07); margin:0 4px;"></div>
-
-                    <!-- Dark/Light switcher pill -->
-                    <div class="tims-mode-switcher-pill">
-                        <button class="switcher-btn" type="button" title="Light Mode">
-                            <i class="fa-regular fa-sun"></i>
-                        </button>
-                        <button class="switcher-btn active" type="button" title="Dark Mode">
-                            <i class="fa-regular fa-moon"></i>
-                        </button>
-                    </div>
-
-                </div>
+              
             </div>
 
             <!-- Page Title Row -->

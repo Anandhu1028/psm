@@ -262,7 +262,7 @@
 
             <div class="d-flex justify-content-end gap-3 mt-2 mb-5">
                 <button type="submit" class="btn btn-primary rounded-3 px-5 fw-semibold">
-                    <i class="fa-solid fa-floppy-disk me-2"></i>Save University Rule Configuration
+                    <i class="fa-solid fa-floppy-disk me-2"></i>Save 
                 </button>
             </div>
         </form>

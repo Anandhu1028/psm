@@ -166,9 +166,5 @@
     </div>
 </div>
 
-<div class="mt-4">
-    <a href="{{ route('executives.index') }}" class="btn btn-outline-secondary rounded-3 px-4">
-        <i class="fa-solid fa-arrow-left me-2"></i>Back to Roster
-    </a>
-</div>
+
 @endsection

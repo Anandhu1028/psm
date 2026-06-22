@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
 
         // 2. Run scoring rules configuration seeder
         $this->call(ScoreRuleSeeder::class);
+        $this->call(DynamicRuleEngineSeeder::class);
 
         // 3. Create demo users for each role
         $roles = [

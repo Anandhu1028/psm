@@ -16,11 +16,13 @@ class University extends Model
         'theme_color',
         'tier_colors',
         'status',
+        'settings',
         'created_by',
     ];
 
     protected $casts = [
         'tier_colors' => 'array',
+        'settings' => 'array',
     ];
 
     public function executives(): HasMany
@@ -31,6 +33,21 @@ class University extends Model
     public function scoreRules(): HasMany
     {
         return $this->hasMany(ScoreRule::class);
+    }
+
+    public function ruleSets(): HasMany
+    {
+        return $this->hasMany(RuleSet::class);
+    }
+
+    public function rules(): HasMany
+    {
+        return $this->hasMany(Rule::class);
+    }
+
+    public function activeRuleSet()
+    {
+        return $this->hasOne(RuleSet::class)->where('status', 'active')->latestOfMany('version');
     }
 
     public function dailyLogs(): HasMany

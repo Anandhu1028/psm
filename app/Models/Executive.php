@@ -17,6 +17,7 @@ class Executive extends Model
         'name',
         'phone',
         'email',
+        'photo',
         'zone_id',
         'department_id',
         'date_joined',
@@ -140,40 +141,6 @@ class Executive extends Model
      */
     public function determineTierForScore(int $score): string
     {
-        $universityId = $this->university_id;
-        
-        if ($universityId) {
-            $rules = ScoreRule::where('university_id', $universityId)
-                ->whereIn('rule_key', [
-                    'tier_platinum_min',
-                    'tier_gold_min',
-                    'tier_silver_min',
-                    'tier_bronze_min'
-                ])
-                ->get()
-                ->keyBy('rule_key');
-            
-            $platinum = isset($rules['tier_platinum_min']) ? (int) $rules['tier_platinum_min']->rule_value : 1200;
-            $gold = isset($rules['tier_gold_min']) ? (int) $rules['tier_gold_min']->rule_value : 700;
-            $silver = isset($rules['tier_silver_min']) ? (int) $rules['tier_silver_min']->rule_value : 300;
-            $bronze = isset($rules['tier_bronze_min']) ? (int) $rules['tier_bronze_min']->rule_value : 0;
-        } else {
-            $platinum = 1200;
-            $gold = 700;
-            $silver = 300;
-            $bronze = 0;
-        }
-
-        if ($score >= $platinum) {
-            return 'platinum';
-        } elseif ($score >= $gold) {
-            return 'gold';
-        } elseif ($score >= $silver) {
-            return 'silver';
-        } elseif ($score >= $bronze) {
-            return 'bronze';
-        } else {
-            return 'review_zone';
-        }
+        return app(\App\Services\TierService::class)->determineTier($this, $score);
     }
 }

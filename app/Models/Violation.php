@@ -13,6 +13,8 @@ class Violation extends Model
         'daily_log_id',
         'violation_type',
         'points_deducted',
+        'description',
+        'violation_subtype',
         'status',
         'resolution_remarks',
         'date_committed',
