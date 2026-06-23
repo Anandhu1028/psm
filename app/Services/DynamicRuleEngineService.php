@@ -14,7 +14,8 @@ class DynamicRuleEngineService
 {
     public function __construct(
         protected RuleSetService $ruleSets,
-        protected MeetingWindowService $meetingWindows
+        protected MeetingWindowService $meetingWindows,
+        protected StreakService $streaks
     ) {
     }
 
@@ -132,16 +133,25 @@ class DynamicRuleEngineService
 
     protected function context(DailyLog $log, array $selectedViolations): array
     {
-        return [
-            'connected_calls' => (int) $log->connected_calls,
-            'meetings_arranged' => (int) $log->meetings_arranged,
-            'meetings_attended' => (int) $log->meetings_attended,
+        $executive = $log->relationLoaded('executive')
+            ? $log->executive
+            : $log->executive()->first();
+
+        $streakContext = $executive
+            ? $this->streaks->contextFor($executive)
+            : ['call_streak_count' => 0, 'meeting_streak_count' => 0, 'call_streak_7' => false, 'meeting_streak_7' => false, 'best_call_streak' => 0, 'best_meeting_streak' => 0];
+
+        return array_merge([
+            'connected_calls'             => (int)  $log->connected_calls,
+            'meetings_arranged'           => (int)  $log->meetings_arranged,
+            'meetings_attended'           => (int)  $log->meetings_attended,
             'first_contact_within_45_min' => (bool) $log->first_contact_within_45_min,
-            'all_leads_followed_up' => (bool) $log->all_leads_followed_up,
-            'crm_disposition_correct' => (bool) $log->crm_disposition_correct,
-            'warm_lead_converted' => (bool) $log->warm_lead_converted,
-            'selected_violations' => $selectedViolations,
-        ];
+            'all_leads_followed_up'       => (bool) $log->all_leads_followed_up,
+            'crm_disposition_correct'     => (bool) $log->crm_disposition_correct,
+            'warm_lead_converted'         => (bool) $log->warm_lead_converted,
+            'cold_lead_reactivated'       => (bool) ($log->cold_lead_reactivated ?? false),
+            'selected_violations'         => $selectedViolations,
+        ], $streakContext);
     }
 
     protected function evaluate(DailyLog $log, Collection $rules, array $context): Collection
@@ -191,6 +201,18 @@ class DynamicRuleEngineService
                 $status = $rule->category === 'kpi' ? 'passed' : 'applied';
             } elseif ($rule->category === 'kpi') {
                 $status = 'failed';
+            }
+        } elseif ($rule->calculation_type === 'streak') {
+            // Streak rules fire when the matching streak context flag is true.
+            // condition_json example: {"streak_metric": "call_streak_7"}
+            $condition = $rule->condition_json ?? [];
+            $metric = $condition['streak_metric'] ?? $rule->input_metric;
+            $passes = !empty($context[$metric]);
+
+            if ($passes) {
+                $points = (float) $rule->points;
+                $status = 'applied';
+                $message = "{$rule->name} (streak achieved)";
             }
         } elseif ($rule->calculation_type === 'selected_violation') {
             if (in_array($rule->code, $context['selected_violations'], true)) {

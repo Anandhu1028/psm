@@ -11,6 +11,7 @@ use App\Http\Controllers\PipController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Admin\ScoreRuleController;
 use App\Http\Controllers\Admin\UniversityController;
+use App\Http\Controllers\Admin\UniversityRuleController;
 
 // Auth Routes
 Route::get('login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -31,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('executives', [ExecutiveController::class, 'store'])->name('executives.store');
     Route::get('executives/{executive}/scorecard', [ExecutiveController::class, 'scorecard'])->name('executives.scorecard');
     Route::delete('executives/{executive}', [ExecutiveController::class, 'destroy'])->name('executives.destroy');
+    Route::put('executives/{executive}', [ExecutiveController::class, 'update'])->name('executives.update');
 
     // Daily Logs (Performance Recording)
     Route::get('daily-logs/crm-metrics', [DailyLogController::class, 'fetchCrmMetrics'])->name('daily_logs.crm_metrics');
@@ -39,6 +41,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('daily-logs', [DailyLogController::class, 'index'])->name('daily_logs.index');
     Route::get('daily-logs/create', [DailyLogController::class, 'create'])->name('daily_logs.create');
     Route::post('daily-logs', [DailyLogController::class, 'store'])->name('daily_logs.store');
+    Route::delete('daily-logs/{dailyLog}', [DailyLogController::class, 'destroy'])->name('daily_logs.destroy');
 
     // Meetings Tracker
     Route::get('meetings', [ExecutiveMeetingController::class, 'index'])->name('meetings.index');
@@ -70,4 +73,29 @@ Route::middleware(['auth'])->group(function () {
     Route::post('admin/universities/{university}/logo', [UniversityController::class, 'replaceLogo'])->name('admin.universities.logo.replace');
     Route::delete('admin/universities/{university}/logo', [UniversityController::class, 'removeLogo'])->name('admin.universities.logo.remove');
     Route::post('active-university/switch', [DashboardController::class, 'switchActiveUniversity'])->name('active_university.switch');
+
+    // ── University Rule Engine (Dynamic Scoring Rules) ────────────────────────
+    Route::prefix('admin/university-rules')->name('admin.university_rules.')->group(function () {
+        Route::get('/', [UniversityRuleController::class, 'index'])->name('index');
+
+        // Rule Set actions
+        Route::post('{university}/rule-sets/{ruleSet}/activate',
+            [UniversityRuleController::class, 'activateRuleSet'])->name('rule_sets.activate');
+        Route::post('{university}/rule-sets/{ruleSet}/publish',
+            [UniversityRuleController::class, 'publishRuleSet'])->name('rule_sets.publish');
+        Route::post('{university}/rule-sets/clone',
+            [UniversityRuleController::class, 'cloneToDraft'])->name('rule_sets.clone');
+
+        // Rule CRUD
+        Route::post('{university}/rule-sets/{ruleSet}/rules',
+            [UniversityRuleController::class, 'store'])->name('rules.store');
+        Route::get('rules/{rule}/edit',
+            [UniversityRuleController::class, 'edit'])->name('rules.edit');
+        Route::put('rules/{rule}',
+            [UniversityRuleController::class, 'update'])->name('rules.update');
+        Route::delete('rules/{rule}',
+            [UniversityRuleController::class, 'destroy'])->name('rules.destroy');
+        Route::post('rules/{rule}/toggle',
+            [UniversityRuleController::class, 'toggleRule'])->name('rules.toggle');
+    });
 });

@@ -779,7 +779,7 @@ h1.fw-bold {
     border: 1px solid var(--card-border) !important;
     border-radius: 14px !important;
     box-shadow: var(--shadow-card) !important;
-    overflow: hidden;
+   overflow: visible !important;
     padding: 0 !important;
 }
 
@@ -1111,6 +1111,8 @@ h1.fw-bold {
     border-radius: 10px !important;
     box-shadow: 0 8px 30px rgba(0, 0, 0, 0.70) !important;
     padding: 6px !important;
+     position: fixed !important;
+    z-index: 99999 !important;
 }
 
 .dropdown-item {
@@ -1127,7 +1129,7 @@ h1.fw-bold {
 }
 
 .dropdown-item.text-danger {
-    color: var(--danger-text) !important;
+    color:red!important;
 }
 
 /* ============================================================
@@ -1278,6 +1280,7 @@ h1.fw-bold {
 
 .table-responsive {
     max-height: 520px !important;
+    overflow: visible !important;
     overflow-y: auto !important;
     overflow-x: auto !important;
 }

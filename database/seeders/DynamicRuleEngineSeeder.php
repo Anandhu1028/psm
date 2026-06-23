@@ -41,13 +41,19 @@ class DynamicRuleEngineSeeder extends Seeder
             ->where('status', 'active')
             ->update(['status' => 'archived']);
 
+        $attributes = [
+            'name' => $name,
+            'status' => 'active',
+        ];
+
+        // Only set effective_from if the column exists in current schema
+        if (\Schema::hasColumn('rule_sets', 'effective_from')) {
+            $attributes['effective_from'] = now()->toDateString();
+        }
+
         $ruleSet = RuleSet::updateOrCreate(
             ['university_id' => $university->id, 'version' => 1],
-            [
-                'name' => $name,
-                'status' => 'active',
-                'effective_from' => now()->toDateString(),
-            ]
+            $attributes
         );
 
         foreach ($rules as $index => $rule) {

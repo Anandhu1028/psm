@@ -26,11 +26,22 @@ class Executive extends Model
         'status',
         'current_score',
         'current_tier',
+        // Streak tracking
+        'call_streak_count',
+        'meeting_streak_count',
+        'best_call_streak',
+        'best_meeting_streak',
+        'streak_last_updated',
     ];
 
     protected $casts = [
-        'date_joined' => 'date',
-        'probation_end_date' => 'date',
+        'date_joined'          => 'date',
+        'probation_end_date'   => 'date',
+        'streak_last_updated'  => 'date',
+        'call_streak_count'    => 'integer',
+        'meeting_streak_count' => 'integer',
+        'best_call_streak'     => 'integer',
+        'best_meeting_streak'  => 'integer',
     ];
 
     public function university(): BelongsTo

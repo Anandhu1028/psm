@@ -161,7 +161,7 @@
             font-weight: 600;
             letter-spacing: .05em;
             text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.45);
+            color: rgba(255, 255, 255, 0.97);
             margin-bottom: 6px;
         }
 
@@ -409,7 +409,7 @@
             font-weight: 700;
             letter-spacing: .09em;
             text-transform: uppercase;
-            color: var(--dl-text-muted);
+           color: rgb(240 244 255);
             margin-bottom: 8px;
         }
 
@@ -429,7 +429,7 @@
             align-items: center;
             gap: 7px;
             font-size: 12px;
-            color: var(--dl-text-muted);
+               color: rgb(240 244 255);
         }
 
         .sp-row-label i { width: 12px; text-align: center; font-size: 11px; }
@@ -466,7 +466,7 @@
             display: flex;
             justify-content: space-between;
             font-size: 10.5px;
-            color: var(--dl-text-muted);
+            color: rgb(240 244 255);
             margin-bottom: 5px;
         }
 
@@ -501,13 +501,13 @@
             font-weight: 800;
             letter-spacing: .1em;
             text-transform: uppercase;
-            color: var(--dl-text-muted);
+           color: rgb(240 244 255);
             margin-bottom: 2px;
         }
 
         .sp-final-sub {
             font-size: 10.5px;
-            color: var(--dl-text-muted);
+            color: rgb(240 244 255);
         }
 
         .sp-final-score {

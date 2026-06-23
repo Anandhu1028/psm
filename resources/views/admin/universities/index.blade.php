@@ -120,7 +120,7 @@
                                     </a>
                                 </li>
                                 @if($uni->code !== 'TIMS')
-                                <li><hr class="dropdown-divider"></li>
+                                <!-- <li><hr class="dropdown-divider"></li> -->
                                 <li>
                                     <form action="{{ route('admin.universities.destroy', $uni->id) }}" method="POST" class="m-0" onsubmit="return confirm('Are you sure you want to delete university {{ $uni->name }}? This will permanently delete all associated counselors/rules and logs.');">
                                         @csrf

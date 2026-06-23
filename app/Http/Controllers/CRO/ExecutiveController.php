@@ -146,6 +146,32 @@ class ExecutiveController extends Controller
             ->with('success', "Executive {$executive->name} has been added successfully to the system roster.");
     }
 
+
+
+    public function update(Request $request, Executive $executive)
+{
+    $validated = $request->validate([
+        'university_id' => ['required', 'exists:universities,id'],
+        'employee_id' => ['required', 'string', 'max:50', 'unique:executives,employee_id,' . $executive->id],
+        'name' => ['required', 'string', 'max:150'],
+        'phone' => ['required', 'string', 'max:20'],
+        'email' => ['required', 'email', 'max:150', 'unique:executives,email,' . $executive->id],
+        'zone_id' => ['required', 'exists:zones,id'],
+        'department_id' => ['nullable', 'exists:departments,id'],
+        'date_joined' => ['required', 'date'],
+        'probation_end_date' => ['required', 'date'],
+        'reporting_manager_id' => ['nullable', 'exists:users,id'],
+        'status' => ['required', 'in:active,inactive,probation'],
+        'current_tier' => ['required', 'in:bronze,silver,gold,platinum,review_zone'],
+    ]);
+
+    $executive->update($validated);
+
+    return redirect()
+        ->route('executives.index')
+        ->with('success', 'Executive updated successfully.');
+}   
+
     public function scorecard(Executive $executive)
     {
         $executive->load([

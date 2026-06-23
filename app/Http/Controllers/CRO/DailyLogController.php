@@ -12,21 +12,27 @@ use App\Models\ScoreTransaction;
 use App\Models\User;
 use App\Models\University;
 use App\Models\Zone;
-use App\Services\DirectPointCalculatorService;
+use App\Services\DynamicRuleEngineService;
 use App\Services\EscalationService;
+use App\Services\StreakService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class DailyLogController extends Controller
 {
-    protected DirectPointCalculatorService $calculator;
+    protected DynamicRuleEngineService $ruleEngine;
     protected EscalationService $escalator;
+    protected StreakService $streaks;
 
-    public function __construct(DirectPointCalculatorService $calculator, EscalationService $escalator)
-    {
-        $this->calculator = $calculator;
+    public function __construct(
+        DynamicRuleEngineService $ruleEngine,
+        EscalationService $escalator,
+        StreakService $streaks
+    ) {
+        $this->ruleEngine = $ruleEngine;
         $this->escalator  = $escalator;
+        $this->streaks    = $streaks;
     }
 
     // ─────────────────────────────────────────────────────────────────────────
@@ -192,6 +198,7 @@ class DailyLogController extends Controller
             'all_leads_followed_up'      => ['nullable', 'boolean'],
             'crm_disposition_correct'    => ['nullable', 'boolean'],
             'warm_lead_converted'        => ['nullable', 'boolean'],
+            'cold_lead_reactivated'      => ['nullable', 'boolean'],
             'violations'                 => ['nullable', 'array'],
         ]);
 
@@ -200,13 +207,14 @@ class DailyLogController extends Controller
         $log->university_id = $executive->university_id;
         $log->setRelation('executive', $executive);
 
-        $result = $this->calculator->calculate($log, $request->input('violations', []));
+        // Use the dynamic rule engine — reads rules from DB per university
+        $result = $this->ruleEngine->preview($log, $request->input('violations', []));
 
         return response()->json([
-            'positive_points' => $result['positive'],
-            'negative_points' => $result['negative'],
-            'recovery_points' => $result['recovery'],
-            'net_score'       => $result['net'],
+            'positive_points' => $result['positive_points'],
+            'negative_points' => $result['negative_points'],
+            'recovery_points' => $result['recovery_points'],
+            'net_score'       => $result['net_score'],
             'kpi_status'      => $result['kpi_status'],
             'breakdown'       => $result['breakdown'],
         ]);
@@ -332,6 +340,8 @@ class DailyLogController extends Controller
             'all_leads_followed_up'       => $request->has('all_leads_followed_up')       ? 1 : 0,
             'crm_disposition_correct'     => $request->has('crm_disposition_correct')     ? 1 : 0,
             'warm_lead_converted'         => $request->has('warm_lead_converted')         ? 1 : 0,
+            'cold_lead_reactivated'       => $request->has('cold_lead_reactivated')       ? 1 : 0,
+            'is_random_audit'             => $request->has('is_random_audit')             ? 1 : 0,
         ]);
 
         $validated = $request->validate([
@@ -344,6 +354,8 @@ class DailyLogController extends Controller
             'all_leads_followed_up'      => ['required', 'boolean'],
             'crm_disposition_correct'    => ['required', 'boolean'],
             'warm_lead_converted'        => ['required', 'boolean'],
+            'cold_lead_reactivated'      => ['nullable', 'boolean'],
+            'is_random_audit'            => ['nullable', 'boolean'],
             'cro_remarks'                => ['nullable', 'string'],
         ]);
 
@@ -366,15 +378,20 @@ class DailyLogController extends Controller
                 ])
             );
 
-            // ── 2. Calculate & apply points using the direct calculator ───────
+            // ── 2. Calculate & apply points via the DYNAMIC RULE ENGINE ───────
+            //       Rules are fetched from DB per university; no hardcoded values.
             $selectedViolations = $request->input('violations', []);
-            $pointsEarned = $this->calculator->calculateAndApply($log, $selectedViolations);
+            $pointsEarned = $this->ruleEngine->calculateAndApply($log, $selectedViolations);
 
             // ── 3. Reload the log so we have fresh calculated values ──────────
             $log->refresh();
-
-            // ── 4. Run escalation checks ──────────────────────────────────────
             $executive->refresh();
+
+            // ── 4. Update call/meeting streaks ────────────────────────────────
+            $this->streaks->updateCallStreak($executive, $log);
+            $this->streaks->updateMeetingStreak($executive, $log);
+
+            // ── 5. Run escalation checks ──────────────────────────────────────
             $this->escalator->checkForEscalations($executive);
 
             DB::commit();
@@ -390,4 +407,39 @@ class DailyLogController extends Controller
                 ->withErrors(['error' => 'Error saving log: ' . $e->getMessage()]);
         }
     }
+
+    public function destroy(DailyLog $dailyLog)
+{
+    try {
+        DB::beginTransaction();
+
+        // Reverse the score that was applied for this log
+        $executive = $dailyLog->executive;
+
+        // Remove associated violations
+        $dailyLog->violations()->delete();
+
+        // Reverse score transactions tied to this log
+        ScoreTransaction::where('daily_log_id', $dailyLog->id)->delete();
+
+        // Recalculate the executive's current score from remaining transactions
+        $newScore = ScoreTransaction::where('executive_id', $executive->id)
+            ->get()
+            ->sum(fn ($tx) => $tx->type === 'credit' ? $tx->points : -$tx->points);
+
+        $executive->update(['current_score' => $newScore]);
+
+        $dailyLog->delete();
+
+        DB::commit();
+
+        return redirect()
+            ->route('daily_logs.index')
+            ->with('success', "Log deleted and score reversed for {$executive->name}.");
+
+    } catch (\Exception $e) {
+        DB::rollBack();
+        return back()->withErrors(['error' => 'Error deleting log: ' . $e->getMessage()]);
+    }
+}
 }

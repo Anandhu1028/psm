@@ -65,8 +65,7 @@
             justify-content: space-between;
             align-items: flex-start;
             gap: 16px;
-            margin-bottom: 24px;
-            padding-bottom: 22px;
+           
             flex-wrap: wrap;
         }
 
@@ -227,7 +226,7 @@
         .dl-fb-reset:hover { border-color: var(--dl-border-bright) !important; color: #fff !important; }
 
         /* ════════════════════════════════════════════
-       LEADERBOARD — NEW CARD STYLE (matches screenshot)
+       LEADERBOARD
     ════════════════════════════════════════════ */
         .dl-divider {
             display: flex;
@@ -262,7 +261,6 @@
         @media (max-width: 1199px) { .dl-lb-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 767px)  { .dl-lb-grid { grid-template-columns: 1fr 1fr; } }
 
-        /* The card itself */
         .dl-lb2-card {
             position: relative;
             border-radius: var(--dl-radius-lg) !important;
@@ -279,7 +277,6 @@
             box-shadow: 0 0 0 1px var(--lbc-glow, transparent), 0 14px 40px rgba(0,0,0,.45) !important;
         }
 
-        /* Glowing top border stripe */
         .dl-lb2-card::before {
             content: '';
             position: absolute;
@@ -289,7 +286,6 @@
             border-radius: var(--dl-radius-lg) var(--dl-radius-lg) 0 0;
         }
 
-        /* Chart area (bottom-right absolutely positioned) */
         .dl-lb2-chart {
             position: absolute;
             bottom: 0; right: 0;
@@ -298,7 +294,6 @@
             pointer-events: none;
         }
 
-        /* Eyebrow */
         .dl-lb2-eyebrow {
             display: flex;
             align-items: center;
@@ -311,7 +306,6 @@
             margin-bottom: 13px;
         }
 
-        /* Person row */
         .dl-lb2-person {
             display: flex;
             align-items: center;
@@ -348,7 +342,6 @@
             margin-top: 2px;
         }
 
-        /* Score */
         .dl-lb2-score {
             font-size: 22px;
             font-weight: 800;
@@ -367,7 +360,6 @@
             margin-left: 3px;
         }
 
-        /* Pulse ring for top performer */
         .dl-pulse-wrap {
             position: relative;
             display: inline-block;
@@ -532,26 +524,70 @@
         }
         .dl-action-btn:hover { border-color: var(--dl-blue); color: var(--dl-blue); background: var(--dl-blue-dim); }
 
-        /* DROPDOWN */
-        .dl-dropdown-menu {
-            background: var(--dl-bg-elevated) !important;
-            border: 1px solid var(--dl-border-bright) !important;
-            border-radius: var(--dl-radius-md) !important;
-            box-shadow: 0 16px 40px rgba(0,0,0,.55) !important;
-            padding: 6px !important;
-            min-width: 178px !important;
+        /* ════════════════════════════════════════════
+           PORTAL DROPDOWN
+        ════════════════════════════════════════════ */
+        .dl-portal-menu {
+            position: fixed;
+            z-index: 99999;
+            background: #111829;
+            border: 1px solid rgba(255,255,255,0.13);
+            border-radius: 12px;
+            box-shadow: 0 16px 40px rgba(0,0,0,.65), 0 2px 8px rgba(0,0,0,.4);
+            padding: 6px;
+            min-width: 182px;
+            display: none;
         }
-        .dl-dropdown-menu .dropdown-item {
-            color: var(--dl-text-secondary) !important;
-            font-size: 12.5px !important;
-            border-radius: 7px !important;
-            padding: 8px 12px !important;
-            display: flex; align-items: center; gap: 9px;
-            transition: background .12s, color .12s; font-family: inherit;
+
+        .dl-portal-menu.dl-open {
+            display: block;
+            animation: dl-menu-in .12s ease forwards;
         }
-        .dl-dropdown-menu .dropdown-item:hover { background: var(--dl-blue-dim) !important; color: #fff !important; }
-        .dl-dropdown-menu .dropdown-item i { width: 13px; text-align: center; }
-        .dl-dropdown-menu .dropdown-divider { border-color: var(--dl-border) !important; margin: 4px 0 !important; }
+
+        @keyframes dl-menu-in {
+            from { opacity: 0; transform: translateY(-4px) scale(.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+
+        .dl-portal-menu a {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 12.5px;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            border-radius: 7px;
+            padding: 8px 12px;
+            text-decoration: none !important;
+            transition: background .12s, color .12s;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .dl-portal-menu a i { width: 14px; text-align: center; font-size: 11px; flex-shrink: 0; }
+
+        /* View Score item */
+        .dl-pm-view {
+            color: rgba(240,244,255,0.65) !important;
+        }
+        .dl-pm-view:hover {
+            background: rgba(59,123,255,0.12) !important;
+            color: #fff !important;
+        }
+
+        /* Delete item */
+        .dl-pm-delete {
+            color: rgba(244,63,94,0.75) !important;
+        }
+        .dl-pm-delete:hover {
+            background: rgba(244,63,94,0.12) !important;
+            color: #F43F5E !important;
+        }
+
+        .dl-portal-menu .dl-pm-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+            margin: 4px 0;
+        }
 
         /* PAGINATION */
         .dl-pag-wrap {
@@ -629,14 +665,14 @@
                 <i class="fa-solid fa-file-excel"></i> Excel
             </button>
             <a href="{{ route('daily_logs.create') }}" class="dl-btn dl-btn-ghost">
-                <i class="fa-solid fa-plus"></i> Add Log
+                <i class="fa-solid fa-plus"></i> Add New
             </a>
         </div>
     </div>
 
     {{-- LEADERBOARD --}}
     <div class="dl-divider">
-        <span><i class="fa-solid fa-ranking-star" style="margin-right:6px;"></i>Today's Leaderboard</span>
+        <span><i class="fa-solid fa-ranking-star" style="margin-right:6px;"></i>Today's Leader board</span>
     </div>
 
     <div class="dl-lb-grid">
@@ -651,7 +687,6 @@
             --lbc-avatar: linear-gradient(135deg,#10B981,#34d399);
             --lbc-score-color: #10B981;">
 
-            {{-- sparkline chart (bottom-right) --}}
             <svg class="dl-lb2-chart" viewBox="0 0 120 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <defs>
                     <linearGradient id="grad-tp" x1="0" y1="0" x2="0" y2="1">
@@ -732,7 +767,7 @@
             @endif
         </div>
 
-        {{-- ③ MOST CALLS — bar chart --}}
+        {{-- ③ MOST CALLS --}}
         <div class="dl-lb2-card" style="
             --lbc-border: rgba(6,182,212,.28);
             --lbc-bg: linear-gradient(135deg,rgba(6,182,212,.09) 0%,rgba(59,123,255,.04) 100%);
@@ -742,7 +777,6 @@
             --lbc-avatar: linear-gradient(135deg,#06B6D4,#3B7BFF);
             --lbc-score-color: #06B6D4;">
 
-            {{-- bar chart (bottom-right) --}}
             <svg class="dl-lb2-chart" viewBox="0 0 120 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
                 <g fill="#06B6D4" opacity=".55">
                     <rect x="10" y="40" width="10" height="20" rx="3"/>
@@ -780,7 +814,7 @@
             @endif
         </div>
 
-        {{-- ④ MOST MEETINGS — bar chart --}}
+        {{-- ④ MOST MEETINGS --}}
         <div class="dl-lb2-card" style="
             --lbc-border: rgba(124,58,237,.28);
             --lbc-bg: linear-gradient(135deg,rgba(124,58,237,.09) 0%,rgba(168,85,247,.04) 100%);
@@ -827,7 +861,7 @@
             @endif
         </div>
 
-        {{-- ⑤ MOST VIOLATIONS — dashed line chart --}}
+        {{-- ⑤ MOST VIOLATIONS --}}
         <div class="dl-lb2-card" style="
             --lbc-border: rgba(245,158,11,.28);
             --lbc-bg: linear-gradient(135deg,rgba(245,158,11,.09) 0%,rgba(251,191,36,.03) 100%);
@@ -844,15 +878,12 @@
                         <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
                     </linearGradient>
                 </defs>
-                {{-- Flat/dashed line representing violations --}}
                 <line x1="8" y1="30" x2="112" y2="30" stroke="#F59E0B" stroke-width="1.5"
                       stroke-dasharray="6 4" opacity=".5"/>
-                {{-- Dots at violation events --}}
                 <circle cx="24"  cy="22" r="3.5" fill="#F59E0B" opacity=".75"/>
                 <circle cx="52"  cy="18" r="3.5" fill="#F59E0B" opacity=".75"/>
                 <circle cx="80"  cy="26" r="3.5" fill="#F59E0B" opacity=".75"/>
                 <circle cx="104" cy="14" r="3.5" fill="#F59E0B" opacity=".75"/>
-                {{-- Vertical drops --}}
                 <line x1="24"  y1="22" x2="24"  y2="60" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 3" opacity=".25"/>
                 <line x1="52"  y1="18" x2="52"  y2="60" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 3" opacity=".25"/>
                 <line x1="80"  y1="26" x2="80"  y2="60" stroke="#F59E0B" stroke-width="1" stroke-dasharray="3 3" opacity=".25"/>
@@ -913,10 +944,10 @@
                             $calls   = $log->connected_calls;
                             $callCls = $calls >= 65 ? 'dl-calls-g' : ($calls >= 40 ? 'dl-calls-y' : 'dl-calls-r');
 
-                            $arranged = $log->meetings_arranged;
-                            $attended = $log->meetings_attended;
-                            $meetPct  = $arranged > 0 ? round(($attended / $arranged) * 100) : 0;
-                            $meetColor= $meetPct >= 75 ? '#10B981' : ($meetPct >= 40 ? '#F59E0B' : '#F43F5E');
+                            $arranged  = $log->meetings_arranged;
+                            $attended  = $log->meetings_attended;
+                            $meetPct   = $arranged > 0 ? round(($attended / $arranged) * 100) : 0;
+                            $meetColor = $meetPct >= 75 ? '#10B981' : ($meetPct >= 40 ? '#F59E0B' : '#F43F5E');
 
                             $kpi1 = $log->first_contact_within_45_min;
                             $kpi2 = $log->all_leads_followed_up;
@@ -943,6 +974,9 @@
                                 ($log->executive->zone->name ?? '') . ' ' .
                                 ($log->executive->university->name ?? '')
                             );
+
+                            $scorecardUrl = route('executives.scorecard', $log->executive_id);
+                            $deleteUrl    = route('daily_logs.destroy', $log->id);
                         @endphp
                         <tr data-search="{{ $searchData }}">
 
@@ -954,7 +988,7 @@
 
                             {{-- EXECUTIVE --}}
                             <td>
-                                <a href="{{ route('executives.scorecard', $log->executive_id) }}"
+                                <a href="{{ $scorecardUrl }}"
                                     style="text-decoration:none;display:flex;align-items:center;gap:9px;">
                                     <div class="dl-exec-avatar">{{ $initials }}</div>
                                     <div>
@@ -1052,23 +1086,15 @@
 
                             {{-- ACTIONS --}}
                             <td style="text-align:center;">
-                                <div class="dropdown">
-                                    <button class="dl-action-btn" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fa-solid fa-ellipsis-vertical"></i>
-                                    </button>
-                                    <ul class="dropdown-menu dropdown-menu-end dl-dropdown-menu">
-                                        <li><a class="dropdown-item"
-                                                href="{{ route('executives.scorecard', $log->executive_id) }}">
-                                                <i class="fa-solid fa-chart-line"></i>View Score</a></li>
-                                        <li><a class="dropdown-item" href="">
-                                                <i class="fa-regular fa-pen-to-square"></i>Edit Log</a></li>
-                                        <li><hr class="dropdown-divider"></li>
-                                        <li><a class="dropdown-item"
-                                                href="{{ route('executives.scorecard', $log->executive_id) }}">
-                                                <i class="fa-solid fa-user"></i>Executive Profile</a></li>
-                                    </ul>
-                                </div>
+                                <button
+                                    class="dl-action-btn dl-dd-trigger"
+                                    data-view="{{ $scorecardUrl }}"
+                                    data-delete="{{ $deleteUrl }}"
+                                    type="button">
+                                    <i class="fa-solid fa-ellipsis-vertical"></i>
+                                </button>
                             </td>
+
                         </tr>
                     @empty
                         <tr>
@@ -1101,6 +1127,18 @@
                 {{ $logs->links() }}
             </div>
         @endif
+    </div>
+
+
+    {{-- PORTAL DROPDOWN — lives on body, escapes all overflow clipping --}}
+    <div id="dlPortalMenu" class="dl-portal-menu" role="menu">
+        <a href="#" id="dlPmView" class="dl-pm-view">
+            <i class="fa-solid fa-chart-line"></i>View Score
+        </a>
+        <div class="dl-pm-divider"></div>
+        <a href="#" id="dlPmDelete" class="dl-pm-delete">
+            <i class="fa-solid fa-trash"></i>Delete
+        </a>
     </div>
 
 
@@ -1209,49 +1247,134 @@
 @endsection
 
 @section('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
 
-            // Bootstrap tooltips
-            document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
-                new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover' });
+    /* ── Bootstrap tooltips ── */
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(function (el) {
+        new bootstrap.Tooltip(el, { placement: 'top', trigger: 'hover' });
+    });
+
+    /* ── Real-time client-side search ── */
+    var searchEl = document.getElementById('dlGlobalSearch');
+    var rows     = document.querySelectorAll('#dlTableBody tr[data-search]');
+
+    if (searchEl) {
+        searchEl.addEventListener('input', function () {
+            var q = this.value.toLowerCase().trim();
+            rows.forEach(function (row) {
+                var hay = row.getAttribute('data-search') || '';
+                row.style.display = (!q || hay.indexOf(q) !== -1) ? '' : 'none';
             });
+        });
+    }
 
-            // Real-time client-side search
-            var searchEl = document.getElementById('dlGlobalSearch');
-            var rows     = document.querySelectorAll('#dlTableBody tr[data-search]');
+    /* ── Date filter chip ── */
+    var dateBtn   = document.getElementById('dateFilterBtn');
+    var dateInput = document.getElementById('dateFilterInput');
 
-            if (searchEl) {
-                searchEl.addEventListener('input', function () {
-                    var q = this.value.toLowerCase().trim();
-                    rows.forEach(function (row) {
-                        var hay = row.getAttribute('data-search') || '';
-                        row.style.display = (!q || hay.indexOf(q) !== -1) ? '' : 'none';
-                    });
-                });
-            }
-
-            // Date filter chip
-            var dateBtn   = document.getElementById('dateFilterBtn');
-            var dateInput = document.getElementById('dateFilterInput');
-
-            if (dateBtn && dateInput) {
-                dateBtn.addEventListener('click', function () {
-                    if (dateInput.showPicker) {
-                        dateInput.showPicker();
-                    } else {
-                        dateInput.click();
-                    }
-                });
-
-                dateInput.addEventListener('change', function () {
-                    if (!this.value) return;
-                    var url = new URL(window.location.href);
-                    url.searchParams.set('date_from', this.value);
-                    url.searchParams.set('date_to',   this.value);
-                    window.location.href = url.toString();
-                });
+    if (dateBtn && dateInput) {
+        dateBtn.addEventListener('click', function () {
+            if (dateInput.showPicker) {
+                dateInput.showPicker();
+            } else {
+                dateInput.click();
             }
         });
-    </script>
+
+        dateInput.addEventListener('change', function () {
+            if (!this.value) return;
+            var url = new URL(window.location.href);
+            url.searchParams.set('date_from', this.value);
+            url.searchParams.set('date_to',   this.value);
+            window.location.href = url.toString();
+        });
+    }
+
+    /* ══════════════════════════════════════════════════════════
+       PORTAL DROPDOWN
+    ══════════════════════════════════════════════════════════ */
+    var menu      = document.getElementById('dlPortalMenu');
+    var pmView    = document.getElementById('dlPmView');
+    var pmDelete  = document.getElementById('dlPmDelete');
+    var activeBtn = null;
+
+    function openMenu(btn) {
+        /* Populate View Score href */
+        pmView.href = btn.dataset.view || '#';
+
+        /* Wire up Delete with confirmation + hidden form */
+        var deleteUrl = btn.dataset.delete || '#';
+        pmDelete.onclick = function (e) {
+            e.preventDefault();
+            closeMenu();
+            if (!confirm('Are you sure you want to delete this log? This action cannot be undone.')) return;
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = deleteUrl;
+            form.innerHTML =
+                '<input type="hidden" name="_token" value="{{ csrf_token() }}">' +
+                '<input type="hidden" name="_method" value="DELETE">';
+            document.body.appendChild(form);
+            form.submit();
+        };
+
+        /* Position: fixed coords relative to viewport */
+        var rect  = btn.getBoundingClientRect();
+        var menuW = 182;
+        var menuH = 100; /* approx */
+        var gap   = 6;
+
+        /* Open below unless too close to bottom, then flip up */
+        var top = (window.innerHeight - rect.bottom >= menuH + gap)
+                  ? rect.bottom + gap
+                  : rect.top - menuH - gap;
+
+        /* Right-align to button, clamp inside viewport */
+        var left = Math.max(8, Math.min(rect.right - menuW, window.innerWidth - menuW - 8));
+
+        menu.style.top  = top  + 'px';
+        menu.style.left = left + 'px';
+
+        /* Re-trigger animation on each open */
+        menu.classList.remove('dl-open');
+        void menu.offsetWidth; /* force reflow */
+        menu.classList.add('dl-open');
+
+        activeBtn = btn;
+        btn.setAttribute('aria-expanded', 'true');
+    }
+
+    function closeMenu() {
+        if (!menu.classList.contains('dl-open')) return;
+        menu.classList.remove('dl-open');
+        if (activeBtn) {
+            activeBtn.setAttribute('aria-expanded', 'false');
+            activeBtn = null;
+        }
+    }
+
+    /* Toggle on trigger click */
+    document.addEventListener('click', function (e) {
+        var trigger = e.target.closest('.dl-dd-trigger');
+        if (trigger) {
+            e.stopPropagation();
+            activeBtn === trigger ? closeMenu() : openMenu(trigger);
+            return;
+        }
+        /* Click anywhere outside → close */
+        if (!menu.contains(e.target)) closeMenu();
+    });
+
+    /* Keyboard close */
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeMenu();
+    });
+
+    /* Reposition guard — close on scroll/resize */
+    window.addEventListener('scroll', closeMenu, true);
+    window.addEventListener('resize', closeMenu);
+
+});
+</script>
 @endsection

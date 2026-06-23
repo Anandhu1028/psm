@@ -14,7 +14,8 @@ return new class extends Migration
             }
         });
 
-        Schema::create('rule_sets', function (Blueprint $table) {
+        if (!Schema::hasTable('rule_sets')) {
+            Schema::create('rule_sets', function (Blueprint $table) {
             $table->id();
             $table->foreignId('university_id')->constrained('universities')->onDelete('cascade');
             $table->string('name', 150);
@@ -28,9 +29,11 @@ return new class extends Migration
 
             $table->unique(['university_id', 'version']);
             $table->index(['university_id', 'status']);
-        });
+            });
+        }
 
-        Schema::create('rules', function (Blueprint $table) {
+        if (!Schema::hasTable('rules')) {
+            Schema::create('rules', function (Blueprint $table) {
             $table->id();
             $table->foreignId('rule_set_id')->constrained('rule_sets')->onDelete('cascade');
             $table->foreignId('university_id')->constrained('universities')->onDelete('cascade');
@@ -53,9 +56,11 @@ return new class extends Migration
             $table->unique(['rule_set_id', 'code']);
             $table->index(['university_id', 'category']);
             $table->index(['rule_set_id', 'category']);
-        });
+            });
+        }
 
-        Schema::create('rule_evaluation_results', function (Blueprint $table) {
+        if (!Schema::hasTable('rule_evaluation_results')) {
+            Schema::create('rule_evaluation_results', function (Blueprint $table) {
             $table->id();
             $table->foreignId('daily_log_id')->nullable()->constrained('daily_logs')->onDelete('cascade');
             $table->foreignId('executive_id')->constrained('executives')->onDelete('cascade');
@@ -72,7 +77,8 @@ return new class extends Migration
 
             $table->index(['daily_log_id', 'category']);
             $table->index(['executive_id', 'created_at']);
-        });
+            });
+        }
 
         Schema::table('daily_logs', function (Blueprint $table) {
             if (!Schema::hasColumn('daily_logs', 'rule_set_id')) {

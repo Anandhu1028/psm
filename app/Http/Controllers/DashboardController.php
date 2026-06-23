@@ -127,7 +127,7 @@ class DashboardController extends Controller
             $dateStr = $log->date->toDateString();
             if ($pastWeek->has($dateStr)) {
                 $pastWeek->put($dateStr, [
-                    'calls' => (int) $log->calls,
+                    'calls'    => (int) $log->calls,
                     'arranged' => (int) $log->arranged,
                     'attended' => (int) $log->attended,
                 ]);
@@ -142,10 +142,10 @@ class DashboardController extends Controller
             ->toArray();
 
         $tiers = [
-            'platinum' => $tierCounts['platinum'] ?? 0,
-            'gold' => $tierCounts['gold'] ?? 0,
-            'silver' => $tierCounts['silver'] ?? 0,
-            'bronze' => $tierCounts['bronze'] ?? 0,
+            'platinum'    => $tierCounts['platinum']    ?? 0,
+            'gold'        => $tierCounts['gold']        ?? 0,
+            'silver'      => $tierCounts['silver']      ?? 0,
+            'bronze'      => $tierCounts['bronze']      ?? 0,
             'review_zone' => $tierCounts['review_zone'] ?? 0,
         ];
 
@@ -158,10 +158,64 @@ class DashboardController extends Controller
             ->take(5)
             ->get();
 
+        // ── New widget data ────────────────────────────────────────────────────
+
+        // Today's score breakdown aggregates
+        $todayLogs = DailyLog::when($activeUniId, function($q) use($activeUniId) {
+                $q->whereHas('executive', fn($eq) => $eq->where('university_id', $activeUniId));
+            })
+            ->whereDate('date', $today)
+            ->get();
+
+        $scoreBreakdown = [
+            'positive' => (int) $todayLogs->sum('positive_points'),
+            'negative' => (int) $todayLogs->sum('negative_points'),
+            'recovery' => (int) $todayLogs->sum('recovery_points'),
+            'net'      => (int) $todayLogs->sum('calculated_score'),
+            'logs'     => $todayLogs->count(),
+        ];
+
+        // KPI compliance % for today
+        $logsWithKpi = $todayLogs->count();
+        $kpiCompliance = [
+            'calls_kpi_pct'    => $logsWithKpi ? round($todayLogs->where('connected_calls', '>=', 40)->count() / $logsWithKpi * 100) : 0,
+            'meetings_kpi_pct' => $logsWithKpi ? round($todayLogs->where('meetings_attended', '>=', 1)->count() / $logsWithKpi * 100) : 0,
+            'crm_kpi_pct'      => $logsWithKpi ? round($todayLogs->where('crm_disposition_correct', true)->count() / $logsWithKpi * 100) : 0,
+            'first_contact_pct'=> $logsWithKpi ? round($todayLogs->where('first_contact_within_45_min', true)->count() / $logsWithKpi * 100) : 0,
+        ];
+
+        // Top 5 performers by current score
+        $topPerformers = Executive::where('status', 'active')
+            ->when($activeUniId, fn($q) => $q->where('university_id', $activeUniId))
+            ->orderByDesc('current_score')
+            ->take(5)
+            ->get();
+
+        // Streak leaders (call streak)
+        $streakLeaders = Executive::where('status', 'active')
+            ->when($activeUniId, fn($q) => $q->where('university_id', $activeUniId))
+            ->orderByDesc('call_streak_count')
+            ->take(3)
+            ->get();
+
+        // Recovery summary for today
+        $recoveryToday = [
+            'total_recovery'  => (int) $todayLogs->sum('recovery_points'),
+            'execs_recovered' => $todayLogs->where('recovery_points', '>', 0)->count(),
+        ];
+
+        // Open escalations count
+        $openEscalations = \App\Models\Escalation::where('status', 'open')
+            ->when($activeUniId, function($q) use($activeUniId) {
+                $q->whereHas('executive', fn($eq) => $eq->where('university_id', $activeUniId));
+            })->count();
+
         return view('dashboards.cro', compact(
-            'totalExecs', 'activeExecs', 'todayCalls', 'todayMeetingsArranged', 
-            'todayMeetingsAttended', 'reviewZoneCount', 'activePipCount', 
-            'pastWeek', 'tiers', 'recentLogs'
+            'totalExecs', 'activeExecs', 'todayCalls', 'todayMeetingsArranged',
+            'todayMeetingsAttended', 'reviewZoneCount', 'activePipCount',
+            'pastWeek', 'tiers', 'recentLogs',
+            'scoreBreakdown', 'kpiCompliance', 'topPerformers',
+            'streakLeaders', 'recoveryToday', 'openEscalations'
         ));
     }
 
