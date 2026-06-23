@@ -1,27 +1,11 @@
 @extends('layouts.app')
 @section('title', 'CRO Dashboard')
-@section('page_title', 'CRO Operations Dashboard')
+@section('page_title', 'CRO  Dashboard')
 
 @section('page_subtitle', "Here is today's report and performances")
 
 @section('page_actions')
-    <div class="d-flex flex-wrap align-items-center gap-2">
-        <a href="#" class="tims-header-control-pill d-flex align-items-center">
-            <i class="fa-regular fa-calendar me-2"></i>
-            <span>Jun 1 - Jun 30</span>
-            <span style="opacity: 0.2; margin: 0 8px;">|</span>
-            <span class="me-1">Monthly</span>
-            <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
-        </a>
-        <a href="#" class="tims-header-control-pill">
-            <span>All Segment</span>
-            <i class="fa-solid fa-chevron-down" style="font-size: 10px;"></i>
-        </a>
-        <a href="#" class="btn-ai-assistant">
-            <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>AI Assistant</span>
-        </a>
-    </div>
+   
 @endsection
 
 @section('content')
@@ -214,38 +198,11 @@
                 </h5>
                 <span class="text-secondary" style="font-size:12px">
                     <i class="fa-regular fa-calendar-check me-1"></i>
-                    {{ now()->format('M d, Y') }} &bull; {{ $scoreBreakdown['logs'] }} logs submitted
+                    {{ now()->format('M d, Y') }} &bull; 
                 </span>
             </div>
         </div>
-        <div class="col-6 col-lg-3">
-            <div class="tims-metric-card h-100" style="border-left: 3px solid #10b981;">
-                <div class="card-label text-success mb-1">Positive Points</div>
-                <div class="card-value text-success">+{{ $scoreBreakdown['positive'] }}</div>
-                <div class="card-trend-row text-secondary"><i class="fa-solid fa-plus-circle me-1"></i>Performance rewards</div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="tims-metric-card h-100" style="border-left: 3px solid #f87171;">
-                <div class="card-label text-danger mb-1">Violation Deductions</div>
-                <div class="card-value text-danger">-{{ $scoreBreakdown['negative'] }}</div>
-                <div class="card-trend-row text-secondary"><i class="fa-solid fa-minus-circle me-1"></i>Conduct & KPI violations</div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="tims-metric-card h-100" style="border-left: 3px solid #facc15;">
-                <div class="card-label text-warning mb-1">Recovery Points</div>
-                <div class="card-value text-warning">+{{ $scoreBreakdown['recovery'] }}</div>
-                <div class="card-trend-row text-secondary"><i class="fa-solid fa-rotate me-1"></i>{{ $recoveryToday['execs_recovered'] }} execs recovered</div>
-            </div>
-        </div>
-        <div class="col-6 col-lg-3">
-            <div class="tims-metric-card h-100" style="border-left: 3px solid #8b5cf6;">
-                <div class="card-label" style="color:#a78bfa">Net Score Impact</div>
-                <div class="card-value" style="color:#a78bfa">{{ $scoreBreakdown['net'] >= 0 ? '+' : '' }}{{ $scoreBreakdown['net'] }}</div>
-                <div class="card-trend-row text-secondary"><i class="fa-solid fa-calculator me-1"></i>Positive − Violations + Recovery</div>
-            </div>
-        </div>
+        
     </div>
 
     {{-- ── KPI Compliance + Top Performers Row ───────────────────────────── --}}

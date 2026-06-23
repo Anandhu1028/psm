@@ -46,6 +46,60 @@ class ReportController extends Controller
                 )
                 ->groupBy('executive_id')
                 ->get();
+        } elseif ($type === 'monthly') {
+            // Fetch all executives with their current scores and monthly aggregates
+            $monthStr = $request->get('month', Carbon::now()->toDateString());
+            $month = Carbon::parse($monthStr);
+            $monthStart = $month->copy()->startOfMonth();
+            $monthEnd = $month->copy()->endOfMonth();
+            $prevMonthStart = $month->copy()->subMonth()->startOfMonth();
+            $prevMonthEnd = $month->copy()->subMonth()->endOfMonth();
+
+            $executives = Executive::with('zone', 'university')
+                ->when($universityId, fn($q) => $q->where('university_id', $universityId))
+                ->where('status', 'active')
+                ->get();
+
+            $monthlyData = $executives->map(function($exec) use($monthStart, $monthEnd, $prevMonthStart, $prevMonthEnd) {
+                // Current month metrics
+                $currentMonth = DailyLog::where('executive_id', $exec->id)
+                    ->whereBetween('date', [$monthStart, $monthEnd])
+                    ->get();
+
+                // Previous month metrics
+                $prevMonth = DailyLog::where('executive_id', $exec->id)
+                    ->whereBetween('date', [$prevMonthStart, $prevMonthEnd])
+                    ->get();
+
+                $currentScore = $currentMonth->sum('calculated_score');
+                $prevScore = $prevMonth->sum('calculated_score');
+                $scoreChange = $currentScore - $prevScore;
+
+                // Tier color mapping
+                $tierColors = [
+                    'gold' => '#f39c12',
+                    'platinum' => '#9b59b6',
+                    'silver' => '#95a5a6',
+                    'bronze' => '#d35400',
+                    'review_zone' => '#e74c3c'
+                ];
+
+                return (object) [
+                    'id' => $exec->id,
+                    'name' => $exec->name,
+                    'employee_id' => $exec->employee_id,
+                    'current_tier' => $exec->current_tier,
+                    'tierColor' => $tierColors[$exec->current_tier] ?? '#95a5a6',
+                    'current_score' => $exec->current_score,
+                    'prev_score' => $prevScore,
+                    'score_change' => $scoreChange,
+                    'conversion_target' => 10,
+                    'conversions' => $currentMonth->sum(function($log) { return $log->warm_lead_converted ? 1 : 0; }),
+                    'meetings_arranged' => $currentMonth->sum('meetings_arranged'),
+                    'meetings_attended' => $currentMonth->sum('meetings_attended'),
+                    'cro_notes' => 'Monitor performance trends'
+                ];
+            })->sortByDesc('current_score');
         } elseif ($type === 'zonal') {
             $data = Zone::withAvg(['executives as executives_avg_current_score' => function($q) use($universityId) {
                     if ($universityId) $q->where('university_id', $universityId);
@@ -75,7 +129,8 @@ class ReportController extends Controller
                 ->get();
         }
 
-        return view('reports.index', compact('data', 'type', 'universities', 'universityId'));
+        $monthlyData = $monthlyData ?? null;
+        return view('reports.index', compact('data', 'monthlyData', 'type', 'universities', 'universityId'));
     }
 
     public function export(Request $request)
@@ -142,6 +197,46 @@ class ReportController extends Controller
                         $row->arranged,
                         $row->attended,
                         $row->total_score
+                    ]);
+                }
+            } elseif ($type === 'monthly') {
+                fputcsv($file, ['Executive', 'Employee ID', 'Current Tier', '6M Active Score', 'Prev Month Score', 'Monthly Change', 'Conversion Target', 'Conversions', 'Meetings Arranged', 'Meetings Attended', 'CRO Notes']);
+                $monthStr = $request->get('month', Carbon::now()->toDateString());
+                $month = Carbon::parse($monthStr);
+                $monthStart = $month->copy()->startOfMonth();
+                $monthEnd = $month->copy()->endOfMonth();
+                $prevMonthStart = $month->copy()->subMonth()->startOfMonth();
+                $prevMonthEnd = $month->copy()->subMonth()->endOfMonth();
+
+                $executives = Executive::with('zone', 'university')
+                    ->when($universityId, fn($q) => $q->where('university_id', $universityId))
+                    ->where('status', 'active')
+                    ->orderByDesc('current_score')
+                    ->get();
+
+                foreach ($executives as $exec) {
+                    $currentMonth = DailyLog::where('executive_id', $exec->id)
+                        ->whereBetween('date', [$monthStart, $monthEnd])
+                        ->get();
+                    $prevMonth = DailyLog::where('executive_id', $exec->id)
+                        ->whereBetween('date', [$prevMonthStart, $prevMonthEnd])
+                        ->get();
+
+                    $prevScore = $prevMonth->sum('calculated_score');
+                    $scoreChange = $exec->current_score - $prevScore;
+
+                    fputcsv($file, [
+                        $exec->name,
+                        $exec->employee_id,
+                        str_replace('_', ' ', ucwords($exec->current_tier)),
+                        $exec->current_score,
+                        $prevScore,
+                        $scoreChange,
+                        10,
+                        $currentMonth->sum(function($log) { return $log->warm_lead_converted ? 1 : 0; }),
+                        $currentMonth->sum('meetings_arranged'),
+                        $currentMonth->sum('meetings_attended'),
+                        'Monitor performance trends'
                     ]);
                 }
             } elseif ($type === 'zonal') {

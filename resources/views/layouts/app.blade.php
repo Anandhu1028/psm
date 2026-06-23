@@ -11,7 +11,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'TIMS CRO PMS') - TIMS CRO Performance Management System</title>
+    <title>@yield('title', 'PMS') - Performance Management System</title>
 
     <!-- Fonts & Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -57,16 +57,16 @@
                             </div>
                         @endif
                         <div class="tims-brand-info ms-2">
-                            <span class="tims-brand-title text-truncate" style="max-width: 140px;" title="{{ $activeUniversity->name }}">{{ $activeUniversity->name }}</span>
-                            <span class="tims-brand-subtitle">{{ $activeUniversity->code }} CRM</span>
+                            <span class="tims-brand-title">POINT MANAGE</span>
+                            <span class="tims-brand-subtitle">Point Manage</span>
                         </div>
                     @else
                         <div class="tims-brand-logo-box">
                             <i class="fa-solid fa-wind"></i>
                         </div>
                         <div class="tims-brand-info ms-2">
-                            <span class="tims-brand-title">TIMS</span>
-                            <span class="tims-brand-subtitle">Tims CRM</span>
+                            <span class="tims-brand-title">POINT MANAGE</span>
+                            <span class="tims-brand-subtitle">Point Manage</span>
                         </div>
                     @endif
                 </div>
@@ -85,7 +85,7 @@
                         <a class="tims-nav-link {{ Route::is('admin.universities.*') ? 'active' : '' }}"
                            href="{{ route('admin.universities.index') }}">
                             <i class="fa-regular fa-building"></i>
-                            Company
+                            Academicy
                             <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
                         </a>
                     </li>
@@ -142,7 +142,7 @@
                         <a class="tims-nav-link {{ Route::is('reports.*') ? 'active' : '' }}"
                            href="{{ route('reports.index') }}">
                             <i class="fa-regular fa-file-lines"></i>
-                            Reports Center
+                            Reports 
                             <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
                         </a>
                     </li>
@@ -152,7 +152,7 @@
                         <a class="tims-nav-link {{ Route::is('admin.universities.*') ? 'active' : '' }}"
                            href="{{ route('admin.universities.index') }}">
                             <i class="fa-solid fa-graduation-cap"></i>
-                            University Master
+                            Academicy 
                             <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
                         </a>
                     </li>

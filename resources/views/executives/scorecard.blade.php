@@ -393,7 +393,7 @@ body {
     $tierLabel = str_replace('_', ' ', ucwords($tierSlug));
 @endphp
 
-<div style="max-width:1320px;margin:0 auto;">
+<div style="max-width:100%;margin:0 auto;">
 
     {{-- ══════════════════════════════════════════
          HERO CARD

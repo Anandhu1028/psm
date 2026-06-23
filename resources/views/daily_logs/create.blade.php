@@ -74,6 +74,10 @@
             outline: none;
         }
 
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, 0.55) !important;
+        }
+
         .input-group-text {
             background-color: var(--input-bg) !important;
             border: 1px solid var(--card-border) !important;
