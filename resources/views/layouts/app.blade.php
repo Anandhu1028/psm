@@ -1,254 +1,232 @@
-@php
-    $activeUniversity = null;
-    if (session()->has('active_university_id')) {
-        $activeUniversity = \App\Models\University::find(session('active_university_id'));
-    }
-    $allUniversities = \App\Models\University::all();
-@endphp
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>@yield('title', 'PMS') - Performance Management System</title>
+    <title>@yield('title', 'Dashboard') — CRO Performance Management</title>
+    <meta name="description" content="TIMS & FOCUZ CRO Performance Management System">
 
-    <!-- Fonts & Icons -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    {{-- Fonts --}}
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- App CSS -->
-    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
-    @yield('styles')
+    {{-- Bootstrap 5 --}}
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    @if($activeUniversity)
-    <style>
-        :root {
-            --primary: {{ $activeUniversity->theme_color }} !important;
-            --primary-glow: {{ $activeUniversity->theme_color }}33 !important;
-            --primary-soft: {{ $activeUniversity->theme_color }}0f !important;
-        }
-    </style>
-    @endif
+    {{-- Font Awesome 6 --}}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+    {{-- Select2 --}}
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.css">
+
+    {{-- Custom PMS Styles --}}
+    <link href="{{ asset('css/pms.css') }}" rel="stylesheet">
+
+    @stack('styles')
 </head>
-<body>
+<body class="pms-body">
 
-<div class="container-fluid">
-    <div class="row g-0">
-
-        <!-- ══════════════════════════════════════════════
-             GRADIENT SIDEBAR
-         ══════════════════════════════════════════════ -->
-        <nav class="col-md-3 col-lg-2 d-md-block tims-sidebar collapse px-0 py-0 d-flex flex-column">
-            <div class="tims-sidebar-inner">
-
-                <!-- Brand (Dynamic) -->
-                <div class="tims-brand-container">
-                    @if($activeUniversity)
-                        @if($activeUniversity->logo_url)
-                            <img src="{{ $activeUniversity->logo_url }}" 
-                                 alt="{{ $activeUniversity->name }}" 
-                                 class="rounded-circle border border-secondary border-opacity-25" 
-                                 style="width: 42px; height: 42px; object-fit: cover;">
-                        @else
-                            <div class="rounded-circle d-flex align-items-center justify-content-center fw-bold text-white shadow-sm" 
-                                 style="width: 42px; height: 42px; background: linear-gradient(135deg, {{ $activeUniversity->theme_color }}, #111827); border: 1px solid rgba(255,255,255,0.1); font-size: 1.2rem; flex-shrink:0;">
-                                {{ $activeUniversity->initials }}
-                            </div>
-                        @endif
-                        <div class="tims-brand-info ms-2">
-                            <span class="tims-brand-title">POINT MANAGE</span>
-                            <span class="tims-brand-subtitle">Point Manage</span>
-                        </div>
-                    @else
-                        <div class="tims-brand-logo-box">
-                            <i class="fa-solid fa-wind"></i>
-                        </div>
-                        <div class="tims-brand-info ms-2">
-                            <span class="tims-brand-title">POINT MANAGE</span>
-                            <span class="tims-brand-subtitle">Point Manage</span>
-                        </div>
-                    @endif
-                </div>
-
-                <!-- Navigation -->
-                <ul class="nav flex-column gap-2 flex-grow-1">
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('dashboard') || Route::is('home') ? 'active' : '' }}"
-                           href="{{ route('dashboard') }}">
-                            <i class="fa-solid fa-table-cells-large"></i>
-                            Dashboard
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('admin.universities.*') ? 'active' : '' }}"
-                           href="{{ route('admin.universities.index') }}">
-                            <i class="fa-regular fa-building"></i>
-                            Academicy
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-
-                    @can('manage_executives')
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('executives.*') ? 'active' : '' }}"
-                           href="{{ route('executives.index') }}">
-                            <i class="fa-regular fa-address-book"></i>
-                            Executives
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-                    @endcan
-
-                    @can('enter_daily_logs')
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('daily_logs.*') ? 'active' : '' }}"
-                           href="{{ route('daily_logs.index') }}">
-                            <i class="fa-regular fa-calendar-check"></i>
-                            Daily Performance
-                        </a>
-                    </li>
-                    @endcan
-
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('meetings.*') ? 'active' : '' }}"
-                           href="{{ route('meetings.index') }}">
-                            <i class="fa-regular fa-handshake"></i>
-                            Meeting Tracker
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('audits.*') ? 'active' : '' }}"
-                           href="{{ route('audits.index') }}">
-                            <i class="fa-regular fa-clipboard"></i>
-                            Weekly Audits
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('pips.*') ? 'active' : '' }}"
-                           href="{{ route('pips.index') }}">
-                            <i class="fa-regular fa-folder-open"></i>
-                            PIP Module
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-
-                    <hr class="tims-sidebar-divider">
-
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('reports.*') ? 'active' : '' }}"
-                           href="{{ route('reports.index') }}">
-                            <i class="fa-regular fa-file-lines"></i>
-                            Reports 
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-
-                    @can('configure_rules')
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('admin.universities.*') ? 'active' : '' }}"
-                           href="{{ route('admin.universities.index') }}">
-                            <i class="fa-solid fa-graduation-cap"></i>
-                            Academicy 
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="tims-nav-link {{ Route::is('admin.rules.*') ? 'active' : '' }}"
-                           href="{{ route('admin.rules.index') }}">
-                            <i class="fa-regular fa-compass"></i>
-                            Points Settings
-                            <i class="fa-solid fa-chevron-right tims-nav-chevron"></i>
-                        </a>
-                    </li>
-                    @endcan
-                </ul>
-
-                <!-- Profile card (Image 2 style) -->
-                <div class="sidebar-bottom">
-                    <div class="tims-profile-card">
-                        <div class="tims-profile-avatar">
-                            {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
-                        </div>
-                        <div class="tims-profile-info">
-                            <span class="tims-profile-name" title="{{ Auth::user()->name }}">{{ Auth::user()->name }}</span>
-                            <form action="{{ route('logout') }}" method="POST" id="logout-form" class="d-none">
-                                @csrf
-                            </form>
-                            <button type="button" class="tims-profile-logout-btn" onclick="document.getElementById('logout-form').submit();">
-                                Logout
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-        </nav>
-
-        <!-- ══════════════════════════════════════════════
-             MAIN CONTENT
-         ══════════════════════════════════════════════ -->
-        <main class="col-md-9 ms-sm-auto col-lg-10 min-vh-100 tims-main-content">
-
-            <!-- Top Bar -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <!-- Search & Switcher -->
-                <!-- <div class="d-none d-lg-flex align-items-center gap-3">
-                    <div class="tims-search-input-wrapper">
-                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                        <input type="text" class="form-control tims-search-input" placeholder="Search something...">
-                        <button class="btn btn-search-pill" type="button">Search</button>
-                    </div>
-
-                   
-                </div> -->
-                <div class="d-block d-lg-none"></div>
-
-              
-            </div>
-
-            <!-- Page Title Row -->
-            <div class="d-flex justify-content-between align-items-md-center align-items-start flex-column flex-md-row mb-5 gap-3">
-                <div>
-                    <h1 class="fw-bold m-0" style="font-size:26px;">@yield('page_title', 'Performance Dashboard')</h1>
-                    <small class="text-secondary mt-1 d-block">@yield('page_subtitle', "Here is today's report and performances")</small>
-                </div>
-                @yield('page_actions')
-            </div>
-
-            <!-- Flash Alerts -->
-            @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-circle-check"></i>
-                    {{ session('success') }}
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-
-            @if(session('error') || $errors->has('error'))
-            <div class="alert alert-danger alert-dismissible fade show border-0 shadow-sm rounded-3 mb-4" role="alert">
-                <div class="d-flex align-items-center gap-2">
-                    <i class="fa-solid fa-circle-exclamation"></i>
-                    {{ session('error') ?? $errors->first('error') }}
-                </div>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            @endif
-
-            <!-- Page content -->
-            @yield('content')
-
-        </main>
+{{-- Sidebar --}}
+<aside class="pms-sidebar" id="pmsSidebar">
+    <div class="pms-sidebar-brand">
+        <div class="brand-icon">
+            <i class="fa-solid fa-chart-line"></i>
+        </div>
+        <div class="brand-text">
+            <span class="brand-name">CRO PMS</span>
+            <span class="brand-sub">Performance Management</span>
+        </div>
     </div>
+
+    <nav class="pms-nav">
+        <div class="nav-section-label">Main</div>
+
+        <a href="{{ route('dashboard') }}" class="pms-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
+            <i class="fa-solid fa-gauge-high nav-icon"></i>
+            <span>Dashboard</span>
+        </a>
+
+        <!-- <a href="{{ route('daily_audit.create') }}" class="pms-nav-link {{ request()->routeIs('daily_audit.create') ? 'active' : '' }}">
+            <i class="fa-solid fa-circle-plus nav-icon"></i>
+            <span>Enter Daily Audit</span>
+        </a> -->
+
+        <a href="{{ route('daily_audit.index') }}" class="pms-nav-link {{ request()->routeIs('daily_audit.index') ? 'active' : '' }}">
+            <i class="fa-solid fa-clipboard-list nav-icon"></i>
+            <span>Daily Audit</span>
+        </a>
+
+        <div class="nav-section-label mt-3">Analytics</div>
+
+        <a href="{{ route('leaderboards.index') }}" class="pms-nav-link {{ request()->routeIs('leaderboards.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-trophy nav-icon"></i>
+            <span>Leaderboard</span>
+        </a>
+
+        <a href="{{ route('point_history.index') }}" class="pms-nav-link {{ request()->routeIs('point_history.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-coins nav-icon"></i>
+            <span>Point History</span>
+        </a>
+
+        <a href="{{ route('reports.index') }}" class="pms-nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-file-chart-column nav-icon"></i>
+            <span>Reports</span>
+        </a>
+
+        <div class="nav-section-label mt-3">Management</div>
+
+        <a href="{{ route('executives.index') }}" class="pms-nav-link {{ request()->routeIs('executives.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-users nav-icon"></i>
+            <span>Executives</span>
+        </a>
+
+        <a href="{{ route('zones.index') }}" class="pms-nav-link {{ request()->routeIs('zones.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-map-location-dot nav-icon"></i>
+            <span>Zones</span>
+        </a>
+
+        <a href="{{ route('companies.index') }}" class="pms-nav-link {{ request()->routeIs('companies.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-building nav-icon"></i>
+            <span>Companies</span>
+        </a>
+
+        @can('manage_users')
+        <a href="{{ route('users.index') }}" class="pms-nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-user-gear nav-icon"></i>
+            <span>Users</span>
+        </a>
+        @endcan
+    </nav>
+
+    <div class="pms-sidebar-footer">
+        <div class="user-card">
+            <div class="user-avatar">{{ strtoupper(substr(auth()->user()->name, 0, 2)) }}</div>
+            <div class="user-info">
+                <span class="user-name">{{ auth()->user()->name }}</span>
+                <span class="user-role">{{ auth()->user()->getRoleNames()->first() ?? 'User' }}</span>
+            </div>
+        </div>
+        <form action="{{ route('logout') }}" method="POST" class="mt-2">
+            @csrf
+            <button type="submit" class="btn-logout">
+                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+            </button>
+        </form>
+    </div>
+</aside>
+
+{{-- Main Content --}}
+<div class="pms-main" id="pmsMain">
+
+    {{-- Top Bar --}}
+    <header class="pms-topbar">
+        <div class="topbar-left">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            <nav aria-label="breadcrumb" class="topbar-breadcrumb">
+                @yield('breadcrumb')
+            </nav>
+        </div>
+        <div class="topbar-right">
+            <div class="topbar-date">
+                <i class="fa-regular fa-calendar-days me-1"></i>
+                <span>{{ now()->format('D, d M Y') }}</span>
+            </div>
+            <div class="topbar-divider"></div>
+            
+        </div>
+    </header>
+
+    {{-- Flash Messages --}}
+    <div class="pms-alerts-container">
+        @if(session('success'))
+            <div class="alert pms-alert pms-alert-success alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-check me-2"></i>
+                {{ session('success') }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        @if(session('error'))
+            <div class="alert pms-alert pms-alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-circle-exclamation me-2"></i>
+                {{ session('error') }}
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+        @if($errors->any())
+            <div class="alert pms-alert pms-alert-danger alert-dismissible fade show" role="alert">
+                <i class="fa-solid fa-triangle-exclamation me-2"></i>
+                <strong>Validation errors:</strong>
+                <ul class="mb-0 mt-1">
+                    @foreach($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="alert"></button>
+            </div>
+        @endif
+    </div>
+
+    {{-- Page Content --}}
+    <main class="pms-content">
+        @yield('content')
+    </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-@yield('scripts')
+{{-- Scripts --}}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/air-datepicker@3.6.0/air-datepicker.js"></script>
+
+<script>
+const CSRF = '{{ csrf_token() }}';
+
+// Sidebar toggle
+document.getElementById('sidebarToggle').addEventListener('click', function() {
+    document.getElementById('pmsSidebar').classList.toggle('collapsed');
+    document.getElementById('pmsMain').classList.toggle('expanded');
+});
+
+// Auto-dismiss alerts
+setTimeout(() => {
+    document.querySelectorAll('.pms-alert').forEach(el => {
+        const bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+        if (bsAlert) bsAlert.close();
+    });
+}, 5000);
+
+// Delete confirmations
+document.querySelectorAll('[data-confirm-delete]').forEach(function(btn) {
+    btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const form = document.getElementById(this.dataset.formId);
+        const name = this.dataset.confirmDelete;
+        Swal.fire({
+            title: 'Confirm Delete',
+            html: `Are you sure you want to delete <strong>${name}</strong>? This action cannot be undone.`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Delete',
+            cancelButtonText: 'Cancel',
+            confirmButtonColor: '#ef4444',
+            background: '#1e2130',
+            color: '#e2e8f0',
+        }).then(result => {
+            if (result.isConfirmed) form.submit();
+        });
+    });
+});
+</script>
+
+@stack('scripts')
 </body>
 </html>

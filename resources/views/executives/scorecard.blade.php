@@ -448,6 +448,10 @@ body {
                         {{ $executive->zone->name ?? 'N/A' }}
                     </span>
                     <span class="sc-chip">
+                        <i class="fa-regular fa-building"></i>
+                        {{ $executive->company->name ?? 'N/A' }}
+                    </span>
+                    <span class="sc-chip">
                         <i class="fa-solid fa-calendar-days"></i>
                         Joined {{ $executive->date_joined->format('d M Y') }}
                     </span>

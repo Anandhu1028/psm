@@ -1,395 +1,803 @@
 @extends('layouts.app')
-
-@section('title', 'Reports Center')
-@section('page_title', 'Reports & Analytics')
-@section('page_subtitle', 'Run performance reports and export analytics across CRO activity')
-
-@section('page_actions')
-<a href="{{ route('reports.export', array_merge(['type' => $type], request()->query())) }}" class="btn btn-success rounded-3 px-4">
-    <i class="fa-solid fa-file-csv me-2"></i>Export
-</a>
+@section('title', 'Reports')
+@section('breadcrumb')
+<ol class="breadcrumb"><li class="breadcrumb-item active">Reports</li></ol>
 @endsection
 
-@section('styles')
+@push('styles')
 <style>
-    .report-nav-btn {
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-size: 0.9rem;
-        font-weight: 500;
-        transition: all 0.2s ease;
-        border: 1px solid rgba(255,255,255,0.1);
-        background: rgba(255,255,255,0.05);
-        color: #aaa;
-        text-decoration: none !important;
-    }
-    .report-nav-btn:hover {
-        background: rgba(59, 123, 255, 0.15);
-        border-color: rgba(59, 123, 255, 0.3);
-        color: #3B7BFF;
-        text-decoration: none !important;
-    }
-    .report-nav-btn.active {
-        background: #3B7BFF;
-        color: white;
-        border-color: #3B7BFF;
-        text-decoration: none !important;
-    }
-    .report-filter-compact {
-        display: flex;
-        gap: 8px;
-        align-items: flex-end;
-        flex-wrap: wrap;
-    }
-    .report-filter-compact input,
-    .report-filter-compact select {
-        max-width: 140px !important;
-        font-size: 0.85rem !important;
-        padding: 6px 10px !important;
-    }
-    .report-filter-compact button {
-        padding: 6px 12px !important;
-        font-size: 0.85rem !important;
-    }
+/* ── Page Header ── */
+.rp-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 36px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.rp-page-title {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: #0d0f1c;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin: 0 0 5px;
+}
+.rp-page-sub {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    font-weight: 450;
+}
+.rp-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+/* Export Buttons */
+.btn-rp-pdf {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 20px;
+    background: #fff1f2;
+    border: 1.5px solid #fecdd3;
+    border-radius: 12px;
+    color: #e11d48;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+.btn-rp-pdf:hover {
+    background: #e11d48;
+    color: #fff;
+    border-color: #e11d48;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(225,29,72,0.3);
+    text-decoration: none;
+}
+.btn-rp-csv {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 42px;
+    padding: 0 20px;
+    background: #3234b0;
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-size: 0.84rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+    white-space: nowrap;
+}
+.btn-rp-csv:hover {
+    background: #4f46e5;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(99,102,241,0.45);
+    text-decoration: none;
+}
+
+/* ── Layout ── */
+.rp-layout {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+@media (max-width: 1024px) {
+    .rp-layout { grid-template-columns: 1fr; }
+}
+
+/* ── Type Sidebar ── */
+.rp-type-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.055), 0 1px 4px rgba(0,0,0,0.03);
+    border: 1px solid rgba(226,232,240,0.6);
+    overflow: hidden;
+}
+.rp-type-card-head {
+    padding: 18px 20px 14px;
+    border-bottom: 1px solid #f0f2fa;
+    background: #fafbff;
+}
+.rp-type-card-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #b0b8d1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.rp-type-list { padding: 12px; }
+.rp-type-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    margin-bottom: 4px;
+    text-decoration: none;
+    transition: all 0.18s ease;
+    border: 1.5px solid transparent;
+}
+.rp-type-item:last-child { margin-bottom: 0; }
+.rp-type-item:hover {
+    background: #fafaff;
+    border-color: #e0e7ff;
+    text-decoration: none;
+}
+.rp-type-item.active {
+    background: #f5f3ff;
+    border-color: #6366f1;
+}
+.rp-type-icon {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem;
+    flex-shrink: 0;
+    border: 1px solid #edf0f7;
+    background: #f8f9fc;
+    transition: all 0.18s;
+}
+.rp-type-item.active .rp-type-icon {
+    background: #6366f1;
+    border-color: #6366f1;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.rp-type-label {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #4a5568;
+    transition: color 0.15s;
+    flex: 1;
+    line-height: 1.2;
+}
+.rp-type-item.active .rp-type-label { color: #4f46e5; font-weight: 700; }
+.rp-type-arrow {
+    font-size: 0.65rem;
+    color: #c4b5fd;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+.rp-type-item.active .rp-type-arrow { opacity: 1; }
+.rp-type-item:hover .rp-type-arrow  { opacity: 0.5; }
+
+/* ── Right Panel ── */
+.rp-right-panel { display: flex; flex-direction: column; gap: 16px; }
+
+/* Filter Bar Card */
+.rp-filter-card {
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.05), 0 1px 4px rgba(0,0,0,0.03);
+    border: 1px solid rgba(226,232,240,0.6);
+    padding: 22px 24px;
+}
+.rp-filter-card-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 18px;
+}
+.rp-filter-card-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #b0b8d1;
+}
+.rp-filter-card .form-select,
+.rp-filter-card .form-control {
+    height: 40px;
+    border-radius: 10px !important;
+    font-size: 0.82rem !important;
+    border: 1.5px solid #edf0f7 !important;
+    background: #fafbff !important;
+    color: #2d3748 !important;
+    box-shadow: none !important;
+    transition: all 0.2s;
+}
+.rp-filter-card .form-select:focus,
+.rp-filter-card .form-control:focus {
+    border-color: #6366f1 !important;
+    background: #fff !important;
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.08) !important;
+}
+.rp-filter-card .form-label {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    margin-bottom: 6px;
+}
+.btn-rp-generate {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    height: 40px;
+    padding: 0 20px;
+    width: 100%;
+    background: #6366f1;
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+}
+.btn-rp-generate:hover {
+    background: #4f46e5;
+    box-shadow: 0 6px 18px rgba(99,102,241,0.4);
+    transform: translateY(-1px);
+}
+
+/* ── Table Card ── */
+.rp-table-card {
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 2px 24px rgba(0,0,0,0.055), 0 1px 4px rgba(0,0,0,0.03);
+    overflow: hidden;
+    border: 1px solid rgba(226,232,240,0.6);
+}
+.rp-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 26px;
+    border-bottom: 1px solid #f1f5f9;
+    gap: 14px;
+    flex-wrap: wrap;
+}
+.rp-toolbar-left { display: flex; align-items: center; gap: 12px; }
+.rp-toolbar-title {
+    font-size: 0.92rem;
+    font-weight: 800;
+    color: #0d0f1c;
+    letter-spacing: -0.02em;
+}
+.rp-toolbar-count {
+    display: inline-flex;
+    align-items: center;
+    height: 24px;
+    padding: 0 10px;
+    background: #f5f3ff;
+    border: 1px solid #e0e7ff;
+    border-radius: 100px;
+    font-size: 0.7rem;
+    font-weight: 800;
+    color: #4f46e5;
+}
+.rp-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: #f8f9fc;
+    border: 1.5px solid #edf0f7;
+    border-radius: 10px;
+    padding: 0 14px;
+    height: 36px;
+    min-width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.rp-search-wrap:focus-within {
+    border-color: #6366f1;
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(99,102,241,0.08);
+}
+.rp-search-wrap i { color: #c4b5fd; font-size: 0.8rem; }
+.rp-search-input {
+    border: none; outline: none; background: transparent;
+    font-size: 0.81rem; color: #334155; width: 100%; font-family: inherit;
+}
+.rp-search-input::placeholder { color: #c4b5fd; }
+
+/* Table */
+.rp-table-scroll { overflow-x: auto; }
+.rp-tbl {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.83rem;
+}
+.rp-tbl thead tr {
+    background: #fafbff;
+    border-bottom: 1px solid #f0f2fa;
+}
+.rp-tbl thead th {
+    padding: 12px 16px;
+    font-size: 0.65rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: #b0b8d1;
+    white-space: nowrap;
+    user-select: none;
+}
+.rp-tbl thead th:first-child { padding-left: 26px; }
+.rp-tbl thead th:last-child  { padding-right: 26px; }
+.rp-tbl tbody tr {
+    border-bottom: 1px solid #f7f8fc;
+    transition: background 0.15s ease;
+}
+.rp-tbl tbody tr:last-child { border-bottom: none; }
+.rp-tbl tbody tr:hover { background: #fafaff; }
+.rp-tbl tbody td {
+    padding: 14px 16px;
+    vertical-align: middle;
+    color: #374151;
+}
+.rp-tbl tbody td:first-child { padding-left: 26px; }
+.rp-tbl tbody td:last-child  { padding-right: 26px; }
+
+/* Shared row elements */
+.rp-exec { display: flex; align-items: center; gap: 10px; }
+.rp-avatar {
+    width: 34px; height: 34px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00039f, #a5b4fc);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.66rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(99,102,241,0.22);
+}
+.rp-exec-name {
+    font-size: 0.83rem;
+    font-weight: 700;
+    color: #1e1f2e;
+    text-decoration: none;
+    display: block;
+    transition: color 0.15s;
+}
+.rp-exec-name:hover { color: #4f46e5; text-decoration: none; }
+.rp-exec-id {
+    font-size: 0.63rem;
+    color: #b0b8d1;
+    font-weight: 500;
+    font-family: 'SF Mono', 'Consolas', monospace;
+}
+.rp-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #4a5568;
+    white-space: nowrap;
+}
+.rp-date i { color: #c4b5fd; }
+.rp-company { font-size: 0.82rem; font-weight: 600; color: #2d3748; }
+.rp-zone {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.64rem;
+    color: #94a3b8;
+    font-weight: 500;
+    margin-top: 2px;
+}
+.rp-num {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 28px;
+    padding: 0 9px;
+    background: #f8f9fc;
+    border-radius: 8px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #374151;
+    border: 1px solid #edf0f7;
+}
+.rp-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    min-width: 52px;
+    height: 28px;
+    padding: 0 11px;
+    border-radius: 8px;
+    font-size: 0.76rem;
+    font-weight: 800;
+    white-space: nowrap;
+}
+.rp-chip i { font-size: 0.58rem; }
+.rp-chip-pos     { background: #ecfdf5; color: #059669; border: 1.5px solid #a7f3d0; }
+.rp-chip-neg     { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; }
+.rp-chip-net-p   { background: #ecfdf5; color: #047857; border: 1.5px solid #6ee7b7; min-width: 60px; }
+.rp-chip-net-n   { background: #fff1f2; color: #be123c; border: 1.5px solid #fecdd3; min-width: 60px; }
+.rp-chip-pass    { background: #d1fae5; color: #065f46; }
+.rp-chip-fail    { background: #fee2e2; color: #9f1239; }
+.rp-chip-neutral { background: #f1f5f9; color: #64748b; border: 1.5px solid #e2e8f0; }
+.rp-chip-warn    { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; }
+.rp-score {
+    font-size: 0.9rem;
+    font-weight: 900;
+    color: #3730a3;
+    letter-spacing: -0.02em;
+}
+.rp-score-muted {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #64748b;
+}
+
+/* Tier badges */
+.rp-tier-gold     { background: #fffbeb; color: #b45309; border: 1.5px solid #fde68a; }
+.rp-tier-silver   { background: #f8fafc; color: #475569; border: 1.5px solid #cbd5e1; }
+.rp-tier-bronze   { background: #fff7ed; color: #c2410c; border: 1.5px solid #fed7aa; }
+.rp-tier-standard { background: #f5f3ff; color: #5b21b6; border: 1.5px solid #ddd6fe; }
+
+/* Empty State */
+.rp-empty { text-align: center; padding: 70px 24px; }
+.rp-empty-blob {
+    width: 68px; height: 68px;
+    margin: 0 auto 16px;
+    background: #eef2ff;
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.7rem;
+    color: #c4b5fd;
+}
+.rp-empty-h { font-size: 0.95rem; font-weight: 800; color: #1e1f2e; margin-bottom: 6px; }
+.rp-empty-p { font-size: 0.8rem; color: #94a3b8; }
 </style>
-@endsection
+@endpush
 
 @section('content')
 
-{{-- Report Navigation Header --}}
-<div style=" padding: 16px; margin-bottom: 24px; backdrop-filter: blur(16px); background: #0f1322;">
-    <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-        @foreach(['daily'=>'Daily Report','weekly'=>'Weekly Summary','monthly'=>'Monthly Summary','zonal'=>'Zone Comparison','tier'=>'Tier Distribution','violation'=>'Violation Report','pip'=>'PIP Report'] as $key => $label)
-        <a href="{{ route('reports.index', ['type' => $key]) }}" class="report-nav-btn {{ $type === $key ? 'active' : '' }}">
-            {{ $label }}
+@php
+    $reportTypes = [
+        ['key'=>'daily',     'label'=>'Daily Audit Report',    'icon'=>'fa-calendar-day',         'color'=>'#6366f1'],
+        ['key'=>'executive', 'label'=>'Executive Summary',     'icon'=>'fa-user-tie',             'color'=>'#06b6d4'],
+        ['key'=>'zone',      'label'=>'Zone Performance',      'icon'=>'fa-map-location-dot',     'color'=>'#10b981'],
+        ['key'=>'violation', 'label'=>'Violations Report',     'icon'=>'fa-triangle-exclamation', 'color'=>'#f43f5e'],
+        ['key'=>'recovery',  'label'=>'Recovery Points',       'icon'=>'fa-rotate-right',         'color'=>'#f59e0b'],
+        ['key'=>'monthly',   'label'=>'Monthly Score History', 'icon'=>'fa-chart-bar',            'color'=>'#8b5cf6'],
+    ];
+    $currentType = $type ?? 'daily';
+    $rowCount    = is_array($data) ? count($data) : (is_object($data) ? $data->count() : 0);
+@endphp
+
+<div>
+
+{{-- ══ PAGE HEADER ══════════════════════════════════════════════ --}}
+<div class="rp-header">
+    <div>
+        <h1 class="rp-page-title">Reports</h1>
+        <p class="rp-page-sub">Generate and export performance reports</p>
+    </div>
+    <div class="rp-header-actions">
+        <a href="{{ route('reports.export', array_merge(request()->all(), ['format'=>'pdf'])) }}" class="btn-rp-pdf">
+            <i class="fa-solid fa-file-pdf"></i> Export PDF
         </a>
-        @endforeach
+        <a href="{{ route('reports.export', array_merge(request()->all(), ['format'=>'csv'])) }}" class="btn-rp-csv">
+            <i class="fa-solid fa-file-csv"></i> Export CSV
+        </a>
     </div>
 </div>
 
-{{-- Report Data Table --}}
-<div style="    background: linear-gradient(135deg, rgb(15 19 34) 0%, rgb(15 19 34) 100%), rgba(255,255,255,0.012) 100%); border: 1px solid rgba(255,255,255,0.07); border-radius: 16px; padding: 24px; backdrop-filter: blur(16px);">
-    
-    {{-- Filter Bar (Top Right, Compact) --}}
-    @if(in_array($type, ['daily','weekly','monthly']))
-    <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; gap: 16px;">
-        <h6 style="font-weight: 700; margin: 0; color: #F0F4FF;">
-            {{ ['daily'=>'Daily Performance Report','weekly'=>'Weekly Summary Report','monthly'=>'Monthly Executive Report','zonal'=>'Zone Comparison Report','tier'=>'Tier Distribution','violation'=>'Violation Report','pip'=>'PIP Status Report'][$type] ?? 'Report' }}
-        </h6>
-        <form method="GET" action="{{ route('reports.index') }}" class="report-filter-compact">
-            <input type="hidden" name="type" value="{{ $type }}">
-            @if($type === 'daily')
-            <div>
-                <input type="date" name="date" class="form-control" value="{{ request('date', date('Y-m-d')) }}">
-            </div>
-            @elseif($type === 'weekly')
-            <div>
-                <input type="date" name="start_date" class="form-control" value="{{ request('start_date', now()->subDays(7)->toDateString()) }}">
-            </div>
-            <div>
-                <input type="date" name="end_date" class="form-control" value="{{ request('end_date', now()->toDateString()) }}">
-            </div>
-            @elseif($type === 'monthly')
-            <div>
-                <input type="month" name="month" class="form-control" value="{{ request('month', now()->toDateString()) }}">
-            </div>
-            @endif
-            <button type="submit" class="btn btn-primary rounded-2" style="padding: 6px 14px; font-size: 0.85rem;">
-                <i class="fa-solid fa-filter me-1"></i>Apply
-            </button>
-        </form>
-    </div>
-    @else
-    <h6 style="font-weight: 700; margin-bottom: 20px; color: #F0F4FF;">
-        {{ ['daily'=>'Daily Performance Report','weekly'=>'Weekly Summary Report','monthly'=>'Monthly Executive Report','zonal'=>'Zone Comparison Report','tier'=>'Tier Distribution','violation'=>'Violation Report','pip'=>'PIP Status Report'][$type] ?? 'Report' }}
-    </h6>
-    @endif
-    
-    <div class="table-responsive">
-        @if($type === 'daily')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Executive</th>
-                    <th style="padding: 12px; border: none;">Emp ID</th>
-                    <th style="padding: 12px; border: none;">Calls</th>
-                    <th style="padding: 12px; border: none;">Arranged</th>
-                    <th style="padding: 12px; border: none;">Attended</th>
-                    <th style="padding: 12px; border: none;">KPIs</th>
-                    <th style="padding: 12px; border: none;">Daily Score</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($data as $log)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px; font-weight: 600;">{{ $log->executive->name ?? '—' }}</td>
-                    <td style="padding: 12px; color: #aaa; font-family: monospace; font-size: 0.85rem;">{{ $log->executive->employee_id ?? '—' }}</td>
-                    <td style="padding: 12px;"><span style="color: {{ $log->connected_calls >= 65 ? '#10B981' : ($log->connected_calls >= 40 ? '#F59E0B' : '#F43F5E') }}; font-weight: 600;">{{ $log->connected_calls }}</span></td>
-                    <td style="padding: 12px;">{{ $log->meetings_arranged }}</td>
-                    <td style="padding: 12px;">{{ $log->meetings_attended }}</td>
-                    <td style="padding: 12px;">
-                        <div style="display: flex; gap: 6px;">
-                            <i class="fa-solid fa-clock" style="color: {{ $log->first_contact_within_45_min ? '#10B981' : 'rgba(255,255,255,0.2)' }};"></i>
-                            <i class="fa-solid fa-phone" style="color: {{ $log->all_leads_followed_up ? '#10B981' : 'rgba(255,255,255,0.2)' }};"></i>
-                            <i class="fa-solid fa-database" style="color: {{ $log->crm_disposition_correct ? '#10B981' : 'rgba(255,255,255,0.2)' }};"></i>
-                            <i class="fa-solid fa-fire" style="color: {{ $log->warm_lead_converted ? '#10B981' : 'rgba(255,255,255,0.2)' }};"></i>
-                        </div>
-                    </td>
-                    <td style="padding: 12px; font-weight: 600; color: {{ $log->calculated_score >= 0 ? '#10B981' : '#F43F5E' }};">{{ $log->calculated_score >= 0 ? '+' : '' }}{{ $log->calculated_score }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="7" style="padding: 24px; text-align: center; color: #aaa;">No logs found for the selected date.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
+{{-- ══ MAIN LAYOUT ══════════════════════════════════════════════ --}}
+<div class="rp-layout">
 
-        @elseif($type === 'weekly')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Executive</th>
-                    <th style="padding: 12px; border: none;">Total Calls</th>
-                    <th style="padding: 12px; border: none;">Meetings Arr.</th>
-                    <th style="padding: 12px; border: none;">Meetings Att.</th>
-                    <th style="padding: 12px; border: none;">Total Points</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($data as $row)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px; font-weight: 600;">{{ $row->executive->name ?? '—' }}</td>
-                    <td style="padding: 12px; font-weight: 600;">{{ $row->calls }}</td>
-                    <td style="padding: 12px;">{{ $row->arranged }}</td>
-                    <td style="padding: 12px;">{{ $row->attended }}</td>
-                    <td style="padding: 12px; font-weight: 600; color: {{ $row->total_score >= 0 ? '#10B981' : '#F43F5E' }};">{{ $row->total_score >= 0 ? '+' : '' }}{{ $row->total_score }}</td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="padding: 24px; text-align: center; color: #aaa;">No data for selected range.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        @elseif($type === 'monthly')
-        <div style="overflow-x: auto;">
-        <table class="table table-sm align-middle" style="border-collapse: collapse; min-width: 1200px; color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; text-align: left; border: none;">Executive</th>
-                    <th style="padding: 12px; border: none; background: rgba(124,58,237,0.1);">Current Tier</th>
-                    <th style="padding: 12px; border: none;">6M Score</th>
-                    <th style="padding: 12px; border: none;">Prev Month</th>
-                    <th style="padding: 12px; border: none; background: rgba(124,58,237,0.1);">Change</th>
-                    <th style="padding: 12px; border: none;">Conv. Target</th>
-                    <th style="padding: 12px; border: none;">Conversions</th>
-                    <th style="padding: 12px; border: none;">Meetings Arr.</th>
-                    <th style="padding: 12px; border: none;">Meetings Att.</th>
-                    <th style="padding: 12px; border: none; text-align: left;">CRO Notes</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($monthlyData ?? collect() as $exec)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px; text-align: left; font-weight: 600;">{{ $exec->name }}</td>
-                    <td style="padding: 12px; text-align: center; font-weight: 700; color: #fff; background: {{ $exec->tierColor ?? '#95a5a6' }}; border-radius: 4px;">
-                        {{ strtoupper(str_replace('_',' ', $exec->current_tier)) }}
-                    </td>
-                    <td style="padding: 12px; text-align: center; font-weight: 600;">{{ $exec->current_score ?? 0 }}</td>
-                    <td style="padding: 12px; text-align: center;">{{ $exec->prev_score ?? 0 }}</td>
-                    <td style="padding: 12px; text-align: center; font-weight: 600; color: {{ ($exec->score_change ?? 0) >= 0 ? '#10B981' : '#F43F5E' }};">
-                        {{ ($exec->score_change ?? 0) >= 0 ? '+' : '' }}{{ $exec->score_change ?? 0 }}
-                    </td>
-                    <td style="padding: 12px; text-align: center;">{{ $exec->conversion_target ?? 10 }}</td>
-                    <td style="padding: 12px; text-align: center; font-weight: 600;">{{ $exec->conversions ?? 0 }}</td>
-                    <td style="padding: 12px; text-align: center;">{{ $exec->meetings_arranged ?? 0 }}</td>
-                    <td style="padding: 12px; text-align: center;">{{ $exec->meetings_attended ?? 0 }}</td>
-                    <td style="padding: 12px; text-align: left; font-size: 0.85rem; color: #aaa;">
-                        {{ $exec->cro_notes ?? '—' }}
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="10" style="padding: 24px; text-align: center; color: #aaa;">No monthly data available. Please select a valid month.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-        </div>
-
-        {{-- Summary Metrics (Monthly) --}}
-        @if(($monthlyData ?? collect())->count() > 0)
-        <div style="margin-top: 28px; padding-top: 24px; border-top: 1px solid rgba(255,255,255,0.07);">
-            <h6 style="font-weight: 700; margin-bottom: 16px; color: #F0F4FF; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">SUMMARY METRICS</h6>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px;">
-                <div style="background: rgba(59,123,255,0.1); border: 1px solid rgba(59,123,255,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #3B7BFF;">{{ $monthlyData->count() }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">Total Executives</small>
-                </div>
-                <div style="background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #F43F5E;">{{ $monthlyData->where('current_tier', 'review_zone')->count() }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">In Review Zone</small>
-                </div>
-                <div style="background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #F59E0B;">{{ $monthlyData->whereIn('current_tier', ['gold', 'platinum'])->count() }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">Gold/Platinum</small>
-                </div>
-                <div style="background: rgba(59,123,255,0.1); border: 1px solid rgba(59,123,255,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #3B7BFF;">{{ round($monthlyData->avg('current_score'), 0) }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">Avg 6M Score</small>
-                </div>
-                <div style="background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #10B981;">{{ $monthlyData->max('current_score') }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">Highest</small>
-                </div>
-                <div style="background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.2); border-radius: 8px; padding: 16px; text-align: center;">
-                    <div style="font-weight: 700; font-size: 24px; color: #F43F5E;">{{ $monthlyData->min('current_score') }}</div>
-                    <small style="color: #aaa; font-size: 0.75rem; text-transform: uppercase;">Lowest</small>
-                </div>
+    {{-- ── Type Sidebar ── --}}
+    <div class="rp-type-card">
+        <div class="rp-type-card-head">
+            <div class="rp-type-card-title">
+                <i class="fa-solid fa-list-check"></i> Report Type
             </div>
         </div>
-        @endif
-
-        @elseif($type === 'zonal')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Zone</th>
-                    <th style="padding: 12px; border: none;">Code</th>
-                    <th style="padding: 12px; border: none;">Executives</th>
-                    <th style="padding: 12px; border: none;">Average Score</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($data as $zone)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px; font-weight: 600;">{{ $zone->name }}</td>
-                    <td style="padding: 12px; color: #aaa; font-family: monospace; font-size: 0.85rem;">{{ $zone->code }}</td>
-                    <td style="padding: 12px;">{{ $zone->executives_count }}</td>
-                    <td style="padding: 12px;">
-                        <div style="display: inline-flex; align-items: center; gap: 8px;">
-                            <div style="background: linear-gradient(90deg, #3B7BFF 0%, rgba(59,123,255,0.2) 100%); height: 6px; width: 120px; border-radius: 3px; display: inline-block; vertical-align: middle;"></div>
-                            <span style="font-weight: 600;">{{ round($zone->executives_avg_current_score, 1) }}</span>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="4" style="padding: 24px; text-align: center; color: #aaa;">No zone data found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        @elseif($type === 'tier')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Tier</th>
-                    <th style="padding: 12px; border: none;">Executive Count</th>
-                    <th style="padding: 12px; border: none;">Percentage</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @php $total = $data->sum('count'); @endphp
-                @forelse($data as $row)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px;">
-                        <span style="padding: 4px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; background: 
-                            {{ $row->current_tier === 'platinum' ? 'rgba(155,89,182,0.2)' : 
-                               ($row->current_tier === 'gold' ? 'rgba(245,158,11,0.2)' : 
-                               ($row->current_tier === 'silver' ? 'rgba(149,165,166,0.2)' : 
-                               ($row->current_tier === 'bronze' ? 'rgba(211,84,0,0.2)' : 'rgba(244,63,94,0.2)')))}}; 
-                            color: 
-                            {{ $row->current_tier === 'platinum' ? '#9b59b6' : 
-                               ($row->current_tier === 'gold' ? '#F59E0B' : 
-                               ($row->current_tier === 'silver' ? '#95a5a6' : 
-                               ($row->current_tier === 'bronze' ? '#d35400' : '#F43F5E')))}};">
-                            {{ str_replace('_',' ',ucwords($row->current_tier)) }}
-                        </span>
-                    </td>
-                    <td style="padding: 12px; font-weight: 600; font-size: 1.1rem;">{{ $row->count }}</td>
-                    <td style="padding: 12px;">
-                        @php $pct = $total > 0 ? round(($row->count / $total)*100,1) : 0; @endphp
-                        <div style="display: inline-flex; align-items: center; gap: 8px;">
-                            <div style="background: linear-gradient(90deg, #3B7BFF 0%, rgba(59,123,255,0.2) 100%); height: 6px; width: 120px; border-radius: 3px; display: inline-block; vertical-align: middle;"></div>
-                            <span style="font-weight: 600;">{{ $pct }}%</span>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="3" style="padding: 24px; text-align: center; color: #aaa;">No tier data available.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        @elseif($type === 'violation')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Date</th>
-                    <th style="padding: 12px; border: none;">Executive</th>
-                    <th style="padding: 12px; border: none;">Type</th>
-                    <th style="padding: 12px; border: none;">Points Deducted</th>
-                    <th style="padding: 12px; border: none;">Status</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($data as $v)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px;">{{ $v->date_committed->toDateString() }}</td>
-                    <td style="padding: 12px; font-weight: 600;">{{ $v->executive->name }} <small style="color: #aaa;">({{ $v->executive->employee_id }})</small></td>
-                    <td style="padding: 12px;"><span style="padding: 4px 8px; border-radius: 4px; background: rgba(244,63,94,0.2); color: #F43F5E; font-size: 0.85rem; font-weight: 600;">{{ str_replace('_',' ',$v->violation_type) }}</span></td>
-                    <td style="padding: 12px; color: #F43F5E; font-weight: 600;">-{{ $v->points_deducted }} pts</td>
-                    <td style="padding: 12px;"><span style="padding: 4px 8px; border-radius: 4px; background: {{ $v->status === 'active' ? 'rgba(244,63,94,0.2)' : 'rgba(127,127,127,0.2)' }}; color: {{ $v->status === 'active' ? '#F43F5E' : '#aaa' }}; font-size: 0.85rem; font-weight: 600;">{{ $v->status }}</span></td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="padding: 24px; text-align: center; color: #aaa;">No violations recorded.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        @elseif($type === 'pip')
-        <table class="table table-hover align-middle" style="color: #F0F4FF;">
-            <thead style="background: rgba(59,123,255,0.1); border-bottom: 1px solid rgba(255,255,255,0.1);">
-                <tr style="font-size: 0.75rem; text-transform: uppercase; color: #aaa; font-weight: 600; letter-spacing: 0.5px;">
-                    <th style="padding: 12px; border: none;">Executive</th>
-                    <th style="padding: 12px; border: none;">Start</th>
-                    <th style="padding: 12px; border: none;">End</th>
-                    <th style="padding: 12px; border: none;">Target</th>
-                    <th style="padding: 12px; border: none;">Current Score</th>
-                    <th style="padding: 12px; border: none;">Status</th>
-                </tr>
-            </thead>
-            <tbody style="border-top: 1px solid rgba(255,255,255,0.07);">
-                @forelse($data as $pip)
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease;">
-                    <td style="padding: 12px; font-weight: 600;">{{ $pip->executive->name }}</td>
-                    <td style="padding: 12px;">{{ $pip->start_date->toDateString() }}</td>
-                    <td style="padding: 12px;">{{ $pip->end_date->toDateString() }}</td>
-                    <td style="padding: 12px; font-weight: 600; color: #3B7BFF;">{{ $pip->target_score }} pts</td>
-                    <td style="padding: 12px; font-weight: 600; color: {{ $pip->executive->current_score >= 0 ? '#10B981' : '#F43F5E' }};">{{ $pip->executive->current_score }}</td>
-                    <td style="padding: 12px;"><span style="padding: 4px 8px; border-radius: 4px; background: 
-                        {{ $pip->status === 'active' ? 'rgba(245,158,11,0.2)' : 
-                           ($pip->status === 'completed' ? 'rgba(16,185,129,0.2)' : 'rgba(244,63,94,0.2)')}}; 
-                        color: {{ $pip->status === 'active' ? '#F59E0B' : 
-                           ($pip->status === 'completed' ? '#10B981' : '#F43F5E')}}; 
-                        font-size: 0.85rem; font-weight: 600;">{{ $pip->status }}</span></td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="6" style="padding: 24px; text-align: center; color: #aaa;">No PIP records found.</td>
-                </tr>
-                @endforelse
-            </tbody>
-        </table>
-        @endif
+        <div class="rp-type-list">
+            @foreach($reportTypes as $t)
+            <a href="{{ route('reports.index', array_merge(request()->all(), ['type'=>$t['key']])) }}"
+               class="rp-type-item {{ $currentType === $t['key'] ? 'active' : '' }}">
+                <div class="rp-type-icon" style="color:{{ $t['color'] }};">
+                    <i class="fa-solid {{ $t['icon'] }}"></i>
+                </div>
+                <span class="rp-type-label">{{ $t['label'] }}</span>
+                <i class="fa-solid fa-chevron-right rp-type-arrow"></i>
+            </a>
+            @endforeach
+        </div>
     </div>
+
+    {{-- ── Right Panel ── --}}
+    <div class="rp-right-panel">
+
+        {{-- Filter Card --}}
+        <div class="rp-filter-card">
+            <div class="rp-filter-card-head">
+                <i class="fa-solid fa-sliders-h" style="color:#c4b5fd;font-size:.8rem;"></i>
+                <span class="rp-filter-card-title">Filter & Generate</span>
+            </div>
+            <form method="GET" action="{{ route('reports.index') }}">
+                <input type="hidden" name="type" value="{{ $currentType }}">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-3">
+                        <label class="form-label">Company</label>
+                        <select name="company_id" class="form-select">
+                            <option value="">All Companies</option>
+                            @foreach($companies as $c)
+                            <option value="{{ $c->id }}" {{ request('company_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">Zone</label>
+                        <select name="zone_id" class="form-select">
+                            <option value="">All Zones</option>
+                            @foreach($zones as $z)
+                            <option value="{{ $z->id }}" {{ request('zone_id') == $z->id ? 'selected' : '' }}>{{ $z->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">From Date</label>
+                        <input type="date" name="date_from" class="form-control" value="{{ $dateFrom ?? '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <label class="form-label">To Date</label>
+                        <input type="date" name="date_to" class="form-control" value="{{ $dateTo ?? '' }}">
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn-rp-generate">
+                            <i class="fa-solid fa-filter"></i> Generate
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        {{-- Table Card --}}
+        <div class="rp-table-card">
+            <div class="rp-toolbar">
+                <div class="rp-toolbar-left">
+                    <span class="rp-toolbar-title">
+                        {{ collect($reportTypes)->firstWhere('key', $currentType)['label'] ?? 'Report' }}
+                    </span>
+                    <span class="rp-toolbar-count">{{ $rowCount }} records</span>
+                </div>
+                <div class="rp-search-wrap">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <input class="rp-search-input" id="rpQuickSearch" type="text" placeholder="Search results…">
+                </div>
+            </div>
+
+            <div class="rp-table-scroll">
+
+                @if(empty($data) || $rowCount === 0)
+                <div class="rp-empty">
+                    <div class="rp-empty-blob"><i class="fa-solid fa-file-chart-column"></i></div>
+                    <div class="rp-empty-h">No data found</div>
+                    <p class="rp-empty-p">Adjust the filters above and click Generate to view results.</p>
+                </div>
+
+                @elseif($currentType === 'daily')
+                <table class="rp-tbl" id="rpTable">
+                    <thead><tr>
+                        <th>Date</th><th>Executive</th><th>Company</th>
+                        <th style="text-align:center;">Calls</th>
+                        <th style="text-align:center;">Meetings</th>
+                        <th style="text-align:center;">Positive</th>
+                        <th style="text-align:center;">Negative</th>
+                        <th style="text-align:center;">Net</th>
+                        <th style="text-align:center;">KPI</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($data as $row)
+                        <tr>
+                            <td><span class="rp-date"><i class="fa-regular fa-calendar"></i>{{ \Carbon\Carbon::parse($row['audit_date'])->format('d M Y') }}</span></td>
+                            <td style="font-weight:700;font-size:.83rem;">{{ $row['executive']['name'] ?? '—' }}</td>
+                            <td><div class="rp-company">{{ $row['executive']['company']['name'] ?? '—' }}</div></td>
+                            <td style="text-align:center;"><span class="rp-num">{{ $row['connected_calls'] }}</span></td>
+                            <td style="text-align:center;"><span class="rp-num">{{ $row['confirmed_meetings'] }}</span></td>
+                            <td style="text-align:center;"><span class="rp-chip rp-chip-pos"><i class="fa-solid fa-plus"></i>{{ $row['positive_points'] }}</span></td>
+                            <td style="text-align:center;"><span class="rp-chip rp-chip-neg"><i class="fa-solid fa-minus"></i>{{ $row['negative_points'] }}</span></td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip {{ $row['final_score'] >= 0 ? 'rp-chip-net-p' : 'rp-chip-net-n' }}">
+                                    {{ $row['final_score'] >= 0 ? '+' : '' }}{{ $row['final_score'] }}
+                                </span>
+                            </td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip {{ $row['kpi_status'] === 'passed' ? 'rp-chip-pass' : 'rp-chip-fail' }}">
+                                    <i class="fa-solid {{ $row['kpi_status'] === 'passed' ? 'fa-check' : 'fa-xmark' }}"></i>
+                                    {{ $row['kpi_status'] === 'passed' ? 'Pass' : 'Fail' }}
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                @elseif($currentType === 'executive')
+                <table class="rp-tbl" id="rpTable">
+                    <thead><tr>
+                        <th>Executive</th><th>Company / Zone</th>
+                        <th style="text-align:center;">Total Score</th>
+                        <th style="text-align:center;">Monthly</th>
+                        <th style="text-align:center;">Tier</th>
+                        <th style="text-align:center;">Status</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($data as $row)
+                        @php
+                            $words    = explode(' ', trim($row['name']));
+                            $initials = implode('', array_map(fn($w) => strtoupper(substr($w,0,1)), array_slice($words,0,2)));
+                            $tierKey  = strtolower(str_replace(' ','_',$row['tier']));
+                        @endphp
+                        <tr>
+                            <td>
+                                <div class="rp-exec">
+                                    <div class="rp-avatar">{{ $initials }}</div>
+                                    <div>
+                                        <span class="rp-exec-name">{{ $row['name'] }}</span>
+                                        <div class="rp-exec-id">{{ $row['employee_id'] }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="rp-company">{{ $row['company'] }}</div>
+                                <div class="rp-zone"><i class="fa-solid fa-location-dot"></i>{{ $row['zone'] }}</div>
+                            </td>
+                            <td style="text-align:center;"><span class="rp-score">{{ number_format($row['current_score']) }}</span></td>
+                            <td style="text-align:center;"><span class="rp-score-muted">{{ number_format($row['monthly_score']) }}</span></td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip rp-tier-{{ $tierKey }}">{{ $row['tier'] }}</span>
+                            </td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip rp-chip-pass">{{ ucfirst($row['status']) }}</span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                @elseif($currentType === 'zone')
+                <table class="rp-tbl" id="rpTable">
+                    <thead><tr>
+                        <th>Zone</th><th>Company</th>
+                        <th style="text-align:center;">Executives</th>
+                        <th style="text-align:center;">Avg Score</th>
+                        <th style="text-align:center;">Total Score</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($data as $row)
+                        <tr>
+                            <td style="font-weight:700;font-size:.85rem;">{{ $row->zone }}</td>
+                            <td><div class="rp-company">{{ $row->company }}</div></td>
+                            <td style="text-align:center;"><span class="rp-num">{{ $row->execs }}</span></td>
+                            <td style="text-align:center;"><span class="rp-score">{{ number_format($row->avg_score, 1) }}</span></td>
+                            <td style="text-align:center;"><span class="rp-score-muted">{{ number_format($row->total_score) }}</span></td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                @elseif(in_array($currentType, ['violation', 'recovery']))
+                <table class="rp-tbl" id="rpTable">
+                    <thead><tr>
+                        <th>Date</th><th>Executive</th><th>Company</th>
+                        <th>Description</th>
+                        <th style="text-align:center;">Category</th>
+                        <th style="text-align:right;">Points</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($data as $row)
+                        @php
+                            $words    = explode(' ', trim($row['executive']['name'] ?? ''));
+                            $initials = implode('', array_map(fn($w) => strtoupper(substr($w,0,1)), array_slice($words,0,2)));
+                        @endphp
+                        <tr>
+                            <td><span class="rp-date"><i class="fa-regular fa-calendar"></i>{{ \Carbon\Carbon::parse($row['audit_date'])->format('d M Y') }}</span></td>
+                            <td>
+                                <div class="rp-exec">
+                                    <div class="rp-avatar">{{ $initials }}</div>
+                                    <div>
+                                        <span class="rp-exec-name">{{ $row['executive']['name'] ?? '—' }}</span>
+                                    </div>
+                                </div>
+                            </td>
+                            <td><div class="rp-company">{{ $row['executive']['company']['name'] ?? '—' }}</div></td>
+                            <td style="font-size:.8rem;max-width:180px;color:#4a5568;">{{ $row['description'] }}</td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip {{ $currentType === 'violation' ? 'rp-chip-warn' : 'rp-chip-pos' }}">
+                                    {{ ucfirst($row['category']) }}
+                                </span>
+                            </td>
+                            <td style="text-align:right;">
+                                <span class="{{ $currentType === 'violation' ? 'rp-chip rp-chip-neg' : 'rp-chip rp-chip-pos' }}" style="min-width:auto;padding:0 10px;">
+                                    {{ $currentType === 'violation' ? '-' : '+' }}{{ $row['points'] }}
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+
+                @else
+                {{-- Monthly --}}
+                <table class="rp-tbl" id="rpTable">
+                    <thead><tr>
+                        <th>Executive</th><th>Zone / Company</th>
+                        <th style="text-align:center;">Year</th>
+                        <th style="text-align:center;">Month</th>
+                        <th style="text-align:center;">Positive</th>
+                        <th style="text-align:center;">Negative</th>
+                        <th style="text-align:center;">Net Score</th>
+                    </tr></thead>
+                    <tbody>
+                        @foreach($data as $row)
+                        @php
+                            $words    = explode(' ', trim($row->name));
+                            $initials = implode('', array_map(fn($w) => strtoupper(substr($w,0,1)), array_slice($words,0,2)));
+                        @endphp
+                        <tr>
+                            <td>
+                                <div class="rp-exec">
+                                    <div class="rp-avatar">{{ $initials }}</div>
+                                    <div><span class="rp-exec-name">{{ $row->name }}</span></div>
+                                </div>
+                            </td>
+                            <td>
+                                <div class="rp-company">{{ $row->company }}</div>
+                                <div class="rp-zone"><i class="fa-solid fa-location-dot"></i>{{ $row->zone }}</div>
+                            </td>
+                            <td style="text-align:center;font-weight:600;color:#64748b;">{{ $row->year }}</td>
+                            <td style="text-align:center;font-weight:600;color:#64748b;">{{ \Carbon\Carbon::create($row->year, $row->month)->format('M') }}</td>
+                            <td style="text-align:center;"><span class="rp-chip rp-chip-pos"><i class="fa-solid fa-plus"></i>{{ $row->positive_points }}</span></td>
+                            <td style="text-align:center;"><span class="rp-chip rp-chip-neg"><i class="fa-solid fa-minus"></i>{{ $row->negative_points }}</span></td>
+                            <td style="text-align:center;">
+                                <span class="rp-chip {{ $row->net_score >= 0 ? 'rp-chip-net-p' : 'rp-chip-net-n' }}">
+                                    {{ $row->net_score >= 0 ? '+' : '' }}{{ $row->net_score }}
+                                </span>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+                @endif
+
+            </div>{{-- /rp-table-scroll --}}
+        </div>{{-- /rp-table-card --}}
+
+    </div>{{-- /rp-right-panel --}}
+</div>{{-- /rp-layout --}}
 </div>
+
 @endsection
+
+@push('scripts')
+<script>
+// ── Quick search ──────────────────────────────────────────
+const rpSearch = document.getElementById('rpQuickSearch');
+if (rpSearch) {
+    rpSearch.addEventListener('input', function () {
+        const q = this.value.toLowerCase();
+        document.querySelectorAll('#rpTable tbody tr').forEach(row => {
+            row.style.display = row.textContent.toLowerCase().includes(q) ? '' : 'none';
+        });
+    });
+}
+</script>
+@endpush

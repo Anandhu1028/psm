@@ -38,7 +38,7 @@ if ($existing) {
         'warm_lead_converted' => false,
     ]);
     $log->setRelation('executive', $exec);
-    $log->university_id = $exec->university_id;
+    $log->company_id = $exec->company_id;
     // set created_by to an existing user to satisfy DB FK
     $user = User::first();
     $log->created_by = $user ? $user->id : 1;

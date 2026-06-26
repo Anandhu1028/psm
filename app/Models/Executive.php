@@ -12,21 +12,20 @@ class Executive extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'university_id',
+        'company_id',
+        'zone_id',
         'employee_id',
         'name',
-        'phone',
+        'mobile',
         'email',
         'photo',
-        'zone_id',
-        'department_id',
         'date_joined',
         'probation_end_date',
-        'reporting_manager_id',
         'status',
+        'notes',
         'current_score',
+        'monthly_score',
         'current_tier',
-        // Streak tracking
         'call_streak_count',
         'meeting_streak_count',
         'best_call_streak',
@@ -42,11 +41,15 @@ class Executive extends Model
         'meeting_streak_count' => 'integer',
         'best_call_streak'     => 'integer',
         'best_meeting_streak'  => 'integer',
+        'current_score'        => 'integer',
+        'monthly_score'        => 'integer',
     ];
 
-    public function university(): BelongsTo
+    // ── Relationships ──────────────────────────────────────────────────────────
+
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(University::class);
+        return $this->belongsTo(Company::class);
     }
 
     public function zone(): BelongsTo
@@ -54,34 +57,19 @@ class Executive extends Model
         return $this->belongsTo(Zone::class);
     }
 
-    public function department(): BelongsTo
+    public function dailyAudits(): HasMany
     {
-        return $this->belongsTo(Department::class);
+        return $this->hasMany(DailyAudit::class);
     }
 
-    public function reportingManager(): BelongsTo
+    public function pointTransactions(): HasMany
     {
-        return $this->belongsTo(User::class, 'reporting_manager_id');
+        return $this->hasMany(PointTransaction::class);
     }
 
-    public function dailyLogs(): HasMany
+    public function monthlyScores(): HasMany
     {
-        return $this->hasMany(DailyLog::class);
-    }
-
-    public function meetings(): HasMany
-    {
-        return $this->hasMany(Meeting::class);
-    }
-
-    public function scoreTransactions(): HasMany
-    {
-        return $this->hasMany(ScoreTransaction::class);
-    }
-
-    public function scoreHistories(): HasMany
-    {
-        return $this->hasMany(ScoreHistory::class);
+        return $this->hasMany(MonthlyScore::class);
     }
 
     public function tierHistories(): HasMany
@@ -89,69 +77,68 @@ class Executive extends Model
         return $this->hasMany(TierHistory::class);
     }
 
-    public function violations(): HasMany
+    public function leaderboards(): HasMany
     {
-        return $this->hasMany(Violation::class);
+        return $this->hasMany(Leaderboard::class);
     }
 
-    public function escalations(): HasMany
+    // ── Scopes ─────────────────────────────────────────────────────────────────
+
+    public function scopeActive($query)
     {
-        return $this->hasMany(Escalation::class);
+        return $query->where('status', 'active');
     }
 
-    public function audits(): HasMany
+    public function scopeForCompany($query, int $companyId)
     {
-        return $this->hasMany(Audit::class);
+        return $query->where('company_id', $companyId);
     }
 
-    public function pipRecords(): HasMany
+    public function scopeForZone($query, int $zoneId)
     {
-        return $this->hasMany(PipRecord::class);
+        return $query->where('zone_id', $zoneId);
     }
 
-    /**
-     * Helper to adjust executive score and check tier transitions.
-     */
-    public function updateScoreAndTier(int $pointsChange, string $reason, ?int $dailyLogId = null, ?int $ruleId = null)
+    // ── Accessors ──────────────────────────────────────────────────────────────
+
+    public function getTierBadgeClassAttribute(): string
     {
-        $oldScore = $this->current_score;
-        $newScore = $oldScore + $pointsChange;
-        $this->current_score = $newScore;
+        return match ($this->current_tier) {
+            'platinum'    => 'badge-tier-platinum',
+            'gold'        => 'badge-tier-gold',
+            'silver'      => 'badge-tier-silver',
+            'bronze'      => 'badge-tier-bronze',
+            'review_zone' => 'badge-tier-review',
+            default       => 'badge-tier-bronze',
+        };
+    }
 
-        $oldTier = $this->current_tier;
-        $newTier = $this->determineTierForScore($newScore);
-        $this->current_tier = $newTier;
+    public function getTierLabelAttribute(): string
+    {
+        return match ($this->current_tier) {
+            'platinum'    => 'Platinum',
+            'gold'        => 'Gold',
+            'silver'      => 'Silver',
+            'bronze'      => 'Bronze',
+            'review_zone' => 'Review Zone',
+            default       => 'Bronze',
+        };
+    }
 
-        // Perform inside db save
-        $this->save();
-
-        // Audit points transaction
-        $this->scoreTransactions()->create([
-            'daily_log_id' => $dailyLogId,
-            'rule_id' => $ruleId,
-            'type' => $pointsChange >= 0 ? 'credit' : 'debit',
-            'points' => abs($pointsChange),
-            'running_total' => $newScore,
-            'description' => $reason,
-            'transaction_date' => now()->toDateString(),
-        ]);
-
-        // Audit tier change
-        if ($oldTier !== $newTier) {
-            $this->tierHistories()->create([
-                'old_tier' => $oldTier,
-                'new_tier' => $newTier,
-                'change_reason' => "Score changed from {$oldScore} to {$newScore}. Reason: " . $reason,
-                'changed_at' => now(),
-            ]);
+    public function getPhotoUrlAttribute(): ?string
+    {
+        if ($this->photo) {
+            return asset('storage/' . $this->photo);
         }
+        return null;
     }
 
-    /**
-     * Determines tier tier-name based on score value.
-     */
-    public function determineTierForScore(int $score): string
+    public function getInitialsAttribute(): string
     {
-        return app(\App\Services\TierService::class)->determineTier($this, $score);
+        $parts = explode(' ', trim($this->name));
+        if (count($parts) >= 2) {
+            return strtoupper($parts[0][0] . $parts[1][0]);
+        }
+        return strtoupper(substr($this->name, 0, 2));
     }
 }

@@ -8,40 +8,61 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Rule extends Model
 {
     protected $fillable = [
-        'rule_set_id',
-        'university_id',
+        'company_id',
         'category',
+        'calculation_type',
         'code',
         'name',
-        'description',
-        'input_metric',
+        'points',
+        'threshold_min',
+        'threshold_max',
         'operator',
         'threshold_value',
-        'threshold_to',
-        'points',
-        'calculation_type',
+        'input_metric',
+        'is_active',
+        'sort_order',
         'condition_json',
         'action_json',
-        'sort_order',
-        'is_active',
+        'description',
     ];
 
     protected $casts = [
-        'threshold_value' => 'float',
-        'threshold_to' => 'float',
-        'points' => 'float',
+        'points'         => 'float',
+        'threshold_min'  => 'float',
+        'threshold_max'  => 'float',
+        'threshold_value'=> 'float',
+        'is_active'      => 'boolean',
+        'sort_order'     => 'integer',
         'condition_json' => 'array',
-        'action_json' => 'array',
-        'is_active' => 'boolean',
+        'action_json'    => 'array',
     ];
 
-    public function ruleSet(): BelongsTo
+    // ── Relationships ──────────────────────────────────────────────────────────
+
+    public function company(): BelongsTo
     {
-        return $this->belongsTo(RuleSet::class);
+        return $this->belongsTo(Company::class);
     }
 
-    public function university(): BelongsTo
+    // ── Scopes ─────────────────────────────────────────────────────────────────
+
+    public function scopeActive($query)
     {
-        return $this->belongsTo(University::class);
+        return $query->where('is_active', true);
+    }
+
+    public function scopeForCompany($query, int $companyId)
+    {
+        return $query->where('company_id', $companyId);
+    }
+
+    public function scopeByCategory($query, string $category)
+    {
+        return $query->where('category', $category);
+    }
+
+    public function scopeOrdered($query)
+    {
+        return $query->orderBy('sort_order')->orderBy('id');
     }
 }
