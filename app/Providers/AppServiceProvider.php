@@ -33,5 +33,8 @@ class AppServiceProvider extends ServiceProvider
 
         // Event → Listener mappings
         Event::listen(AuditSubmitted::class, RecordAuditLogListener::class);
+
+        // Enable Bootstrap 5 pagination
+        \Illuminate\Pagination\Paginator::useBootstrapFive();
     }
 }

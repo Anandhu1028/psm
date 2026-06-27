@@ -165,7 +165,7 @@ class DailyAuditController extends Controller
 
     /**
      * AJAX: Preview score without saving.
-     */
+     **/
     public function previewScore(Request $request)
     {
         $data      = $request->validate(['executive_id' => 'required|exists:executives,id', 'audit_date' => 'required|date']);
@@ -180,7 +180,8 @@ class DailyAuditController extends Controller
         try {
             $result = $this->orchestration->preview($audit, $request->input('violations', []));
             return response()->json($result);
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 422);
         }
     }
@@ -218,6 +219,7 @@ class DailyAuditController extends Controller
                 'rank'          => $rank,
                 'call_streak'   => $executive->call_streak_count,
                 'meeting_streak'=> $executive->meeting_streak_count,
+                
             ],
             'recent_audits' => $recentAudits,
             'strategy'      => $executive->company->calculation_strategy,

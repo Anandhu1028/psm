@@ -84,18 +84,7 @@
             background: #f5f3ff;
         }
 
-        .btn-ah-date i {
-            font-size: 0.88rem;
-        }
-
-        #hiddenDatePicker {
-            position: absolute;
-            opacity: 0;
-            pointer-events: none;
-            width: 1px;
-            height: 1px;
-            overflow: hidden;
-        }
+        .btn-ah-date i { font-size: 0.88rem; }
 
         /* ── Filter Button ── */
         .btn-ah-filter {
@@ -173,9 +162,7 @@
             text-decoration: none;
         }
 
-        .btn-ah-new:active {
-            transform: translateY(0);
-        }
+        .btn-ah-new:active { transform: translateY(0); }
 
         /* ── Summary Cards ── */
         .ah-stats-row {
@@ -215,21 +202,10 @@
             pointer-events: none;
         }
 
-        .ah-stat-audits::after {
-            background: #6366f1;
-        }
-
-        .ah-stat-positive::after {
-            background: #10b981;
-        }
-
-        .ah-stat-negative::after {
-            background: #f43f5e;
-        }
-
-        .ah-stat-net::after {
-            background: #f59e0b;
-        }
+        .ah-stat-audits::after  { background: #6366f1; }
+        .ah-stat-positive::after { background: #10b981; }
+        .ah-stat-negative::after { background: #f43f5e; }
+        .ah-stat-net::after      { background: #f59e0b; }
 
         .ah-stat-head {
             display: flex;
@@ -256,25 +232,10 @@
             flex-shrink: 0;
         }
 
-        .ah-stat-audits .ah-stat-icon-wrap {
-            background: #eef2ff;
-            color: #6366f1;
-        }
-
-        .ah-stat-positive .ah-stat-icon-wrap {
-            background: #ecfdf5;
-            color: #10b981;
-        }
-
-        .ah-stat-negative .ah-stat-icon-wrap {
-            background: #fff1f2;
-            color: #f43f5e;
-        }
-
-        .ah-stat-net .ah-stat-icon-wrap {
-            background: #fffbeb;
-            color: #f59e0b;
-        }
+        .ah-stat-audits  .ah-stat-icon-wrap { background: #eef2ff; color: #6366f1; }
+        .ah-stat-positive .ah-stat-icon-wrap { background: #ecfdf5; color: #10b981; }
+        .ah-stat-negative .ah-stat-icon-wrap { background: #fff1f2; color: #f43f5e; }
+        .ah-stat-net     .ah-stat-icon-wrap { background: #fffbeb; color: #f59e0b; }
 
         .ah-stat-value {
             font-size: 2rem;
@@ -283,21 +244,10 @@
             line-height: 1;
         }
 
-        .ah-stat-audits .ah-stat-value {
-            color: #3730a3;
-        }
-
-        .ah-stat-positive .ah-stat-value {
-            color: #059669;
-        }
-
-        .ah-stat-negative .ah-stat-value {
-            color: #e11d48;
-        }
-
-        .ah-stat-net .ah-stat-value {
-            color: #d97706;
-        }
+        .ah-stat-audits  .ah-stat-value { color: #3730a3; }
+        .ah-stat-positive .ah-stat-value { color: #059669; }
+        .ah-stat-negative .ah-stat-value { color: #e11d48; }
+        .ah-stat-net     .ah-stat-value { color: #d97706; }
 
         .ah-stat-foot {
             display: flex;
@@ -310,81 +260,7 @@
             border-top: 1px solid #f1f5f9;
         }
 
-        .ah-stat-foot i {
-            font-size: 0.65rem;
-        }
-
-        /* ── Date Banner ── */
-        .ah-date-banner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: #f5f3ff;
-            border: 1.5px solid #ddd6fe;
-            border-radius: 14px;
-            padding: 12px 20px;
-            margin-bottom: 20px;
-            gap: 12px;
-            flex-wrap: wrap;
-        }
-
-        .ah-date-banner-left {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .ah-date-banner-icon {
-            width: 36px;
-            height: 36px;
-            background: #6366f1;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #fff;
-            font-size: 0.9rem;
-            flex-shrink: 0;
-        }
-
-        .ah-date-banner-label {
-            font-size: 0.7rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            color: #7c3aed;
-        }
-
-        .ah-date-banner-value {
-            font-size: 0.95rem;
-            font-weight: 800;
-            color: #3730a3;
-            letter-spacing: -0.02em;
-        }
-
-        .ah-date-banner-clear {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            height: 32px;
-            padding: 0 14px;
-            background: #fff;
-            border: 1.5px solid #ddd6fe;
-            border-radius: 9px;
-            color: #7c3aed;
-            font-size: 0.75rem;
-            font-weight: 600;
-            text-decoration: none;
-            cursor: pointer;
-            transition: all 0.18s;
-        }
-
-        .ah-date-banner-clear:hover {
-            background: #fee2e2;
-            border-color: #fca5a5;
-            color: #e11d48;
-            text-decoration: none;
-        }
+        .ah-stat-foot i { font-size: 0.65rem; }
 
         /* ── Active Filter Pills ── */
         .ah-pills-row {
@@ -431,9 +307,7 @@
             transition: color 0.15s;
         }
 
-        .ah-pill-x:hover {
-            color: #e11d48;
-        }
+        .ah-pill-x:hover { color: #e11d48; }
 
         .ah-pills-clear {
             font-size: 0.72rem;
@@ -520,10 +394,7 @@
             box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.08);
         }
 
-        .ah-search-wrap i {
-            color: #c4b5fd;
-            font-size: 0.82rem;
-        }
+        .ah-search-wrap i { color: #c4b5fd; font-size: 0.82rem; }
 
         .ah-search-input {
             border: none;
@@ -535,14 +406,10 @@
             font-family: inherit;
         }
 
-        .ah-search-input::placeholder {
-            color: #c4b5fd;
-        }
+        .ah-search-input::placeholder { color: #c4b5fd; }
 
         /* Table */
-        .ah-table-scroll {
-            overflow-x: auto;
-        }
+        .ah-table-scroll { overflow-x: auto; }
 
         .ah-tbl {
             width: 100%;
@@ -566,26 +433,16 @@
             user-select: none;
         }
 
-        .ah-tbl thead th:first-child {
-            padding-left: 28px;
-        }
-
-        .ah-tbl thead th:last-child {
-            padding-right: 28px;
-        }
+        .ah-tbl thead th:first-child { padding-left: 28px; }
+        .ah-tbl thead th:last-child  { padding-right: 28px; }
 
         .ah-tbl tbody tr {
             border-bottom: 1px solid #f7f8fc;
             transition: background 0.15s ease;
         }
 
-        .ah-tbl tbody tr:last-child {
-            border-bottom: none;
-        }
-
-        .ah-tbl tbody tr:hover {
-            background: #fafaff;
-        }
+        .ah-tbl tbody tr:last-child { border-bottom: none; }
+        .ah-tbl tbody tr:hover { background: #fafaff; }
 
         .ah-tbl tbody td {
             padding: 16px 16px;
@@ -593,13 +450,8 @@
             color: #374151;
         }
 
-        .ah-tbl tbody td:first-child {
-            padding-left: 28px;
-        }
-
-        .ah-tbl tbody td:last-child {
-            padding-right: 28px;
-        }
+        .ah-tbl tbody td:first-child { padding-left: 28px; }
+        .ah-tbl tbody td:last-child  { padding-right: 28px; }
 
         /* Row: ID */
         .ah-row-id {
@@ -611,11 +463,7 @@
         }
 
         /* Row: Executive */
-        .ah-exec {
-            display: flex;
-            align-items: center;
-            gap: 11px;
-        }
+        .ah-exec { display: flex; align-items: center; gap: 11px; }
 
         .ah-avatar {
             width: 36px;
@@ -643,10 +491,7 @@
             transition: color 0.15s;
         }
 
-        .ah-exec-name:hover {
-            color: #4f46e5;
-            text-decoration: none;
-        }
+        .ah-exec-name:hover { color: #4f46e5; text-decoration: none; }
 
         .ah-exec-id {
             font-size: 0.65rem;
@@ -656,11 +501,7 @@
         }
 
         /* Row: Company */
-        .ah-company {
-            font-size: 0.83rem;
-            font-weight: 600;
-            color: #2d3748;
-        }
+        .ah-company { font-size: 0.83rem; font-weight: 600; color: #2d3748; }
 
         .ah-zone {
             display: inline-flex;
@@ -683,9 +524,7 @@
             white-space: nowrap;
         }
 
-        .ah-date i {
-            color: #c4b5fd;
-        }
+        .ah-date i { color: #c4b5fd; }
 
         /* Row: Stats */
         .ah-num {
@@ -719,27 +558,11 @@
             white-space: nowrap;
         }
 
-        .ah-chip i {
-            font-size: 0.6rem;
-        }
+        .ah-chip i { font-size: 0.6rem; }
 
-        .ah-chip-pos {
-            background: #ecfdf5;
-            color: #059669;
-            border: 1.5px solid #a7f3d0;
-        }
-
-        .ah-chip-neg {
-            background: #fff1f2;
-            color: #e11d48;
-            border: 1.5px solid #fecdd3;
-        }
-
-        .ah-chip-rec {
-            background: #eff6ff;
-            color: #2563eb;
-            border: 1.5px solid #bfdbfe;
-        }
+        .ah-chip-pos { background: #ecfdf5; color: #059669; border: 1.5px solid #a7f3d0; }
+        .ah-chip-neg { background: #fff1f2; color: #e11d48; border: 1.5px solid #fecdd3; }
+        .ah-chip-rec { background: #eff6ff; color: #2563eb; border: 1.5px solid #bfdbfe; }
 
         .ah-chip-net-p {
             background: #ecfdf5;
@@ -771,20 +594,9 @@
             white-space: nowrap;
         }
 
-        .ah-kpi-pass {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .ah-kpi-fail {
-            background: #fee2e2;
-            color: #9f1239;
-        }
-
-        .ah-kpi-na {
-            background: #f1f5f9;
-            color: #94a3b8;
-        }
+        .ah-kpi-pass { background: #d1fae5; color: #065f46; }
+        .ah-kpi-fail { background: #fee2e2; color: #9f1239; }
+        .ah-kpi-na   { background: #f1f5f9; color: #94a3b8; }
 
         /* Row: Actions */
         .ah-actions {
@@ -809,11 +621,7 @@
             flex-shrink: 0;
         }
 
-        .ah-btn-view {
-            background: #eef2ff;
-            color: #4f46e5;
-        }
-
+        .ah-btn-view { background: #eef2ff; color: #4f46e5; }
         .ah-btn-view:hover {
             background: #4f46e5;
             color: #fff;
@@ -822,11 +630,7 @@
             text-decoration: none;
         }
 
-        .ah-btn-del {
-            background: #fff1f2;
-            color: #e11d48;
-        }
-
+        .ah-btn-del { background: #fff1f2; color: #e11d48; }
         .ah-btn-del:hover {
             background: #e11d48;
             color: #fff;
@@ -835,10 +639,7 @@
         }
 
         /* Empty State */
-        .ah-empty {
-            text-align: center;
-            padding: 80px 24px;
-        }
+        .ah-empty { text-align: center; padding: 80px 24px; }
 
         .ah-empty-blob {
             width: 72px;
@@ -853,40 +654,109 @@
             color: #c4b5fd;
         }
 
-        .ah-empty-h {
-            font-size: 1rem;
-            font-weight: 800;
-            color: #1e1f2e;
-            margin-bottom: 6px;
-        }
+        .ah-empty-h { font-size: 1rem; font-weight: 800; color: #1e1f2e; margin-bottom: 6px; }
+        .ah-empty-p { font-size: 0.82rem; color: #94a3b8; }
+        .ah-empty-p a { color: #4f46e5; font-weight: 600; text-decoration: none; }
 
-        .ah-empty-p {
-            font-size: 0.82rem;
-            color: #94a3b8;
-        }
-
-        .ah-empty-p a {
-            color: #4f46e5;
-            font-weight: 600;
-            text-decoration: none;
-        }
-
-        /* Pagination Bar */
+        /* ══════════════════════════════════════════
+           Pagination Bar
+        ══════════════════════════════════════════ */
         .ah-pager {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 16px 28px;
+            padding: 18px 28px;
             border-top: 1px solid #f0f2fa;
             background: #fafbff;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 12px;
         }
 
         .ah-pager-info {
             font-size: 0.75rem;
             color: #94a3b8;
             font-weight: 500;
+        }
+
+        /* Hide Laravel's built-in "Showing X to Y of Z results" text */
+        .ah-pager nav > div:first-child { display: none; }
+
+        /* The <nav> and <ul> wrapper */
+        .ah-pager nav { display: flex; align-items: center; }
+        .ah-pager .pagination {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        /* Every page item */
+        .ah-pager .pagination .page-item { display: flex; }
+
+        /* Links and spans (disabled) */
+        .ah-pager .pagination .page-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 34px;
+            height: 34px;
+            padding: 0 10px;
+            border-radius: 10px;
+            border: 1.5px solid #edf0f7;
+            background: #fff;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1;
+            text-decoration: none;
+            transition: all 0.18s ease;
+            white-space: nowrap;
+        }
+
+        /* Hover */
+        .ah-pager .pagination .page-item:not(.active):not(.disabled) .page-link:hover {
+            background: #f5f3ff;
+            border-color: #c4b5fd;
+            color: #4f46e5;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.12);
+        }
+
+        /* Active page */
+        .ah-pager .pagination .page-item.active .page-link {
+            background: linear-gradient(135deg, #4f46e5, #6d28d9);
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 4px 14px rgba(79, 70, 229, 0.3);
+        }
+
+        /* Disabled (prev/next when on first/last page) */
+        .ah-pager .pagination .page-item.disabled .page-link {
+            background: #f8f9fc;
+            border-color: #edf0f7;
+            color: #cbd5e1;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Prev / Next arrow buttons — slightly wider */
+        .ah-pager .pagination .page-item:first-child .page-link,
+        .ah-pager .pagination .page-item:last-child .page-link {
+            padding: 0 14px;
+            font-size: 0.75rem;
+            letter-spacing: 0.01em;
+        }
+
+        /* Ellipsis (…) */
+        .ah-pager .pagination .page-item .page-link[aria-disabled="true"],
+        .ah-pager .pagination span.page-link {
+            background: transparent;
+            border-color: transparent;
+            color: #cbd5e1;
+            cursor: default;
+            pointer-events: none;
         }
 
         /* ── FILTER MODAL ── */
@@ -903,9 +773,7 @@
             padding: 20px;
         }
 
-        .ah-modal-bg.open {
-            display: flex;
-        }
+        .ah-modal-bg.open { display: flex; }
 
         .ah-modal {
             background: #fff;
@@ -918,15 +786,8 @@
         }
 
         @keyframes modalIn {
-            from {
-                opacity: 0;
-                transform: scale(0.94) translateY(-12px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
+            from { opacity: 0; transform: scale(0.94) translateY(-12px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .ah-modal-head {
@@ -938,11 +799,7 @@
             border-bottom: 1px solid #f0f2fa;
         }
 
-        .ah-modal-head-left {
-            display: flex;
-            align-items: center;
-            gap: 13px;
-        }
+        .ah-modal-head-left { display: flex; align-items: center; gap: 13px; }
 
         .ah-modal-illo {
             width: 42px;
@@ -965,11 +822,7 @@
             letter-spacing: -0.02em;
         }
 
-        .ah-modal-sub {
-            font-size: 0.73rem;
-            color: #94a3b8;
-            margin-top: 1px;
-        }
+        .ah-modal-sub { font-size: 0.73rem; color: #94a3b8; margin-top: 1px; }
 
         .ah-modal-close-btn {
             width: 34px;
@@ -992,17 +845,10 @@
             color: #e11d48;
         }
 
-        .ah-modal-body {
-            padding: 28px;
-        }
+        .ah-modal-body { padding: 28px; }
 
-        .ah-modal-section {
-            margin-bottom: 24px;
-        }
-
-        .ah-modal-section:last-child {
-            margin-bottom: 0;
-        }
+        .ah-modal-section { margin-bottom: 24px; }
+        .ah-modal-section:last-child { margin-bottom: 0; }
 
         .ah-modal-section-label {
             font-size: 0.65rem;
@@ -1032,10 +878,7 @@
             gap: 10px;
         }
 
-        .ah-modal-foot-right {
-            display: flex;
-            gap: 8px;
-        }
+        .ah-modal-foot-right { display: flex; gap: 8px; }
 
         /* Form overrides inside modal */
         .ah-modal .form-select,
@@ -1135,15 +978,14 @@
             transform: translateY(-1px);
         }
 
-
+        /* Air Datepicker */
         .air-datepicker {
             width: 320px;
             border: none !important;
             border-radius: 22px !important;
             overflow: hidden;
             background: #fff;
-            box-shadow:
-                0 25px 60px rgba(0, 0, 0, .18);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, .18);
             padding: 18px;
             z-index: 99999 !important;
             transform: translateX(-150px) !important;
@@ -1157,20 +999,9 @@
             border: none;
         }
 
-        .air-datepicker-nav--title {
-            color: #fff !important;
-            font-size: 15px;
-            font-weight: 700;
-        }
-
-        .air-datepicker-nav--action {
-            color: #fff !important;
-        }
-
-        .air-datepicker-body--day-name {
-            color: #8b8fa5;
-            font-weight: 700;
-        }
+        .air-datepicker-nav--title  { color: #fff !important; font-size: 15px; font-weight: 700; }
+        .air-datepicker-nav--action { color: #fff !important; }
+        .air-datepicker-body--day-name { color: #8b8fa5; font-weight: 700; }
 
         .air-datepicker-cell {
             width: 38px;
@@ -1179,9 +1010,7 @@
             transition: .2s;
         }
 
-        .air-datepicker-cell:hover {
-            background: #EEF2FF;
-        }
+        .air-datepicker-cell:hover { background: #EEF2FF; }
 
         .air-datepicker-cell.-selected- {
             background: #6366F1 !important;
@@ -1189,73 +1018,28 @@
             box-shadow: 0 8px 20px rgba(99, 102, 241, .35);
         }
 
-        .air-datepicker-cell.-current- {
-            color: #6366F1 !important;
-            font-weight: 700;
-        }
-
-        .air-datepicker-buttons {
-            border: none;
-        }
-
-        .air-datepicker-button {
-            color: #6366F1;
-            font-weight: 700;
-        }
+        .air-datepicker-cell.-current- { color: #6366F1 !important; font-weight: 700; }
+        .air-datepicker-buttons { border: none; }
+        .air-datepicker-button  { color: #6366F1; font-weight: 700; }
 
         /* ── Responsive ── */
         @media (max-width: 1024px) {
-            .ah-stats-row {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .ah-stats-row { grid-template-columns: repeat(2, 1fr); }
         }
 
         @media (max-width: 640px) {
-            .ah-stats-row {
-                grid-template-columns: 1fr;
-                gap: 12px;
-            }
-
-            .ah-stat-value {
-                font-size: 1.75rem;
-            }
-
-            .ah-modal {
-                border-radius: 18px;
-            }
-
-            .ah-modal-body {
-                padding: 20px;
-            }
-
-            .ah-modal-head {
-                padding: 18px 20px 16px;
-            }
-
-            .ah-modal-foot {
-                padding: 14px 20px 18px;
-                flex-direction: column;
-            }
-
-            .ah-modal-foot-right {
-                width: 100%;
-            }
-
-            .btn-modal-apply {
-                width: 100%;
-                justify-content: center;
-            }
-
-            .ah-header-actions {
-                width: 100%;
-            }
-
-            .btn-ah-date,
-            .btn-ah-filter,
-            .btn-ah-new {
-                flex: 1;
-                justify-content: center;
-            }
+            .ah-stats-row { grid-template-columns: 1fr; gap: 12px; }
+            .ah-stat-value { font-size: 1.75rem; }
+            .ah-modal { border-radius: 18px; }
+            .ah-modal-body { padding: 20px; }
+            .ah-modal-head { padding: 18px 20px 16px; }
+            .ah-modal-foot { padding: 14px 20px 18px; flex-direction: column; }
+            .ah-modal-foot-right { width: 100%; }
+            .btn-modal-apply { width: 100%; justify-content: center; }
+            .ah-header-actions { width: 100%; }
+            .btn-ah-date, .btn-ah-filter, .btn-ah-new { flex: 1; justify-content: center; }
+            .ah-pager { padding: 14px 16px; }
+            .ah-pager .pagination .page-link { min-width: 30px; height: 30px; font-size: 0.75rem; }
         }
     </style>
 @endpush
@@ -1263,19 +1047,12 @@
 @section('content')
 
     @php
-        /*
-        |--------------------------------------------------------------------------
-        | Date logic
-        | — If ?audit_date is passed, use it.
-        | — Otherwise default to today so the page always shows today's records.
-        |--------------------------------------------------------------------------
-        */
-        $auditDate = request('audit_date', now()->toDateString());
-        $isToday = $auditDate === now()->toDateString();
-        $displayDate = \Carbon\Carbon::parse($auditDate)->format('d M Y');
+        $auditDate    = request('audit_date', now()->toDateString());
+        $isToday      = $auditDate === now()->toDateString();
+        $displayDate  = \Carbon\Carbon::parse($auditDate)->format('d M Y');
         $displayLabel = $isToday ? 'Today — ' . $displayDate : $displayDate;
 
-        $filterKeys = ['company_id', 'zone_id', 'executive_id', 'kpi_status', 'date_from', 'date_to'];
+        $filterKeys    = ['company_id', 'zone_id', 'executive_id', 'kpi_status', 'date_from', 'date_to'];
         $activeFilters = collect($filterKeys)->filter(fn($k) => request($k))->count();
     @endphp
 
@@ -1285,25 +1062,24 @@
         <div class="ah-header">
             <div class="ah-header-left">
                 <h1 class="ah-page-title">Daily Audit Management</h1>
-                <p class="ah-page-sub">Showing records for <strong style="color:#4f46e5;">{{ $displayLabel }}</strong> — <a
-                        href="#">all companies</a></p>
+                <p class="ah-page-sub">Showing records for <strong style="color:#4f46e5;">{{ $displayLabel }}</strong> — <a href="#">all companies</a></p>
             </div>
             <div class="ah-header-actions">
-                {{-- ── Date Picker Button ── --}}
+
+                {{-- Date Picker --}}
                 <div class="position-relative d-inline-block" id="datePickerWrapper">
                     <button type="button" id="datePickerBtn" class="btn-ah-date {{ !$isToday ? 'has-date' : '' }}">
                         <i class="fa-regular fa-calendar"></i>
-                        <span id="selectedDate">
-                            {{ $isToday ? 'Today' : $displayDate }}
-                        </span>
+                        <span id="selectedDate">{{ $isToday ? 'Today' : $displayDate }}</span>
                         @if(!$isToday)
                             <i class="fa-solid fa-circle" style="font-size:5px;color:#6366f1;margin-left:2px;"></i>
                         @endif
                     </button>
-                    <input id="auditDatePicker" type="text" readonly style="position:absolute;  top:0;  right:0;  width:1px;  height:1px;  opacity:0;  pointer-events:none;">
+                    <input id="auditDatePicker" type="text" readonly
+                           style="position:absolute;top:0;right:0;width:1px;height:1px;opacity:0;pointer-events:none;">
                 </div>
 
-                {{-- ── Filters Button ── --}}
+                {{-- Filters --}}
                 <button class="btn-ah-filter {{ $activeFilters ? 'active' : '' }}" id="openFilterModal" type="button">
                     <i class="fa-solid fa-sliders-h"></i>
                     Filters
@@ -1312,31 +1088,13 @@
                     @endif
                 </button>
 
-                {{-- ── New Audit ── --}}
+                {{-- New Audit --}}
                 <a href="{{ route('daily_audit.create') }}" class="btn-ah-new">
                     <i class="fa-solid fa-plus"></i>
                     New Audit
                 </a>
             </div>
         </div>
-
-        <!-- {{-- ══ DATE BANNER (shown when not today) ══════════════════════ --}}
-        @if(!$isToday)
-        <div class="ah-date-banner">
-            <div class="ah-date-banner-left">
-                <div class="ah-date-banner-icon">
-                    <i class="fa-regular fa-calendar-days"></i>
-                </div>
-                <div>
-                    <div class="ah-date-banner-label">Viewing records for</div>
-                    <div class="ah-date-banner-value">{{ \Carbon\Carbon::parse($auditDate)->format('l, d F Y') }}</div>
-                </div>
-            </div>
-            <a href="{{ route('daily_audit.index') }}" class="ah-date-banner-clear">
-                <i class="fa-solid fa-rotate-left"></i> Back to Today
-            </a>
-        </div>
-        @endif -->
 
         {{-- ══ ACTIVE FILTER PILLS ══════════════════════════════════════ --}}
         @if($activeFilters)
@@ -1479,7 +1237,7 @@
                     <tbody>
                         @forelse($audits as $audit)
                             @php
-                                $words = explode(' ', trim($audit->executive->name));
+                                $words    = explode(' ', trim($audit->executive->name));
                                 $initials = implode('', array_map(fn($w) => strtoupper(substr($w, 0, 1)), array_slice($words, 0, 2)));
                             @endphp
                             <tr>
@@ -1489,8 +1247,7 @@
                                     <div class="ah-exec">
                                         <div class="ah-avatar">{{ $initials }}</div>
                                         <div>
-                                            <a href="{{ route('daily_audit.show', $audit) }}"
-                                                class="ah-exec-name">{{ $audit->executive->name }}</a>
+                                            <a href="{{ route('daily_audit.show', $audit) }}" class="ah-exec-name">{{ $audit->executive->name }}</a>
                                             <div class="ah-exec-id">{{ $audit->executive->employee_id }}</div>
                                         </div>
                                     </div>
@@ -1498,25 +1255,19 @@
 
                                 <td>
                                     <div class="ah-company">{{ $audit->executive->company->name ?? '—' }}</div>
-                                    <div class="ah-zone"><i
-                                            class="fa-solid fa-location-dot"></i>{{ $audit->executive->zone->name ?? '—' }}
-                                    </div>
+                                    <div class="ah-zone"><i class="fa-solid fa-location-dot"></i>{{ $audit->executive->zone->name ?? '—' }}</div>
                                 </td>
 
                                 <td>
-                                    <span class="ah-date"><i
-                                            class="fa-regular fa-calendar"></i>{{ $audit->audit_date->format('d M Y') }}</span>
+                                    <span class="ah-date"><i class="fa-regular fa-calendar"></i>{{ $audit->audit_date->format('d M Y') }}</span>
                                 </td>
 
                                 <td style="text-align:center;"><span class="ah-num">{{ $audit->connected_calls }}</span></td>
                                 <td style="text-align:center;"><span class="ah-num">{{ $audit->confirmed_meetings }}</span></td>
 
-                                <td style="text-align:center;"><span class="ah-chip ah-chip-pos"><i
-                                            class="fa-solid fa-plus"></i>{{ $audit->positive_points }}</span></td>
-                                <td style="text-align:center;"><span class="ah-chip ah-chip-neg"><i
-                                            class="fa-solid fa-minus"></i>{{ $audit->negative_points }}</span></td>
-                                <td style="text-align:center;"><span class="ah-chip ah-chip-rec"><i
-                                            class="fa-solid fa-rotate-right"></i>{{ $audit->recovery_points }}</span></td>
+                                <td style="text-align:center;"><span class="ah-chip ah-chip-pos"><i class="fa-solid fa-plus"></i>{{ $audit->positive_points }}</span></td>
+                                <td style="text-align:center;"><span class="ah-chip ah-chip-neg"><i class="fa-solid fa-minus"></i>{{ $audit->negative_points }}</span></td>
+                                <td style="text-align:center;"><span class="ah-chip ah-chip-rec"><i class="fa-solid fa-rotate-right"></i>{{ $audit->recovery_points }}</span></td>
 
                                 <td style="text-align:center;">
                                     <span class="ah-chip {{ $audit->final_score >= 0 ? 'ah-chip-net-p' : 'ah-chip-net-n' }}">
@@ -1536,13 +1287,11 @@
 
                                 <td>
                                     <div class="ah-actions">
-                                        <a href="{{ route('daily_audit.show', $audit) }}" class="ah-btn-act ah-btn-view"
-                                            title="View">
+                                        <a href="{{ route('daily_audit.show', $audit) }}" class="ah-btn-act ah-btn-view" title="View">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
                                         @can('delete', $audit)
-                                            <form id="daf-{{ $audit->id }}" action="{{ route('daily_audit.destroy', $audit) }}"
-                                                method="POST" style="display:none;">
+                                            <form id="daf-{{ $audit->id }}" action="{{ route('daily_audit.destroy', $audit) }}" method="POST" style="display:none;">
                                                 @csrf @method('DELETE')
                                             </form>
                                             <button type="button" class="ah-btn-act ah-btn-del" title="Delete"
@@ -1572,7 +1321,7 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
+            {{-- ══ PAGINATION ═══════════════════════════════════════════ --}}
             @if($audits->hasPages())
                 <div class="ah-pager">
                     <span class="ah-pager-info">
@@ -1603,9 +1352,9 @@
                 </button>
             </div>
 
-            {{-- Keep audit_date when applying other filters --}}
             <form method="GET" action="{{ route('daily_audit.index') }}" id="filterForm">
                 <input type="hidden" name="audit_date" value="{{ $auditDate }}">
+
                 <div class="ah-modal-body">
 
                     <div class="ah-modal-section">
@@ -1616,9 +1365,7 @@
                                 <select name="company_id" class="form-select">
                                     <option value="">All Companies</option>
                                     @foreach($companies as $c)
-                                        <option value="{{ $c->id }}" {{ request('company_id') == $c->id ? 'selected' : '' }}>
-                                            {{ $c->name }}
-                                        </option>
+                                        <option value="{{ $c->id }}" {{ request('company_id') == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -1627,9 +1374,7 @@
                                 <select name="zone_id" class="form-select">
                                     <option value="">All Zones</option>
                                     @foreach($zones as $z)
-                                        <option value="{{ $z->id }}" {{ request('zone_id') == $z->id ? 'selected' : '' }}>
-                                            {{ $z->name }}
-                                        </option>
+                                        <option value="{{ $z->id }}" {{ request('zone_id') == $z->id ? 'selected' : '' }}>{{ $z->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -1644,9 +1389,7 @@
                                 <select name="executive_id" class="form-select select2-modal">
                                     <option value="">All Executives</option>
                                     @foreach($executives as $e)
-                                        <option value="{{ $e->id }}" {{ request('executive_id') == $e->id ? 'selected' : '' }}>
-                                            {{ $e->name }}
-                                        </option>
+                                        <option value="{{ $e->id }}" {{ request('executive_id') == $e->id ? 'selected' : '' }}>{{ $e->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -1654,10 +1397,8 @@
                                 <label class="form-label">KPI Status</label>
                                 <select name="kpi_status" class="form-select">
                                     <option value="">All Statuses</option>
-                                    <option value="passed" {{ request('kpi_status') === 'passed' ? 'selected' : '' }}>✓ Passed
-                                    </option>
-                                    <option value="failed" {{ request('kpi_status') === 'failed' ? 'selected' : '' }}>✗ Failed
-                                    </option>
+                                    <option value="passed" {{ request('kpi_status') === 'passed' ? 'selected' : '' }}>✓ Passed</option>
+                                    <option value="failed" {{ request('kpi_status') === 'failed' ? 'selected' : '' }}>✗ Failed</option>
                                 </select>
                             </div>
                         </div>
@@ -1678,14 +1419,14 @@
                     </div>
 
                 </div>
+
                 <div class="ah-modal-foot">
                     <a href="{{ route('daily_audit.index') }}" class="btn-modal-reset">
                         <i class="fa-solid fa-rotate-left"></i> Reset All
                     </a>
                     <div class="ah-modal-foot-right">
                         <button type="button" class="btn-modal-cancel" id="cancelModal">Cancel</button>
-                        <button type="submit" class="btn-modal-apply"><i class="fa-solid fa-filter"></i> Apply
-                            Filters</button>
+                        <button type="submit" class="btn-modal-apply"><i class="fa-solid fa-filter"></i> Apply Filters</button>
                     </div>
                 </div>
             </form>
@@ -1698,12 +1439,12 @@
 @push('scripts')
     <script>
         // ── Filter Modal ───────────────────────────────────────────────
-        const bg = document.getElementById('filterModalBg');
-        const openBtn = document.getElementById('openFilterModal');
-        const closeBtn = document.getElementById('closeModal');
+        const bg        = document.getElementById('filterModalBg');
+        const openBtn   = document.getElementById('openFilterModal');
+        const closeBtn  = document.getElementById('closeModal');
         const cancelBtn = document.getElementById('cancelModal');
 
-        const openModal = () => { bg.classList.add('open'); document.body.style.overflow = 'hidden'; };
+        const openModal  = () => { bg.classList.add('open');    document.body.style.overflow = 'hidden'; };
         const closeModal = () => { bg.classList.remove('open'); document.body.style.overflow = ''; };
 
         openBtn.addEventListener('click', openModal);
@@ -1712,109 +1453,48 @@
         bg.addEventListener('click', e => { if (e.target === bg) closeModal(); });
         document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 
-        // ── Clear single filter (keep audit_date in URL) ───────────────
+        // ── Clear single filter ────────────────────────────────────────
         function clearFilter(key) {
             const url = new URL(window.location.href);
             url.searchParams.delete(key);
             window.location.href = url.toString();
         }
 
-        // ── Date Picker Button ─────────────────────────────────────────
-        // =====================================================
-        // Premium Date Picker
-        // =====================================================
+        // ── Date Picker ────────────────────────────────────────────────
+        const btn  = document.getElementById('datePickerBtn');
+        const text = document.getElementById('selectedDate');
 
-        const btn = document.getElementById("datePickerBtn");
-        const text = document.getElementById("selectedDate");
-
-        const picker = new AirDatepicker("#auditDatePicker", {
-
+        const picker = new AirDatepicker('#auditDatePicker', {
             autoClose: true,
-
             maxDate: new Date(),
-
-            selectedDates: ["{{ $auditDate }}"],
-
-            dateFormat: "yyyy-MM-dd",
-
-            position: "bottom left",
-
+            selectedDates: ['{{ $auditDate }}'],
+            dateFormat: 'yyyy-MM-dd',
+            position: 'bottom left',
             locale: {
-
-                days: [
-                    "Sunday", "Monday", "Tuesday", "Wednesday",
-                    "Thursday", "Friday", "Saturday"
-                ],
-
-                daysShort: [
-                    "Sun", "Mon", "Tue", "Wed",
-                    "Thu", "Fri", "Sat"
-                ],
-
-                daysMin: [
-                    "Su", "Mo", "Tu", "We",
-                    "Th", "Fr", "Sa"
-                ],
-
-                months: [
-                    "January", "February", "March", "April",
-                    "May", "June", "July", "August",
-                    "September", "October", "November", "December"
-                ],
-
-                monthsShort: [
-                    "Jan", "Feb", "Mar", "Apr",
-                    "May", "Jun", "Jul", "Aug",
-                    "Sep", "Oct", "Nov", "Dec"
-                ],
-
-                today: "Today",
-
-                clear: "Clear",
-
-                dateFormat: "yyyy-MM-dd",
-
-                firstDay: 0
-
+                days:        ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+                daysShort:   ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+                daysMin:     ['Su','Mo','Tu','We','Th','Fr','Sa'],
+                months:      ['January','February','March','April','May','June','July','August','September','October','November','December'],
+                monthsShort: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+                today:       'Today',
+                clear:       'Clear',
+                dateFormat:  'yyyy-MM-dd',
+                firstDay:    0,
             },
-
             onSelect({ date, formattedDate }) {
-
                 if (date) {
-
-                    text.textContent = date.toLocaleDateString("en-GB", {
-
-                        day: "2-digit",
-                        month: "short",
-                        year: "numeric"
-
-                    });
-
+                    text.textContent = date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
                 }
-
                 const url = new URL(window.location.href);
-
-                url.searchParams.set("audit_date", formattedDate);
-
-                url.searchParams.delete("page");
-
+                url.searchParams.set('audit_date', formattedDate);
+                url.searchParams.delete('page');
                 window.location.href = url.toString();
-
-            }
-
+            },
         });
 
-        btn.addEventListener("click", function (e) {
+        btn.addEventListener('click', e => { e.preventDefault(); picker.show(); });
 
-            e.preventDefault();
-
-            picker.show();
-
-        });
-
-
-
-        // ── Quick search ──────────────────────────────────────────────
+        // ── Quick search ───────────────────────────────────────────────
         document.getElementById('quickSearch').addEventListener('input', function () {
             const q = this.value.toLowerCase();
             document.querySelectorAll('#auditTable tbody tr').forEach(row => {
@@ -1828,7 +1508,7 @@
                 theme: 'bootstrap-5',
                 width: '100%',
                 placeholder: 'All Executives',
-                dropdownParent: $('#filterModalBg .ah-modal')
+                dropdownParent: $('#filterModalBg .ah-modal'),
             });
         });
     </script>

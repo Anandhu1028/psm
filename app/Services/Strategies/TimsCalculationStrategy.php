@@ -89,7 +89,6 @@ class TimsCalculationStrategy implements CalculationStrategyInterface
                 $breakdown[] = $result;
             }
         }
-
         return ['total' => $total, 'breakdown' => $breakdown];
     }
 

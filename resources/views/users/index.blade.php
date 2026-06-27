@@ -15,72 +15,74 @@
 </div>
 
 <div class="pms-table-wrapper">
-    <table class="pms-table">
-        <thead>
-            <tr>
-                <th>User</th>
-                <th>Email</th>
-                <th class="text-center">Role</th>
-                <th class="text-center">Status</th>
-                <th class="text-center">Last Active</th>
-                <th>Actions</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($users as $user)
-            <tr>
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pms-accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;flex-shrink:0;">
-                            {{ strtoupper(substr($user->name,0,2)) }}
+    <div class="users-table-scroll">
+        <table class="pms-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email</th>
+                    <th class="text-center">Role</th>
+                    <th class="text-center">Status</th>
+                    <th class="text-center">Last Active</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($users as $user)
+                <tr>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div style="width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--pms-accent),#7c3aed);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.7rem;font-weight:700;flex-shrink:0;">
+                                {{ strtoupper(substr($user->name,0,2)) }}
+                            </div>
+                            <div>
+                                <div style="font-weight:600;font-size:.83rem;color:var(--pms-text-primary);">{{ $user->name }}</div>
+                                @if($user->phone)<div style="font-size:.68rem;color:var(--pms-text-muted);">{{ $user->phone }}</div>@endif
+                            </div>
                         </div>
-                        <div>
-                            <div style="font-weight:600;font-size:.83rem;color:var(--pms-text-primary);">{{ $user->name }}</div>
-                            @if($user->phone)<div style="font-size:.68rem;color:var(--pms-text-muted);">{{ $user->phone }}</div>@endif
+                    </td>
+                    <td style="font-size:.8rem;color:var(--pms-text-secondary);">{{ $user->email }}</td>
+                    <td class="text-center">
+                        <span class="badge" style="background:var(--pms-accent-light);color:var(--pms-accent);font-size:.72rem;">
+                            {{ $user->getRoleNames()->first() ?? '—' }}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge" style="background:{{ $user->is_active?'var(--pms-success-subtle)':'var(--pms-danger-subtle)' }};color:{{ $user->is_active?'var(--pms-success)':'var(--pms-danger)' }};">
+                            {{ $user->is_active ? 'Active' : 'Inactive' }}
+                        </span>
+                    </td>
+                    <td class="text-center" style="font-size:.75rem;color:var(--pms-text-muted);">
+                        {{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : '—' }}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn btn-sm" style="background:var(--pms-warning-light);color:var(--pms-warning);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
+                                    onclick="editUser({{ $user->id }},'{{ $user->name }}','{{ $user->phone }}','{{ $user->getRoleNames()->first() }}',{{ $user->is_active?'true':'false' }})">
+                                <i class="fa-solid fa-pen"></i>
+                            </button>
+                            <button class="btn btn-sm" style="background:var(--pms-info-light);color:var(--pms-info);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
+                                    onclick="resetPwd({{ $user->id }},'{{ $user->name }}')" title="Reset Password">
+                                <i class="fa-solid fa-key"></i>
+                            </button>
+                            @if($user->id !== auth()->id())
+                            <form id="del-user-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST">@csrf @method('DELETE')</form>
+                            <button type="button" class="btn btn-sm"
+                                    style="background:var(--pms-danger-light);color:var(--pms-danger);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
+                                    data-confirm-delete="{{ $user->name }}"
+                                    data-form-id="del-user-{{ $user->id }}">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                            @endif
                         </div>
-                    </div>
-                </td>
-                <td style="font-size:.8rem;color:var(--pms-text-secondary);">{{ $user->email }}</td>
-                <td class="text-center">
-                    <span class="badge" style="background:var(--pms-accent-light);color:var(--pms-accent);font-size:.72rem;">
-                        {{ $user->getRoleNames()->first() ?? '—' }}
-                    </span>
-                </td>
-                <td class="text-center">
-                    <span class="badge" style="background:{{ $user->is_active?'var(--pms-success-subtle)':'var(--pms-danger-subtle)' }};color:{{ $user->is_active?'var(--pms-success)':'var(--pms-danger)' }};">
-                        {{ $user->is_active ? 'Active' : 'Inactive' }}
-                    </span>
-                </td>
-                <td class="text-center" style="font-size:.75rem;color:var(--pms-text-muted);">
-                    {{ $user->last_login_at ? \Carbon\Carbon::parse($user->last_login_at)->diffForHumans() : '—' }}
-                </td>
-                <td>
-                    <div class="d-flex gap-1">
-                        <button class="btn btn-sm" style="background:var(--pms-warning-light);color:var(--pms-warning);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
-                                onclick="editUser({{ $user->id }},'{{ $user->name }}','{{ $user->phone }}','{{ $user->getRoleNames()->first() }}',{{ $user->is_active?'true':'false' }})">
-                            <i class="fa-solid fa-pen"></i>
-                        </button>
-                        <button class="btn btn-sm" style="background:var(--pms-info-light);color:var(--pms-info);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
-                                onclick="resetPwd({{ $user->id }},'{{ $user->name }}')" title="Reset Password">
-                            <i class="fa-solid fa-key"></i>
-                        </button>
-                        @if($user->id !== auth()->id())
-                        <form id="del-user-{{ $user->id }}" action="{{ route('users.destroy', $user) }}" method="POST">@csrf @method('DELETE')</form>
-                        <button type="button" class="btn btn-sm"
-                                style="background:var(--pms-danger-light);color:var(--pms-danger);border:none;padding:4px 8px;border-radius:6px;font-size:.72rem;"
-                                data-confirm-delete="{{ $user->name }}"
-                                data-form-id="del-user-{{ $user->id }}">
-                            <i class="fa-solid fa-trash"></i>
-                        </button>
-                        @endif
-                    </div>
-                </td>
-            </tr>
-            @empty
-            <tr><td colspan="6"><div class="pms-empty"><i class="fa-solid fa-users"></i><p>No users found.</p></div></td></tr>
-            @endforelse
-        </tbody>
-    </table>
+                    </td>
+                </tr>
+                @empty
+                <tr><td colspan="6"><div class="pms-empty"><i class="fa-solid fa-users"></i><p>No users found.</p></div></td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>
 @if($users->hasPages())
 <div class="d-flex justify-content-center mt-4">{{ $users->links() }}</div>

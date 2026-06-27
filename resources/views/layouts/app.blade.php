@@ -35,7 +35,7 @@
 <aside class="pms-sidebar" id="pmsSidebar">
     <div class="pms-sidebar-brand">
         <div class="brand-icon">
-            <i class="fa-solid fa-chart-line"></i>
+            <i class="fa-solid fa-cube"></i>
         </div>
         <div class="brand-text">
             <span class="brand-name">CRO PMS</span>
@@ -74,7 +74,7 @@
         </a>
 
         <a href="{{ route('reports.index') }}" class="pms-nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
-            <i class="fa-solid fa-file-chart-column nav-icon"></i>
+            <i class="fa-solid fa-file-lines nav-icon"></i>
             <span>Reports</span>
         </a>
 
@@ -114,7 +114,7 @@
         <form action="{{ route('logout') }}" method="POST" class="mt-2">
             @csrf
             <button type="submit" class="btn-logout">
-                <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                <i class="fa-solid fa-right-from-bracket"></i> <span>Sign Out</span>
             </button>
         </form>
     </div>
