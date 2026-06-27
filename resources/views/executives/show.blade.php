@@ -825,11 +825,11 @@
                 </div>
             </div>
             <div class="ep-header-actions">
-                @can('manage_executives')
-                    <a href="{{ route('executives.edit', $executive) }}" class="ep-btn ep-btn-secondary">
+                <!-- @can('manage_executives')
+                    <button type="button" class="ep-btn ep-btn-secondary" data-bs-toggle="modal" data-bs-target="#editExecutiveModal">
                         <i class="fa-solid fa-pen"></i> Edit
-                    </a>
-                @endcan
+                    </button>
+                @endcan -->
                 <a href="{{ route('daily_audit.create') }}?executive_id={{ $executive->id }}" class="ep-btn ep-btn-primary">
                     <i class="fa-solid fa-plus"></i> Enter Audit
                 </a>
@@ -1138,6 +1138,128 @@
             </div>
         </div>
     </div>
+
+    {{-- ══ EDIT EXECUTIVE MODAL ═══════════════════════════════════ --}}
+    @can('manage_executives')
+    <div class="modal fade" id="editExecutiveModal" tabindex="-1" aria-labelledby="editExecutiveModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+            <div class="modal-content pms-modal-content" style="border-radius:22px;">
+
+                <div class="modal-header" style="padding:22px 28px;">
+                    <h5 class="modal-title" id="editExecutiveModalLabel">
+                        <i class="fa-solid fa-user-pen"></i> Edit Executive Details
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <form action="{{ route('executives.update', $executive) }}" method="POST" enctype="multipart/form-data" id="editExecForm">
+                    @csrf
+                    @method('PUT')
+                    <div class="modal-body" style="padding:24px 28px; text-align: left;">
+
+                        {{-- Photo + Name row --}}
+                        <div class="d-flex align-items-center gap-4 mb-4">
+                            <div>
+                                <div id="editExecPhotoPreview" class="exec-modal-avatar" style="width:70px; height:70px; border-radius:14px; background:linear-gradient(135deg,#6366f1,#7c3aed); display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.8rem; overflow:hidden;">
+                                    @if($executive->photo)
+                                        <img src="{{ asset('storage/' . $executive->photo) }}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">
+                                    @else
+                                        <i class="fa-solid fa-user"></i>
+                                    @endif
+                                </div>
+                                <label for="editExecPhotoInput" class="exec-photo-label mt-2 d-block text-center" style="cursor:pointer; font-size:0.75rem; color:#6366f1; font-weight:700;">
+                                    <i class="fa-solid fa-camera"></i> Photo
+                                </label>
+                                <input type="file" name="photo" id="editExecPhotoInput" accept="image/*" style="display:none;">
+                            </div>
+                            <div class="flex-grow-1">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Full Name <span class="text-danger">*</span></label>
+                                <input type="text" name="name" class="exec-modal-input" required placeholder="e.g. Arjun Mehta" id="editExecNameInput" value="{{ old('name', $executive->name) }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                        </div>
+
+                        {{-- Section: Personal Info --}}
+                        <div class="exec-modal-section-label" style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#1e1f2e; margin-bottom:12px; border-bottom:1px solid #f0f2fa; padding-bottom:6px;">
+                            <i class="fa-solid fa-id-card"></i> Personal Information
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Employee ID <span class="text-danger">*</span></label>
+                                <input type="text" name="employee_id" class="exec-modal-input" required placeholder="e.g. TIMS001" id="editExecEmployeeIdInput" value="{{ old('employee_id', $executive->employee_id) }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Mobile</label>
+                                <input type="text" name="mobile" class="exec-modal-input" placeholder="+91 9876543210" id="editExecMobileInput" value="{{ old('mobile', $executive->mobile) }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Email</label>
+                                <input type="email" name="email" class="exec-modal-input" placeholder="exec@company.com" id="editExecEmailInput" value="{{ old('email', $executive->email) }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                        </div>
+
+                        {{-- Section: Assignment --}}
+                        <div class="exec-modal-section-label" style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#1e1f2e; margin-bottom:12px; border-bottom:1px solid #f0f2fa; padding-bottom:6px;">
+                            <i class="fa-solid fa-building"></i> Assignment
+                        </div>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Company <span class="text-danger">*</span></label>
+                                <select name="company_id" id="editExecCompanySelect" class="exec-modal-select" required style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                                    <option value="">— Select Company —</option>
+                                    @foreach($companies as $c)
+                                    <option value="{{ $c->id }}" {{ old('company_id', $executive->company_id) == $c->id ? 'selected' : '' }}>{{ $c->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Zone <span class="text-danger">*</span></label>
+                                <select name="zone_id" id="editExecZoneSelect" class="exec-modal-select" required style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                                    <option value="">— Select Zone —</option>
+                                    @foreach($executive->company->zones as $z)
+                                    <option value="{{ $z->id }}" {{ old('zone_id', $executive->zone_id) == $z->id ? 'selected' : '' }}>{{ $z->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Status <span class="text-danger">*</span></label>
+                                <select name="status" class="exec-modal-select" required id="editExecStatusSelect" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                                    <option value="probation" {{ old('status', $executive->status) === 'probation' ? 'selected' : '' }}>Probation</option>
+                                    <option value="active" {{ old('status', $executive->status) === 'active' ? 'selected' : '' }}>Active</option>
+                                    <option value="inactive" {{ old('status', $executive->status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Date Joined</label>
+                                <input type="date" name="date_joined" class="exec-modal-input" id="editExecDateJoinedInput" value="{{ old('date_joined', $executive->date_joined ? $executive->date_joined->format('Y-m-d') : '') }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                            <div class="col-md-4">
+                                <label class="exec-modal-label" style="font-size: .7rem; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: #64748b; margin-bottom: 7px; display:block;">Probation End Date</label>
+                                <input type="date" name="probation_end_date" class="exec-modal-input" id="editExecProbationEndInput" value="{{ old('probation_end_date', $executive->probation_end_date ? $executive->probation_end_date->format('Y-m-d') : '') }}" style="display:block; width:100%; height:42px; padding:0 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none;">
+                            </div>
+                        </div>
+
+                        {{-- Notes --}}
+                        <div class="exec-modal-section-label" style="font-size:0.8rem; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; color:#1e1f2e; margin-bottom:12px; border-bottom:1px solid #f0f2fa; padding-bottom:6px;">
+                            <i class="fa-solid fa-note-sticky"></i> Notes
+                        </div>
+                        <textarea name="notes" class="exec-modal-input" rows="3" placeholder="Any notes about this executive…" style="display:block; width:100%; height:auto; min-height:80px; padding:10px 14px; background:#f8f9fc; border:1.5px solid #edf0f7; border-radius:11px; font-size:.85rem; color:#1e1f2e; outline:none; resize:vertical;" id="editExecNotesInput">{{ old('notes', $executive->notes) }}</textarea>
+
+                    </div>{{-- /modal-body --}}
+
+                    <div class="modal-footer" style="padding:18px 28px;gap:10px;border-top:1px solid #f0f2fa;">
+                        <button type="button" class="btn-pms-ghost" data-bs-dismiss="modal">
+                            <i class="fa-solid fa-xmark"></i> Cancel
+                        </button>
+                        <button type="submit" class="btn-pms-apply">
+                            <i class="fa-solid fa-save"></i> Update Details
+                        </button>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+    @endcan
 @endsection
 
 @push('scripts')
@@ -1244,5 +1366,39 @@
             if (nextBtn) nextBtn.addEventListener('click', () => { if (current < totalPages) { current++; render(); } });
             if (rows.length) render();
         })();
+    </script>
+
+    <script>
+        // ── Zone cascade on company change inside show modal ──
+        document.getElementById('editExecCompanySelect')?.addEventListener('change', function () {
+            const companyId = this.value;
+            const zoneSelect = document.getElementById('editExecZoneSelect');
+            zoneSelect.innerHTML = '<option value="">Loading zones…</option>';
+            if (!companyId) { zoneSelect.innerHTML = '<option value="">— Select Zone —</option>'; return; }
+            fetch(`/api/companies/${companyId}/zones`)
+                .then(r => r.json())
+                .then(zones => {
+                    zoneSelect.innerHTML = '<option value="">— Select Zone —</option>';
+                    zones.forEach(z => zoneSelect.innerHTML += `<option value="${z.id}">${z.name}</option>`);
+                });
+        });
+
+        // ── Photo upload preview ──
+        document.getElementById('editExecPhotoInput')?.addEventListener('change', function () {
+            if (this.files && this.files[0]) {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const p = document.getElementById('editExecPhotoPreview');
+                    p.style.background = 'none';
+                    p.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;">`;
+                };
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        // ── Photo label click ──
+        document.querySelector('label[for="editExecPhotoInput"]')?.addEventListener('click', function () {
+            document.getElementById('editExecPhotoInput').click();
+        });
     </script>
 @endpush

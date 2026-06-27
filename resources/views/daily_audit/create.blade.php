@@ -1048,7 +1048,7 @@
                 </div>
 
                 {{-- FOCUZ Rolling Fields --}}
-                <div id="focuzFields" style="display:none;">
+                <!-- <div id="focuzFields" style="display:none;">
                     <div class="ca-focuz-panel">
                         <div class="ca-focuz-panel-label">
                             <i class="fa-solid fa-rotate"></i> FOCUZ Rolling Meeting Fields
@@ -1072,7 +1072,7 @@
                             </div>
                         </div>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 

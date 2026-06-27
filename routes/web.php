@@ -70,6 +70,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('zones',           [ZoneController::class, 'store'])->name('zones.store');
     Route::put('zones/{zone}',     [ZoneController::class, 'update'])->name('zones.update');
     Route::delete('zones/{zone}',  [ZoneController::class, 'destroy'])->name('zones.destroy');
+    Route::get('zones/{zone}/analytics', [ZoneController::class, 'analytics'])->name('zones.analytics');
 
     // ── Users ──────────────────────────────────────────────────────────────────
     Route::middleware('can:manage_users')->group(function () {

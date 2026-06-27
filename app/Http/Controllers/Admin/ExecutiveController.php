@@ -59,7 +59,9 @@ class ExecutiveController extends Controller
             ->orderByDesc('year')->orderByDesc('month')
             ->limit(12)->get();
 
-        return view('executives.show', compact('executive', 'monthlyScores'));
+        $companies = Company::active()->orderBy('name')->get();
+
+        return view('executives.show', compact('executive', 'monthlyScores', 'companies'));
     }
 
     public function edit(Executive $executive)

@@ -731,6 +731,18 @@
                 text-align: center;
             }
         }
+
+        .zone-analytics-trigger {
+            color: var(--pms-accent, #6366f1);
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.15s;
+        }
+        .zone-analytics-trigger:hover {
+            color: var(--pms-accent-hover, #4f46e5);
+            text-decoration: underline;
+        }
     </style>
 @endpush
 
@@ -822,7 +834,7 @@
                                 <div class="zone-icon-avatar">
                                     <i class="fa-solid fa-location-dot"></i>
                                 </div>
-                                <span class="zone-name-text">{{ $zone->name }}</span>
+                                <a href="#" class="zone-analytics-trigger zone-name-text" data-id="{{ $zone->id }}" data-name="{{ $zone->name }}">{{ $zone->name }}</a>
                             </div>
                         </td>
                         <td>
@@ -989,10 +1001,161 @@
         </div>
     </div>
 
+    {{-- ══ ZONE ANALYTICS MODAL ════════════════════════════════ --}}
+    <div class="modal fade" id="zoneAnalyticsModal" tabindex="-1" aria-labelledby="zoneAnalyticsModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content" style="border-radius:20px; border:none; box-shadow:var(--shadow-xl); background:#fff;">
+                <div class="modal-header" style="border-bottom:1px solid rgba(99, 102, 241, 0.08); padding:20px 28px;">
+                    <h5 class="modal-title" id="zoneAnalyticsModalLabel" style="font-weight:800; color:var(--pms-text-primary); display:flex; align-items:center; gap:10px;">
+                        <i class="fa-solid fa-chart-line" style="color:var(--pms-accent);"></i>
+                        <span id="zaModalTitle">Zone Analytics</span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" style="padding:28px;">
+                    {{-- Loader --}}
+                    <div id="zaLoader" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="text-muted mt-2 small">Loading zone metrics...</p>
+                    </div>
+
+                    {{-- Content wrapper --}}
+                    <div id="zaContent" style="display:none;">
+                        {{-- Score Cards Grid --}}
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 text-center" style="background:#f0fdfa; border:1px solid #ccfbf1; border-radius:12px;">
+                                    <div class="small text-muted font-weight-bold" style="font-size:0.7rem; text-transform:uppercase;">Positive</div>
+                                    <div id="zaTotalPositive" class="h4 font-weight-extrabold mb-0 mt-1" style="color:#0d9488; font-weight:800;">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 text-center" style="background:#fff1f2; border:1px solid #ffe4e6; border-radius:12px;">
+                                    <div class="small text-muted font-weight-bold" style="font-size:0.7rem; text-transform:uppercase;">Negative</div>
+                                    <div id="zaTotalNegative" class="h4 font-weight-extrabold mb-0 mt-1" style="color:#e11d48; font-weight:800;">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 text-center" style="background:#f0f9ff; border:1px solid #e0f2fe; border-radius:12px;">
+                                    <div class="small text-muted font-weight-bold" style="font-size:0.7rem; text-transform:uppercase;">Recovery</div>
+                                    <div id="zaTotalRecovery" class="h4 font-weight-extrabold mb-0 mt-1" style="color:#0ea5e9; font-weight:800;">0</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3 col-6">
+                                <div class="p-3 text-center" style="background:#f5f3ff; border:1px solid #e0e7ff; border-radius:12px;">
+                                    <div class="small text-muted font-weight-bold" style="font-size:0.7rem; text-transform:uppercase;">Net Score</div>
+                                    <div id="zaTotalNet" class="h4 font-weight-extrabold mb-0 mt-1" style="color:#6366f1; font-weight:800;">0</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- Graph Container --}}
+                        <div style="background:#fafbff; border:1px solid rgba(99, 102, 241, 0.08); border-radius:16px; padding:20px;">
+                            <h6 style="font-weight:700; color:var(--pms-text-secondary); margin-bottom:15px; font-size:0.83rem;">Daily Performance Score Trend</h6>
+                            <div style="height:250px; position:relative;">
+                                <canvas id="zoneAnalyticsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 @endsection
 
 @push('scripts')
     <script>
+        // ── Zone analytics modal and chart loader ──
+        let zoneChartInstance = null;
+
+        document.querySelectorAll('.zone-analytics-trigger').forEach(function(el) {
+            el.addEventListener('click', function(e) {
+                e.preventDefault();
+                const zoneId = this.dataset.id;
+                const zoneName = this.dataset.name;
+                
+                // Open modal
+                const modalEl = document.getElementById('zoneAnalyticsModal');
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+                
+                // Show loader, hide content
+                document.getElementById('zaLoader').style.display = 'block';
+                document.getElementById('zaContent').style.display = 'none';
+                document.getElementById('zaModalTitle').textContent = 'Zone Analytics — ' + zoneName;
+                
+                // Fetch data
+                fetch(`/zones/${zoneId}/analytics`)
+                    .then(res => res.json())
+                    .then(data => {
+                        // Hide loader, show content
+                        document.getElementById('zaLoader').style.display = 'none';
+                        document.getElementById('zaContent').style.display = 'block';
+                        
+                        // Populate totals
+                        document.getElementById('zaTotalPositive').textContent = '+' + data.totals.positive.toLocaleString();
+                        document.getElementById('zaTotalNegative').textContent = '-' + data.totals.negative.toLocaleString();
+                        document.getElementById('zaTotalRecovery').textContent = '+' + data.totals.recovery.toLocaleString();
+                        
+                        const net = data.totals.net_score;
+                        const netEl = document.getElementById('zaTotalNet');
+                        netEl.textContent = (net >= 0 ? '+' : '') + net.toLocaleString();
+                        netEl.style.color = net >= 0 ? '#6366f1' : '#e11d48';
+                        
+                        // Draw chart
+                        const ctx = document.getElementById('zoneAnalyticsChart').getContext('2d');
+                        if (zoneChartInstance) {
+                            zoneChartInstance.destroy();
+                        }
+                        
+                        const labels = data.trend.map(t => {
+                            const parts = t.date.split('-');
+                            return parts[2] + '/' + parts[1];
+                        });
+                        const scores = data.trend.map(t => t.net_score);
+                        
+                        zoneChartInstance = new Chart(ctx, {
+                            type: 'line',
+                            data: {
+                                labels: labels,
+                                datasets: [{
+                                    label: 'Net Score',
+                                    data: scores,
+                                    borderColor: '#6366f1',
+                                    borderWidth: 3,
+                                    backgroundColor: 'rgba(99, 102, 241, 0.04)',
+                                    fill: true,
+                                    tension: 0.3,
+                                    pointBackgroundColor: '#6366f1',
+                                    pointBorderColor: '#fff',
+                                    pointHoverRadius: 6,
+                                    pointRadius: 4
+                                }]
+                            },
+                            options: {
+                                responsive: true,
+                                maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false },
+                                    tooltip: { backgroundColor: '#fff', titleColor: '#0f172a', bodyColor: '#475569', borderColor: '#e4e8f0', borderWidth: 1 }
+                                },
+                                scales: {
+                                    x: { grid: { display: false } },
+                                    y: { grid: { color: '#f1f5f9' } }
+                                }
+                            }
+                        });
+                    })
+                    .catch(err => {
+                        console.error(err);
+                        document.getElementById('zaLoader').innerHTML = '<div class="text-danger"><i class="fa-solid fa-circle-exclamation fs-3"></i><p class="mt-2">Failed to load zone analytics. Please try again.</p></div>';
+                    });
+            });
+        });
+
         // ── Edit zone — populate modal ──
         function editZone(id, name, code, status) {
             document.getElementById('editZoneForm').action = `/zones/${id}`;

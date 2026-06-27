@@ -141,7 +141,7 @@
             gap: 8px;
             height: 42px;
             padding: 0 22px;
-            background: #3234b0;
+            background: linear-gradient(135deg, #00039f, #a5b4fc);
             border: none;
             border-radius: 12px;
             color: #fff;

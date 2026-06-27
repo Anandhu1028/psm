@@ -922,7 +922,8 @@ body.pms-body {
 .zone-table-scroll,
 .co-table-scroll,
 .users-table-scroll,
-.lb-table-scroll {
+.lb-table-scroll,
+.pms-table-wrapper {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     width: 100%;

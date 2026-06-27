@@ -930,6 +930,48 @@
             gap: 8px;
         }
 
+
+        .ad-tx-wrap {
+    overflow-x: auto;
+}
+
+.ad-tx-scroll {
+    max-height: 340px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.ad-tx-scroll::-webkit-scrollbar {
+    width: 8px;
+}
+
+.ad-tx-scroll::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+.ad-tx-scroll::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 10px;
+}
+
+.ad-tx-scroll::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.ad-tx-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.ad-tx-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: #fafbff;
+    box-shadow: 0 1px 0 #f1f5f9;
+}
+
         /* ══════════════════════════════════════════════════════════
        RESPONSIVE
        ══════════════════════════════════════════════════════════ */
@@ -1148,8 +1190,8 @@
                                 class="ad-info-val">{{ $audit->audit_date->format('l') }}</span></div>
                         <div class="ad-info-row"><span class="ad-info-lbl">Strategy</span><span
                                 class="ad-info-val">{{ ucfirst($audit->audit_type) }}</span></div>
-                        <div class="ad-info-row"><span class="ad-info-lbl">Status</span><span
-                                class="ad-info-val">{{ ucfirst($audit->status) }}</span></div>
+                        <!-- <div class="ad-info-row"><span class="ad-info-lbl">Status</span><span
+                                class="ad-info-val">{{ ucfirst($audit->status) }}</span></div> -->
                         <div class="ad-info-row"><span class="ad-info-lbl">Transactions</span><span
                                 class="ad-info-val">{{ $audit->pointTransactions->count() }}</span></div>
                         <div class="ad-info-row"><span class="ad-info-lbl">Compliance</span><span
@@ -1245,42 +1287,55 @@
                             </div>
                         </div>
                         <div class="ad-tx-wrap">
-                            <table class="ad-tx-table">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Type</th>
-                                        <th>Points</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach($audit->pointTransactions as $tx)
-                                        <tr>
-                                            <td><span class="ad-cat-badge">{{ ucfirst($tx->category) }}</span></td>
-                                            <td>
-                                                <span
-                                                    class="ad-type-badge {{ $tx->type === 'credit' ? 'ad-type-credit' : 'ad-type-debit' }}">
-                                                    <i class="fa-solid {{ $tx->type === 'credit' ? 'fa-arrow-up' : 'fa-arrow-down' }}"
-                                                        style="font-size:.55rem;"></i>
-                                                    {{ ucfirst($tx->type) }}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <div class="ad-pts-cell">
-                                                    <span class="ad-pts-bar-track">
-                                                        <span class="ad-pts-bar-fill"
-                                                            style="width:{{ min(100, ($tx->points / $maxPts) * 100) }}%;background:{{ $tx->type === 'credit' ? '#10b981' : '#e11d48' }};"></span>
-                                                    </span>
-                                                    <span class="{{ $tx->type === 'credit' ? 'ad-pts-pos' : 'ad-pts-neg' }}">
-                                                        {{ $tx->type === 'credit' ? '+' : '−' }}{{ $tx->points }}
-                                                    </span>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
+    <div class="ad-tx-scroll">
+        <table class="ad-tx-table">
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Type</th>
+                    <th>Points</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach($audit->pointTransactions as $tx)
+                    <tr>
+                        <td>
+                            <span class="ad-cat-badge">
+                                {{ ucfirst($tx->category) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <span class="ad-type-badge {{ $tx->type === 'credit' ? 'ad-type-credit' : 'ad-type-debit' }}">
+                                <i class="fa-solid {{ $tx->type === 'credit' ? 'fa-arrow-up' : 'fa-arrow-down' }}"
+                                    style="font-size:.55rem;"></i>
+                                {{ ucfirst($tx->type) }}
+                            </span>
+                        </td>
+
+                        <td>
+                            <div class="ad-pts-cell">
+                                <span class="ad-pts-bar-track">
+                                    <span class="ad-pts-bar-fill"
+                                        style="
+                                            width:{{ min(100, ($tx->points / $maxPts) * 100) }}%;
+                                            background:{{ $tx->type === 'credit' ? '#10b981' : '#e11d48' }};
+                                        ">
+                                    </span>
+                                </span>
+
+                                <span class="{{ $tx->type === 'credit' ? 'ad-pts-pos' : 'ad-pts-neg' }}">
+                                    {{ $tx->type === 'credit' ? '+' : '−' }}{{ $tx->points }}
+                                </span>
+                            </div>
+                        </td>
+                    </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+</div>
                     @else
                         <div class="ad-empty">
                             <i class="fa-solid fa-coins"></i>
