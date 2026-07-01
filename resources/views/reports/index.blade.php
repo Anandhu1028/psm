@@ -68,7 +68,8 @@
             text-decoration: none;
         }
 
-        .btn-rp-csv {
+        .btn-rp-csv,
+        .btn-rp-excel {
             display: inline-flex;
             align-items: center;
             gap: 8px;
@@ -87,7 +88,8 @@
             white-space: nowrap;
         }
 
-        .btn-rp-csv:hover {
+        .btn-rp-csv:hover,
+        .btn-rp-excel:hover {
             background: #4f46e5;
             color: #fff;
             transform: translateY(-2px);
@@ -694,10 +696,7 @@
                 <p class="rp-page-sub">Generate and export performance reports</p>
             </div>
             <div class="rp-header-actions">
-                <a href="{{ route('reports.export', array_merge(request()->all(), ['format' => 'pdf'])) }}"
-                    class="btn-rp-pdf">
-                    <i class="fa-solid fa-file-pdf"></i> Export PDF
-                </a>
+                
                 <a href="{{ route('reports.export', array_merge(request()->all(), ['format' => 'csv'])) }}"
                     class="btn-rp-csv">
                     <i class="fa-solid fa-file-csv"></i> Export CSV

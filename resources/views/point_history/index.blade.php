@@ -398,14 +398,34 @@
         }
 
         /* Table */
+        /* Make the whole page shell fit the viewport and keep scrolling inside the table only */
+        .ph-shell {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .ph-table-card {
+            display: flex;
+            flex-direction: column;
+            flex: 1 1 auto;
+            min-height: 0;
+        }
+
         .ph-table-scroll {
-            overflow-x: auto;
+            /* allow both axes, but keep table area scrollable */
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+            flex: 1 1 auto;
+            min-height: 0;
         }
 
         .ph-tbl {
             width: 100%;
             border-collapse: collapse;
             font-size: 0.83rem;
+            min-width: 860px;
         }
 
         .ph-tbl thead tr {
@@ -696,7 +716,7 @@
             width: 100%;
             max-width: 640px;
             box-shadow: 0 32px 80px rgba(0, 0, 0, 0.18), 0 2px 12px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
+            overflow: visible;
             animation: phModalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
@@ -777,6 +797,7 @@
 
         .ph-modal-body {
             padding: 28px;
+            overflow: visible;
         }
 
         .ph-modal-section {
@@ -830,6 +851,30 @@
             color: #2d3748 !important;
             transition: all 0.2s ease;
             box-shadow: none !important;
+        }
+
+        .ph-modal .select2-container {
+            width: 100% !important;
+        }
+
+        .ph-modal .select2-dropdown {
+            z-index: 2200;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+            box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16);
+        }
+
+        .ph-modal .select2-container--bootstrap-5 .select2-selection--single {
+            min-height: 42px;
+            height: 42px;
+            border-radius: 11px !important;
+            border: 1.5px solid #edf0f7 !important;
+            background: #fafbff !important;
+        }
+
+        .ph-modal .select2-container--bootstrap-5 .select2-selection__rendered {
+            line-height: 40px;
+            padding-left: 14px;
         }
 
         .ph-modal .form-select:focus,
@@ -984,10 +1029,10 @@
                         <span class="ph-filter-badge">{{ $activeFilters }}</span>
                     @endif
                 </button>
-                <a href="{{ route('reports.export', array_merge(request()->all(), ['type' => 'violation'])) }}"
+                <a href="{{ route('point_history.export', array_merge(request()->all(), ['format' => 'xlsx'])) }}"
                     class="btn-ph-export">
-                    <i class="fa-solid fa-file-export"></i>
-                    Export CSV
+                    <i class="fa-solid fa-file-excel"></i>
+                    Export Excel
                 </a>
             </div>
         </div>
@@ -1338,7 +1383,7 @@
                 theme: 'bootstrap-5',
                 width: '100%',
                 placeholder: 'All Executives',
-                dropdownParent: $('#phFilterModalBg .ph-modal')
+                dropdownParent: $('#phFilterModalBg')
             });
         });
     </script>

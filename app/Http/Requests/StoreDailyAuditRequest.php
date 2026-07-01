@@ -19,6 +19,7 @@ class StoreDailyAuditRequest extends FormRequest
             'connected_calls'            => ['required', 'integer', 'min:0', 'max:999'],
             'confirmed_meetings'         => ['required', 'integer', 'min:0', 'max:99'],
             'meetings_attended'          => ['required', 'integer', 'min:0', 'max:99'],
+            'admissions_today'           => ['required', 'integer', 'min:0'],
             'crm_followup'               => ['boolean'],
             'crm_disposition_correct'    => ['boolean'],
             'first_contact_within_45min' => ['boolean'],

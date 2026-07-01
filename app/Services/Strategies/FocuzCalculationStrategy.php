@@ -155,27 +155,9 @@ class FocuzCalculationStrategy implements CalculationStrategyInterface
         return ['total' => abs($total), 'breakdown' => $breakdown];
     }
 
-    public function calculateRecovery(array $context, Collection $recoveryRules, int $maxRecovery): array
-    {
-        $total     = 0;
-        $breakdown = [];
-
-        foreach ($recoveryRules as $rule) {
-            $result = $this->applyRule($rule, $context);
-            if ($result !== null && $result['points'] > 0) {
-                $total      += $result['points'];
-                $breakdown[] = $result;
-            }
-        }
-
-        if ($total > $maxRecovery) {
-            $total = $maxRecovery;
-        }
-
-        return ['total' => $total, 'breakdown' => $breakdown];
-    }
 
     // ── Private Helpers ────────────────────────────────────────────────────────
+
 
     private function applyRule($rule, array $context): ?array
     {

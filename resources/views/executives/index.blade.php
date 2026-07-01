@@ -189,6 +189,38 @@
 .exec-empty i { font-size: 2.5rem; margin-bottom: 14px; opacity: .3; display: block; }
 .exec-empty p { font-size: .88rem; margin: 0; }
 
+/* ── Table scroll wrapper (horizontal + vertical, styled scrollbar) ── */
+.exec-table-scroll {
+    overflow-x: auto;
+    overflow-y: auto;
+    max-height: 560px;
+    scrollbar-width: thin;
+    scrollbar-color: #c7cbe8 #f8f9fc;
+}
+.exec-table-scroll thead th { position: sticky; top: 0; z-index: 5; }
+
+/* Webkit scrollbar (Chrome / Edge / Safari) */
+.exec-table-scroll::-webkit-scrollbar {
+    height: 10px;
+    width: 10px;
+}
+.exec-table-scroll::-webkit-scrollbar-track {
+    background: #f8f9fc;
+}
+.exec-table-scroll::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #c7cbe8, #a5b4fc);
+    border-radius: 100px;
+    border: 2px solid #f8f9fc;
+    background-clip: padding-box;
+}
+.exec-table-scroll::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #a5b4fc, #6366f1);
+    background-clip: padding-box;
+}
+.exec-table-scroll::-webkit-scrollbar-corner {
+    background: #f8f9fc;
+}
+
 /* ── Filter Modal ── */
 .pms-modal-content {
     border-radius: 20px; border: none; overflow: hidden;
@@ -457,6 +489,7 @@ input.flatpickr-input[readonly]:focus {
     .exec-toolbar-right  { width: 100%; justify-content: flex-end; }
     .exec-search-box     { width: 100%; }
     .exec-pagination-bar { flex-direction: column; align-items: center; text-align: center; }
+    .exec-table-scroll   { max-height: 460px; }
 }
 </style>
 @endpush
@@ -488,6 +521,9 @@ input.flatpickr-input[readonly]:focus {
 
     <form method="GET" action="{{ route('executives.index') }}" id="execFilterForm">
         <div class="exec-toolbar-right">
+            <a href="{{ route('executives.export', request()->all()) }}" class="btn-exec-chip">
+                <i class="fa-solid fa-file-excel"></i> Export Excel
+            </a>
             <button type="button" class="btn-exec-chip {{ $activeFilterCount ? 'has-active' : '' }}"
                     data-bs-toggle="modal" data-bs-target="#executiveFilterModal">
                 <i class="fa-solid fa-sliders"></i> Filters
@@ -512,6 +548,7 @@ input.flatpickr-input[readonly]:focus {
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
+                        <input type="hidden" name="search" value="{{ request('search') }}">
                         <div class="mb-3">
                             <label class="form-label">Company</label>
                             <select name="company_id" class="form-select">
@@ -683,6 +720,7 @@ input.flatpickr-input[readonly]:focus {
                                     data-date-joined="{{ $exec->date_joined ? $exec->date_joined->format('Y-m-d') : '' }}"
                                     data-probation-end-date="{{ $exec->probation_end_date ? $exec->probation_end_date->format('Y-m-d') : '' }}"
                                     data-notes="{{ addslashes($exec->notes ?? '') }}"
+                                    data-monthly-admission-target="{{ $exec->monthly_admission_target ?? 0 }}"
                                     data-photo="{{ $exec->photo ? asset('storage/' . $exec->photo) : '' }}"
                                     onclick="editExecutive(this)"
                                     title="Edit">
@@ -825,6 +863,12 @@ input.flatpickr-input[readonly]:focus {
                                 <option value="inactive"  {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                             </select>
                         </div>
+                        <div class="col-md-4">
+                            <label class="exec-modal-label">Monthly Admission Target <span class="text-danger">*</span></label>
+                            <input type="number" name="monthly_admission_target" class="exec-modal-input"
+                                   min="0" value="{{ old('monthly_admission_target', 0) }}" required>
+                            @error('monthly_admission_target')<div class="exec-field-error">{{ $message }}</div>@enderror
+                        </div>
 
                         {{-- ── Date Joined with calendar icon ── --}}
                         <div class="col-md-4">
@@ -961,6 +1005,11 @@ input.flatpickr-input[readonly]:focus {
                                 <option value="active">Active</option>
                                 <option value="inactive">Inactive</option>
                             </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="exec-modal-label">Monthly Admission Target <span class="text-danger">*</span></label>
+                            <input type="number" name="monthly_admission_target" class="exec-modal-input"
+                                   min="0" required id="editExecMonthlyTargetInput">
                         </div>
 
                         {{-- ── Date Joined with calendar icon (Edit) ── --}}
@@ -1122,6 +1171,7 @@ function editExecutive(btn) {
     const dateJoined       = btn.dataset.dateJoined;        // Y-m-d from PHP
     const probationEndDate = btn.dataset.probationEndDate;  // Y-m-d from PHP
     const notes            = btn.dataset.notes;
+    const monthlyTarget    = btn.dataset.monthlyAdmissionTarget || 0;
     const photo            = btn.dataset.photo;
 
     // Form action
@@ -1135,6 +1185,7 @@ function editExecutive(btn) {
     document.getElementById('editExecCompanySelect').value   = companyId;
     document.getElementById('editExecStatusSelect').value    = status;
     document.getElementById('editExecNotesInput').value      = notes;
+    document.getElementById('editExecMonthlyTargetInput').value = monthlyTarget;
 
     // Dates — parse Y-m-d from server, display as dd/mm/yyyy in the input
     if (editDjPicker)  { dateJoined       ? editDjPicker.setDate(dateJoined, true, 'Y-m-d')       : editDjPicker.clear(); }

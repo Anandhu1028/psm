@@ -7,6 +7,42 @@
     </ol>
 @endsection
 
+@push('scripts')
+<script>
+    (function(){
+        const pts = @json(session('audit_points'));
+        if (pts) {
+            const final = pts.final_score ?? 0;
+            const pos = pts.positive_points ?? 0;
+            const neg = pts.negative_points ?? 0;
+            const recovery = pts.recovery_points ?? 0;
+            const tier = pts.new_tier ? pts.new_tier.replace('_',' ') : null;
+
+            const html = `
+                <div style="text-align:left">
+                    <div style="font-weight:800;font-size:1.1rem;margin-bottom:6px">Final Score: ${final >= 0 ? '+' : ''}${final} pts</div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap">
+                        <div style="color:#059669;font-weight:700">+${pos} Positive</div>
+                        <div style="color:#e11d48;font-weight:700">-${neg} Negative</div>
+                        <div style="color:#2563eb;font-weight:700">+${recovery} Recovery</div>
+                    </div>
+                    ${tier ? `<div style="margin-top:8px;font-weight:700">Tier: ${tier}</div>` : ''}
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Audit Saved',
+                html: html,
+                icon: final < 0 ? 'error' : 'success',
+                confirmButtonText: 'OK',
+                background: '#1e2130',
+                color: '#e2e8f0'
+            });
+        }
+    })();
+</script>
+@endpush
+
 @push('styles')
     <style>
         /* ══════════════════════════════════════════════════════════
@@ -1032,11 +1068,63 @@
 @endpush
 
 @section('content')
+    @push('scripts')
+    <script>
+        (function(){
+            const pts = @json(session('audit_points'));
+            if (!pts) return;
+
+            const final = pts.final_score ?? 0;
+            const pos = pts.positive_points ?? 0;
+            const neg = pts.negative_points ?? 0;
+            const recovery = pts.recovery_points ?? 0;
+            const tier = pts.new_tier ? pts.new_tier.replace('_',' ') : null;
+
+            const html = `
+                <div style="text-align:left;padding:6px 0">
+                    <div style="font-weight:800;font-size:1.5rem;margin-bottom:6px;color:${final < 0 ? '#dc2626' : '#16a34a'}">${final >= 0 ? '+' : ''}${final} pts</div>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:8px">
+                        <div style="color:#16a34a;font-weight:700">+${pos} Positive</div>
+                        <div style="color:#dc2626;font-weight:700">-${neg} Negative</div>
+                        <div style="color:#2563eb;font-weight:700">+${recovery} Recovery</div>
+                    </div>
+                    ${tier ? `<div style="font-weight:700;color:#374151">Tier: ${tier}</div>` : ''}
+                </div>
+            `;
+
+            Swal.fire({
+                title: 'Audit Saved',
+                html: html,
+                icon: final < 0 ? 'error' : 'success',
+                background: '#ffffff',
+                color: '#0f172a',
+                showConfirmButton: true,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#6b46c1',
+                timer: 4500,
+                timerProgressBar: true,
+                allowOutsideClick: true,
+                didOpen: () => {
+                    const c = document.querySelector('.swal2-container');
+                    if (c) c.style.backdropFilter = 'blur(6px) saturate(110%)';
+                },
+                willClose: () => {
+                    const c = document.querySelector('.swal2-container');
+                    if (c) c.style.backdropFilter = '';
+                },
+                customClass: {
+                    popup: 'p-4',
+                }
+            });
+        })();
+            </script>
+    @endpush
+
     @php
-        $tierLabel = $audit->executive->tier_label;
+        $finalScore = $audit->final_score ?? 0;
+        $tierLabel = $audit->executive->tier_label ?? null;
         $isReviewZone = $tierLabel && (stripos($tierLabel, 'review') !== false);
 
-        $finalScore = $audit->final_score;
         $gaugeMag = max(0, min(100, abs($finalScore)));
         $gaugeIsBad = $finalScore < 0 || $audit->kpi_status === 'failed';
         $gaugeColor = $gaugeIsBad ? '#e11d48' : '#10b981';
@@ -1052,26 +1140,7 @@
         $passCount = collect($flags)->where('val', true)->count();
     @endphp
 
-    <div class="ah-shell ad-shell">
-
-        {{-- ═══ TOP ROW ═══ --}}
-        <div class="ad-top-row">
-
-            {{-- Executive mini card --}}
-            <div class="ad-top-card ad-exec-mini">
-                <div class="ad-exec-mini-avatar">{{ strtoupper(substr($audit->executive->name, 0, 2)) }}</div>
-                <div class="ad-exec-mini-info">
-                    <div class="ad-exec-mini-name">{{ $audit->executive->name }}</div>
-                    <div class="ad-exec-mini-sub">
-                        {{ $audit->executive->employee_id }}@if($audit->executive->zone) ·
-                        {{ $audit->executive->zone->name }}@endif
-                    </div>
-                    <div class="ad-exec-mini-date">{{ $audit->audit_date->format('d M Y') }} ·
-                        {{ ucfirst($audit->audit_type) }}</div>
-                </div>
-            </div>
-
-            {{-- Performance scorecard strip --}}
+                {{-- Performance scorecard strip --}}
             <div class="ad-top-card ad-score-strip">
                 <div class="ad-score-strip-label">Performance<br>Scorecard</div>
                 <div class="ad-score-strip-item">
@@ -1158,6 +1227,10 @@
                                 <div class="ad-mini-metric-val">{{ $audit->meetings_attended }}</div>
                                 <div class="ad-mini-metric-lbl">Attended</div>
                             </div>
+                        </div>
+                        <div style="margin-top:10px;">
+                            <div class="ad-info-row"><span class="ad-info-lbl">Admissions Today</span><span class="ad-info-val">{{ $audit->admissions_today ?? 0 }}</span></div>
+                            <div class="ad-info-row"><span class="ad-info-lbl">Monthly Admission Target</span><span class="ad-info-val">{{ $audit->executive->monthly_admission_target ?? 0 }}</span></div>
                         </div>
                         <!-- <div class="ad-plain-stat-grid">
                             <div class="ad-plain-stat">

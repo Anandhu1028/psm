@@ -179,8 +179,8 @@
 
 /* ── Generic cards ── */
 .pmsd-dashboard .pms-card{
-    position:relative; background:#fff; border-radius:20px; border:1px solid rgba(99, 102, 241, 0.08) !important;
-    padding:22px; box-shadow:0 10px 30px rgba(99, 102, 241, 0.03);
+    position:relative; background:linear-gradient(180deg,#ffffff,#fbfbff); border-radius:18px; border:1px solid rgba(15,23,42,0.04) !important;
+    padding:18px; box-shadow:0 8px 28px rgba(2,6,23,0.04); backdrop-filter: blur(4px);
 }
 .pmsd-dashboard .pms-card-header{
     display:flex; align-items:center; justify-content:space-between;
@@ -264,18 +264,31 @@
 
 /* ── Tables ── */
 .pmsd-dashboard .pms-table-wrapper{ overflow-x:auto; }
-.pmsd-dashboard .pms-table{ width:100%; border-collapse:collapse; font-size:0.82rem; }
+.pmsd-dashboard .pms-table{ width:100%; border-collapse:collapse; font-size:0.88rem; background:transparent; }
 .pmsd-dashboard .pms-table thead th{
-    font-size:0.62rem; font-weight:800; text-transform:uppercase; letter-spacing:0.08em;
-    color:var(--pms-text-muted,#b0b8d1); padding:9px 10px; border-bottom:1px solid var(--pms-border,#f0f2fa);
-    white-space:nowrap; text-align:left;
+    font-size:0.68rem; font-weight:800; text-transform:uppercase; letter-spacing:0.09em;
+    color:var(--pms-text-muted,#64748b); padding:12px 14px; border-bottom:1px solid rgba(226,232,240,0.7);
+    white-space:nowrap; text-align:left; background:linear-gradient(180deg, #ffffff, #fbfbfd);
+    position:sticky; top:0; z-index:10;
 }
 .pmsd-dashboard .pms-table tbody td{
-    padding:11px 10px; vertical-align:middle; border-bottom:1px solid #f7f8fc;
+    padding:12px 14px; vertical-align:middle; border-bottom:1px solid #f3f5f9; color:var(--pms-text-primary,#0f172a);
 }
 .pmsd-dashboard .pms-table tbody tr:last-child td{ border-bottom:none; }
 .pmsd-dashboard .pms-table tbody tr{ transition:background .14s ease; }
-.pmsd-dashboard .pms-table tbody tr:hover{ background:rgba(99, 102, 241, 0.015) !important; }
+.pmsd-dashboard .pms-table tbody tr:hover{ background:rgba(99, 102, 241, 0.035) !important; }
+
+/* Zebra rows */
+.pmsd-dashboard .pms-table tbody tr:nth-child(odd){ background:rgba(15,23,42,0.01); }
+
+/* Scrollable table body for cards */
+.pmsd-dashboard .pms-card .pms-table-wrapper{ max-height:340px; overflow:auto; padding-right:6px; }
+
+/* Compact avatar and avatar spacing */
+.pmsd-dashboard .pmsd-avatar-sm{ width:36px; height:36px; border-radius:8px; font-size:0.72rem; }
+
+/* Table utilities */
+.pmsd-dashboard .text-muted-small{ color:var(--pms-text-muted,#94a3b8); font-size:0.82rem; }
 
 .pmsd-dashboard .pmsd-exec-cell{ display:flex; align-items:center; gap:9px; }
 .pmsd-dashboard .pmsd-avatar-sm{
@@ -350,6 +363,25 @@
     .pmsd-hero{ padding:26px 22px; }
     .pmsd-hero-watermark{ display:none; }
 }
+
+/* Responsive tweaks for small screens */
+@media (max-width: 1200px){
+    .pmsd-hero{ padding:26px; }
+    .pmsd-hero .pms-page-title{ font-size:1.35rem; }
+    .pmsd-dashboard .pms-card{ padding:14px; }
+}
+
+.pmsd-hero-actions a{ text-decoration:none; }
+
+.btn-pms-primary{ display:inline-flex; gap:8px; align-items:center; height:44px; padding:0 16px; border-radius:12px; background:#4f46e5; color:#fff; font-weight:700; }
+.btn-pms-primary i{ font-size:0.95rem }
+.btn-pms-secondary{ display:inline-flex; gap:8px; align-items:center; height:44px; padding:0 16px; border-radius:12px; background:transparent; color:#4f46e5; border:1.5px solid rgba(79,70,229,0.12); font-weight:700; }
+
+.pmsd-dashboard .pms-card .pms-card-header .pms-card-title small{ color:var(--pms-text-muted,#94a3b8); }
+
+.pmsd-dashboard .pms-table thead th{ background: linear-gradient(180deg,#fbfbff,#ffffff); }
+
+.pmsd-hero .pms-page-subtitle{ max-width:520px; }
 </style>
 @endpush
 
@@ -367,7 +399,10 @@
         </h1>
         <p class="pms-page-subtitle">A live overview of audits, scores and rankings across every company.</p>
     </div>
-    
+    <div class="pmsd-hero-actions">
+        <a href="{{ route('daily_audit.create') }}" class="btn-pms-primary"><i class="fa-solid fa-circle-plus me-2"></i> New Audit</a>
+        <a href="{{ route('reports.index', ['type'=>'monthly']) }}" class="btn-pms-secondary"><i class="fa-solid fa-file-export me-2"></i> Reports</a>
+    </div>
 </div>
 
 {{-- Top Stats Row --}}
@@ -527,6 +562,67 @@
                     </div>
                 </div>
                 @endforeach
+            </div>
+        </div>
+    </div>
+</div>
+
+{{-- Monthly Performance Summary --}}
+<div class="row g-3 mb-3">
+    <div class="col-12">
+        <div class="pms-card">
+            <div class="pms-card-header">
+                <div class="pms-card-title">
+                    <i class="fa-solid fa-bullseye pmsd-icon-chip-violet"></i>
+                    <span>Monthly Admission Performance</span>
+                </div>
+            </div>
+            <div class="row g-2 mb-3 align-items-center">
+                <div class="col-md-9">
+                    <div style="font-weight:700;color:var(--pms-text-primary);">
+                        Showing: <span style="font-weight:600;color:var(--pms-text-muted);">{{ $selectedCompanyId ? $companies->firstWhere('id',$selectedCompanyId)->name : 'All Companies' }}</span>
+                        · <span style="font-weight:600;color:var(--pms-text-muted);">{{ $selectedZoneId ? App\Models\Zone::find($selectedZoneId)?->name : 'All Zones' }}</span>
+                        · <span style="font-weight:600;color:var(--pms-text-muted);">{{ \Carbon\Carbon::create()->month($selectedMonth)->format('M') }} {{ $selectedYear }}</span>
+                    </div>
+                    <div style="font-size:0.86rem;color:var(--pms-text-muted);margin-top:6px;">Monthly admission performance snapshot — use the Reports page to apply advanced filters.</div>
+                </div>
+                <div class="col-md-3 text-end">
+                    <a href="{{ route('reports.index', ['type'=>'monthly']) }}" class="btn btn-pms-secondary btn-sm">Open Reports</a>
+                </div>
+            </div>
+            <div class="pms-table-wrapper">
+                <table class="pms-table">
+                    <thead>
+                        <tr>
+                            <th>Executive</th>
+                            <th>Zone</th>
+                            <th>Target</th>
+                            <th>Admissions</th>
+                            <th>Remaining</th>
+                            <th>Achievement %</th>
+                            <th>Rank</th>
+                            <th>Eligible</th>
+                            <th>Bonus</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($monthlyPerformance as $row)
+                        <tr>
+                            <td>{{ $row['executive']->name }}</td>
+                            <td>{{ $row['executive']->zone?->name ?? '—' }}</td>
+                            <td>{{ $row['target'] }}</td>
+                            <td>{{ $row['admissions'] }}</td>
+                            <td>{{ $row['remaining'] }}</td>
+                            <td>{{ number_format($row['achievement'], 2) }}%</td>
+                            <td>{{ $row['rank'] ?? '—' }}</td>
+                            <td>{{ $row['eligible'] ? 'YES' : 'NO' }}</td>
+                            <td>{{ $row['eligible'] ? 'Pending' : '—' }}</td>
+                        </tr>
+                        @empty
+                        <tr><td colspan="9" class="pms-empty"><i class="fa-solid fa-bullseye"></i><p>No monthly admission data yet</p></td></tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

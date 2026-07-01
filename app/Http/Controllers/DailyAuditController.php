@@ -68,6 +68,7 @@ class DailyAuditController extends Controller
         'total_positive' => DailyAudit::whereDate('audit_date', $auditDate)->sum('positive_points'),
         'total_negative' => DailyAudit::whereDate('audit_date', $auditDate)->sum('negative_points'),
         'total_score' => DailyAudit::whereDate('audit_date', $auditDate)->sum('final_score'),
+        'total_admissions' => DailyAudit::whereDate('audit_date', $auditDate)->sum('admissions_today'),
     ];
 
     return view('daily_audit.index', compact(
@@ -115,6 +116,7 @@ class DailyAuditController extends Controller
             'connected_calls'           => $data['connected_calls'],
             'confirmed_meetings'        => $data['confirmed_meetings'],
             'meetings_attended'         => $data['meetings_attended'],
+            'admissions_today'          => $data['admissions_today'] ?? 0,
             'crm_followup'              => $data['crm_followup'] ?? false,
             'crm_disposition_correct'   => $data['crm_disposition_correct'] ?? false,
             'first_contact_within_45min'=> $data['first_contact_within_45min'] ?? false,
@@ -135,8 +137,18 @@ class DailyAuditController extends Controller
         try {
             $result = $this->orchestration->execute($audit, $data['violations'] ?? []);
 
+            // Flash a compact breakdown for UI popup consumption
+            $flashPoints = [
+                'final_score'     => $result['final_score'],
+                'positive_points' => $result['positive_points'] ?? $result['positive_points'] ?? 0,
+                'negative_points' => $result['negative_points'] ?? $result['negative_points'] ?? 0,
+                'recovery_points' => $result['recovery_points'] ?? 0,
+                'new_tier'        => $result['new_tier'] ?? null,
+            ];
+
             return redirect()->route('daily_audit.show', $result['audit'])
-                ->with('success', "✓ Audit saved for {$executive->name}. Final Score: {$result['final_score']} pts | Tier: " . ucfirst(str_replace('_', ' ', $result['new_tier'])));
+                ->with('success', "✓ Audit saved for {$executive->name}. Final Score: {$result['final_score']} pts | Tier: " . ucfirst(str_replace('_', ' ', $result['new_tier'])))
+                ->with('audit_points', $flashPoints);
         } catch (\Exception $e) {
             $audit->delete();
             return back()->withInput()->withErrors(['error' => 'Audit calculation failed: ' . $e->getMessage()]);
@@ -175,6 +187,9 @@ class DailyAuditController extends Controller
             'company_id'   => $executive->company_id,
             'executive_id' => $executive->id,
         ]));
+        if ($request->has('admissions_today')) {
+            $audit->admissions_today = (int) $request->input('admissions_today');
+        }
         $audit->setRelation('executive', $executive);
 
         try {
@@ -216,6 +231,7 @@ class DailyAuditController extends Controller
                 'monthly_score' => $executive->monthly_score,
                 'current_tier'  => $executive->current_tier,
                 'tier_label'    => $executive->tier_label,
+                'monthly_admission_target' => $executive->monthly_admission_target,
                 'rank'          => $rank,
                 'call_streak'   => $executive->call_streak_count,
                 'meeting_streak'=> $executive->meeting_streak_count,

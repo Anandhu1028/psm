@@ -13,6 +13,16 @@
             box-sizing: border-box;
         }
 
+        /* Global tweaks for Executive profile */
+        .ep-shell {
+            font-family: Inter, 'Segoe UI', Roboto, -apple-system, system-ui, 'Helvetica Neue', Arial, sans-serif;
+            color: #0f172a;
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            padding: 18px;
+            background: transparent;
+        }
+
         /* ══════════════════════ Header ══════════════════════ */
         .ep-header {
             display: flex;
@@ -21,10 +31,10 @@
             gap: 16px;
             flex-wrap: wrap;
             background: #fff;
-            border: 1px solid rgba(226, 232, 240, 0.7);
             border-radius: 16px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
+            padding: 18px 22px;
+            margin-bottom: 18px;
+            box-shadow: 0 8px 30px rgba(15,23,42,0.06);
         }
 
         .ep-header-left {
@@ -120,10 +130,11 @@
         .ep-card {
             background: #fff;
             border-radius: 16px;
-            border: 1px solid rgba(226, 232, 240, 0.7);
             overflow: hidden;
             margin-bottom: 16px;
-            transition: box-shadow 0.2s ease;
+            transition: box-shadow 0.22s ease, transform 0.18s ease;
+            box-shadow: 0 6px 20px rgba(15,23,42,0.04);
+            border: 1px solid rgba(226, 232, 240, 0.65);
         }
 
         .ep-card:last-child {
@@ -176,14 +187,14 @@
         }
 
         .ep-card-body {
-            padding: 16px 18px;
+            padding: 18px 20px;
         }
 
         /* ══════════════════════ Main grid ══════════════════════ */
         .ep-main-grid {
             display: grid;
-            grid-template-columns: minmax(250px, 300px) minmax(0, 1fr);
-            gap: 16px;
+            grid-template-columns: minmax(280px, 320px) minmax(0, 1fr);
+            gap: 18px;
             align-items: start;
         }
 
@@ -199,19 +210,19 @@
         }
 
         .ep-profile-avatar {
-            width: 64px;
-            height: 64px;
-            border-radius: 16px;
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
             margin: 0 auto 12px;
             background: linear-gradient(135deg, #4338ca, #a5b4fc);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.1rem;
+            font-size: 1.25rem;
             font-weight: 800;
             color: #fff;
             letter-spacing: 0.03em;
-            box-shadow: 0 4px 14px rgba(67, 56, 202, 0.25);
+            box-shadow: 0 8px 26px rgba(67, 56, 202, 0.14);
         }
 
         .ep-profile-name {
@@ -312,7 +323,7 @@
         }
 
         .ep-score-val {
-            font-size: 1.15rem;
+            font-size: 1.35rem;
             font-weight: 900;
             letter-spacing: -0.04em;
             line-height: 1;
@@ -377,8 +388,10 @@
         /* ── Chart card ── */
         .ep-chart-wrap {
             position: relative;
-            padding: 6px 4px 0;
-            height: 240px;
+            padding: 8px 6px 0;
+            height: 320px;
+            border-radius: 10px;
+            overflow: hidden;
         }
 
         .ep-chart-empty {
@@ -480,7 +493,7 @@
         }
 
         .ep-scroll-area {
-            max-height: 320px;
+            max-height: 380px;
             overflow-y: auto;
         }
 
@@ -599,7 +612,7 @@
         /* ══════════════════════ Tier history — modern timeline ══════════════════════ */
         .ep-timeline {
             position: relative;
-            padding-left: 24px;
+            padding-left: 28px;
         }
 
         .ep-timeline::before {
@@ -624,15 +637,15 @@
 
         .ep-timeline-dot {
             position: absolute;
-            left: -24px;
+            left: -28px;
             top: 50%;
-            width: 12px;
-            height: 12px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
             transform: translateY(-50%);
             background: #fff;
             border: 3px solid #6366f1;
-            box-shadow: 0 0 0 3px #eef2ff;
+            box-shadow: 0 0 0 4px rgba(99,102,241,0.06);
         }
 
         .ep-timeline-content {
@@ -782,6 +795,31 @@
                 margin-left: 0;
             }
         }
+        /* 50:50 split equal-height helper */
+        .ep-split-equal {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            align-items: stretch;
+        }
+
+        .ep-split-equal > .ep-card {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .ep-split-equal > .ep-card .ep-card-body {
+            flex: 1 1 auto;
+            display: flex;
+            flex-direction: column;
+            padding: 14px 16px;
+        }
+
+        .ep-split-equal .ep-scroll-area {
+            flex: 1 1 auto;
+            min-height: 0; /* allow scroll area to constrain inside flex */
+        }
     </style>
 @endpush
 
@@ -806,7 +844,8 @@
         $execTierStyle = $tierStyle($executive->current_tier);
 
         $perPage = 8;
-        $txCount = $executive->pointTransactions->count();
+        $txLoaded = $executive->pointTransactions->count();
+        $txCount = $executive->pointTransactions()->count();
         $txTotalPages = max(1, (int) ceil($txCount / $perPage));
 
         $isActive = $executive->status === 'active';
@@ -830,6 +869,9 @@
                         <i class="fa-solid fa-pen"></i> Edit
                     </button>
                 @endcan -->
+                <a href="{{ route('executives.export_profile', $executive) }}" class="ep-btn ep-btn-secondary">
+                    <i class="fa-solid fa-file-excel"></i> Export Excel
+                </a>
                 <a href="{{ route('daily_audit.create') }}?executive_id={{ $executive->id }}" class="ep-btn ep-btn-primary">
                     <i class="fa-solid fa-plus"></i> Enter Audit
                 </a>
@@ -907,6 +949,7 @@
                                 </div>
                             </div>
                         </div>
+                        {{-- Recent Audits removed from left column — will be shown in right column split view --}}
                     </div>
                 </div>
 
@@ -939,99 +982,7 @@
                     </div>
                 </div>
 
-            </div>
-
-            {{-- ───── RIGHT COLUMN ───── --}}
-            <div class="ep-col-right">
-
-                {{-- Monthly Score Chart --}}
-                <div class="ep-card">
-                    <div class="ep-card-header">
-                        <div class="ep-card-icon" style="background:#eef2ff;color:#6366f1;"><i
-                                class="fa-solid fa-chart-line"></i></div>
-                        <span class="ep-card-title">Monthly Score History</span>
-                    </div>
-                    <div class="ep-card-body">
-                        <div class="ep-chart-wrap">
-                            <canvas id="monthlyScoreChart"></canvas>
-                            <div class="ep-chart-empty" id="epChartEmpty">
-                                <i class="fa-solid fa-chart-line"></i>
-                                <p>No score history yet</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="ep-split-row">
-
-                    {{-- Recent Audits --}}
-                    <div class="ep-card">
-                        <div class="ep-card-header">
-                            <div class="ep-card-icon" style="background:#ecfdf5;color:#10b981;"><i
-                                    class="fa-solid fa-clock-rotate-left"></i></div>
-                            <span class="ep-card-title">Recent Audits</span>
-                            <a href="{{ route('daily_audit.index', ['executive_id' => $executive->id]) }}"
-                                class="ep-card-link">View All</a>
-                        </div>
-                        <div class="ep-scroll-area">
-                            <div class="ep-table-wrap">
-                                <table class="ep-table">
-                                    <thead>
-                                        <tr>
-                                            <th>Date</th>
-                                            <th class="text-center">Calls</th>
-                                            <th class="text-center">Meetings</th>
-                                            <th class="text-center">Score</th>
-                                            <th class="text-center">KPI</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($executive->dailyAudits as $audit)
-                                            <tr>
-                                                <td><a href="{{ route('daily_audit.show', $audit) }}"
-                                                        class="ep-link-date">{{ $audit->audit_date->format('d M Y') }}</a></td>
-                                                <td class="text-center">
-                                                    <span class="ep-num-cell"><i
-                                                            class="fa-solid fa-phone"></i>{{ $audit->connected_calls }}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="ep-num-cell"><i
-                                                            class="fa-solid fa-handshake"></i>{{ $audit->confirmed_meetings }}</span>
-                                                </td>
-                                                <td class="text-center">
-                                                    <span class="ep-score-pill"
-                                                        style="background:{{ $audit->final_score >= 0 ? '#ecfdf5' : '#fff1f2' }};color:{{ $audit->final_score >= 0 ? '#059669' : '#e11d48' }};">
-                                                        {{ $audit->final_score >= 0 ? '+' : '' }}{{ $audit->final_score }}
-                                                    </span>
-                                                </td>
-                                                <td class="text-center">
-                                                    @if($audit->kpi_status === 'passed')
-                                                        <span class="ep-kpi-dot ep-kpi-pass"><i
-                                                                class="fa-solid fa-check"></i></span>
-                                                    @elseif($audit->kpi_status === 'failed')
-                                                        <span class="ep-kpi-dot ep-kpi-fail"><i
-                                                                class="fa-solid fa-xmark"></i></span>
-                                                    @else
-                                                        <span class="ep-kpi-dot ep-kpi-none">—</span>
-                                                    @endif
-                                                </td>
-                                            </tr>
-                                        @empty
-                                            <tr>
-                                                <td colspan="5">
-                                                    <div class="ep-empty"><i class="fa-solid fa-clipboard"></i>
-                                                        <p>No audits yet</p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-
-                    {{-- Tier History — modern timeline, date right-aligned --}}
+                 {{-- Tier History — modern timeline, date right-aligned --}}
                     <div class="ep-card">
                         <div class="ep-card-header">
                             <div class="ep-card-icon" style="background:#f5f3ff;color:#7c3aed;"><i
@@ -1072,10 +1023,95 @@
                         </div>
                     </div>
 
+            </div>
+
+            {{-- ───── RIGHT COLUMN ───── --}}
+            <div class="ep-col-right">
+
+                {{-- Monthly Score Chart --}}
+                <div class="ep-card">
+                    <div class="ep-card-header">
+                        <div class="ep-card-icon" style="background:#eef2ff;color:#6366f1;"><i
+                                class="fa-solid fa-chart-line"></i></div>
+                        <span class="ep-card-title">Monthly Score History</span>
+                    </div>
+                    <div class="ep-card-body">
+                        <div class="ep-chart-wrap">
+                            <canvas id="monthlyScoreChart"></canvas>
+                            <div class="ep-chart-empty" id="epChartEmpty">
+                                <i class="fa-solid fa-chart-line"></i>
+                                <p>No score history yet</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                {{-- Recent Point Transactions — scrollable + paginated --}}
+                {{-- Monthly Performance Card --}}
                 <div class="ep-card">
+                    <div class="ep-card-header">
+                        <div class="ep-card-icon" style="background:#eef2ff;color:#0ea5e9;"><i class="fa-solid fa-bullseye"></i></div>
+                        <span class="ep-card-title">Monthly Performance</span>
+                    </div>
+                    <div class="ep-card-body">
+                        @if($metrics)
+                            <div class="row g-3 align-items-center">
+                                <div class="col-md-4 d-flex align-items-center">
+                                    <div>
+                                        <div style="font-size:0.9rem;color:#6b7280">Monthly Target</div>
+                                        <div style="font-size:1.6rem;font-weight:700;color:#111827">{{ $metrics['target'] }}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div style="font-size:0.9rem;color:#6b7280">Admissions Achieved</div>
+                                    <div style="font-size:1.6rem;font-weight:700;color:#059669">{{ $metrics['admissions'] }}</div>
+                                    <div class="mt-2" style="height:10px;background:#eef2ff;border-radius:999px;overflow:hidden">
+                                        @php $pct = max(0, min(100, round($metrics['achievement']))); @endphp
+                                        <div style="width:{{ $pct }}%;height:100%;background:linear-gradient(90deg,#22c55e,#06b6d4);"></div>
+                                    </div>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <div style="font-size:0.9rem;color:#6b7280">Achievement</div>
+                                    <div style="font-size:1.6rem;font-weight:700;color:#111827">{{ number_format($metrics['achievement'], 2) }}%</div>
+                                    <div class="mt-2">
+                                        @php
+                                            $eligible = ($metrics['achievement'] >= 80);
+                                            $bonusAwarded = $executive->pointTransactions()->where('category', 'quality_bonus')
+                                                ->whereYear('audit_date', now()->year)->whereMonth('audit_date', now()->month)->exists();
+                                        @endphp
+                                        <span class="badge" style="background:{{ $eligible ? '#e6fffa' : '#f3f4f6' }};color:{{ $eligible ? '#059669' : '#6b7280' }};font-weight:600;margin-right:8px;">{{ $eligible ? '80%+ Target Eligible' : 'Fallback Ranking' }}</span>
+                                        <span class="badge" style="background:{{ $bonusAwarded ? '#fff7ed' : '#eef2ff' }};color:{{ $bonusAwarded ? '#ea580c' : '#0ea5e9' }};font-weight:600;">{{ $bonusAwarded ? 'Bonus Awarded (+15)' : ($eligible ? 'Bonus Pending' : 'Top 3 Consideration') }}</span>
+                                    </div>
+                                </div>
+                                <div class="col-12">
+                                    <div class="row g-2">
+                                        <div class="col-md-4">
+                                            <div style="font-size:0.85rem;color:#6b7280">Remaining</div>
+                                            <div style="font-weight:600">{{ $metrics['remaining'] }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div style="font-size:0.85rem;color:#6b7280">Current Rank</div>
+                                            <div style="font-weight:600">{{ $metrics['rank'] ?? '—' }}</div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <div style="font-size:0.85rem;color:#6b7280">Last Updated</div>
+                                            <div style="font-weight:600">{{ now()->format('d M Y') }}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="ep-empty"><i class="fa-solid fa-bullseye"></i><p>No monthly data available</p></div>
+                        @endif
+                    </div>
+                </div>
+
+                {{-- split row removed; Recent Audits will be shown full-width below --}}
+
+                {{-- 50:50 split: Recent Point Transactions (left) + Recent Audits (right) --}}
+                <div class="ep-split-equal">
+
+                    {{-- Recent Point Transactions — scrollable + paginated --}}
+                    <div class="ep-card">
                     <div class="ep-card-header">
                         <div class="ep-card-icon" style="background:#fffbeb;color:#f59e0b;"><i
                                 class="fa-solid fa-coins"></i></div>
@@ -1095,7 +1131,6 @@
                                     <thead>
                                         <tr>
                                             <th>Date</th>
-                                            <th>Description</th>
                                             <th>Category</th>
                                             <th class="text-end">Points</th>
                                         </tr>
@@ -1103,14 +1138,9 @@
                                     <tbody id="epTxBody">
                                         @foreach($executive->pointTransactions as $tx)
                                             <tr data-page="{{ intdiv($loop->index, $perPage) + 1 }}">
-                                                <td style="font-size:0.75rem;color:#94a3b8;white-space:nowrap;">
-                                                    {{ $tx->audit_date->format('d M Y') }}</td>
-                                                <td style="font-size:0.8rem;">{{ $tx->description }}</td>
+                                                <td style="font-size:0.75rem;color:#94a3b8;white-space:nowrap;">{{ $tx->audit_date->format('d M Y') }}</td>
                                                 <td><span class="ep-cat-badge">{{ ucfirst($tx->category) }}</span></td>
-                                                <td class="text-end"
-                                                    style="font-weight:700;color:{{ $tx->type === 'credit' ? '#059669' : '#e11d48' }};">
-                                                    {{ $tx->type === 'credit' ? '+' : '-' }}{{ $tx->points }}
-                                                </td>
+                                                <td class="text-end" style="font-weight:700;color:{{ $tx->type === 'credit' ? '#059669' : '#e11d48' }};">{{ $tx->type === 'credit' ? '+' : '-' }}{{ $tx->points }}</td>
                                             </tr>
                                         @endforeach
                                     </tbody>
@@ -1118,8 +1148,8 @@
                             </div>
                         </div>
                         <div class="ep-tx-footer">
-                            <span class="ep-tx-footer-info">Showing <strong>{{ min($perPage, $txCount) }}</strong> of
-                                <strong>{{ $txCount }}</strong> per page</span>
+                            <span class="ep-tx-footer-info">Showing <strong>{{ min($perPage, $txLoaded) }}</strong> of
+                                <strong>{{ $txCount }}</strong> total</span>
                             <div class="ep-pager">
                                 <button type="button" id="epTxPrev" class="ep-pager-btn"><i
                                         class="fa-solid fa-chevron-left"></i> Prev</button>
@@ -1133,6 +1163,61 @@
                             <p>No transactions yet</p>
                         </div>
                     @endif
+                    </div>
+
+                    {{-- Recent Audits (right half) --}}
+                    <div class="ep-card">
+                        <div class="ep-card-header">
+                            <div class="ep-card-icon" style="background:#ecfdf5;color:#10b981;"><i class="fa-solid fa-clock-rotate-left"></i></div>
+                            <span class="ep-card-title">Recent Audits</span>
+                            <a href="{{ route('daily_audit.index', ['executive_id' => $executive->id]) }}" class="ep-card-link">View All</a>
+                        </div>
+                        <div class="ep-card-body">
+                            <div class="ep-scroll-area">
+                                <div class="ep-table-wrap">
+                                    <table class="ep-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Date</th>
+                                                <th class="text-center">Calls</th>
+                                                <th class="text-center">Meetings</th>
+                                                <th class="text-center">Score</th>
+                                                <th class="text-center">KPI</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($executive->dailyAudits as $audit)
+                                                <tr>
+                                                    <td><a href="{{ route('daily_audit.show', $audit) }}" class="ep-link-date">{{ $audit->audit_date->format('d M Y') }}</a></td>
+                                                    <td class="text-center"><span class="ep-num-cell"><i class="fa-solid fa-phone"></i>{{ $audit->connected_calls }}</span></td>
+                                                    <td class="text-center"><span class="ep-num-cell"><i class="fa-solid fa-handshake"></i>{{ $audit->confirmed_meetings }}</span></td>
+                                                    <td class="text-center"><span class="ep-score-pill" style="background:{{ $audit->final_score >= 0 ? '#ecfdf5' : '#fff1f2' }};color:{{ $audit->final_score >= 0 ? '#059669' : '#e11d48' }};">{{ $audit->final_score >= 0 ? '+' : '' }}{{ $audit->final_score }}</span></td>
+                                                    <td class="text-center">
+                                                        @if($audit->kpi_status === 'passed')
+                                                            <span class="ep-kpi-dot ep-kpi-pass"><i class="fa-solid fa-check"></i></span>
+                                                        @elseif($audit->kpi_status === 'failed')
+                                                            <span class="ep-kpi-dot ep-kpi-fail"><i class="fa-solid fa-xmark"></i></span>
+                                                        @else
+                                                            <span class="ep-kpi-dot ep-kpi-none">—</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr>
+                                                    <td colspan="5">
+                                                        <div class="ep-empty"><i class="fa-solid fa-clipboard"></i>
+                                                            <p>No audits yet</p>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
@@ -1298,12 +1383,22 @@
                     datasets: [{
                         label: 'Net Score',
                         data: scores,
+                        // segment coloring: green when rising, red when falling
+                        segment: {
+                            borderColor: ctx => (ctx.p0.parsed.y <= ctx.p1.parsed.y ? '#059669' : '#e11d48')
+                        },
+                        // fallback border color for single-segment cases
                         borderColor: '#4f46e5',
                         backgroundColor: gradient,
                         borderWidth: 3,
                         fill: true,
                         tension: 0.35,
-                        pointBackgroundColor: '#4f46e5',
+                        pointBackgroundColor: function (context) {
+                            const i = context.dataIndex;
+                            const arr = context.dataset.data || [];
+                            if (i === 0) return '#4f46e5';
+                            return (arr[i] >= arr[i - 1]) ? '#059669' : '#e11d48';
+                        },
                         pointBorderColor: '#fff',
                         pointBorderWidth: 2,
                         pointRadius: 5,

@@ -28,12 +28,7 @@ interface CalculationStrategyInterface
      */
     public function calculateNegative(array $context, Collection $negativeRules, array $selectedViolations): array;
 
-    /**
-     * Calculate recovery points from the audit context.
-     *
-     * @return array{total: int, breakdown: array}
-     */
-    public function calculateRecovery(array $context, Collection $recoveryRules, int $maxRecovery): array;
+
 
     /**
      * Build the audit context array from a DailyAudit and its executive's history.

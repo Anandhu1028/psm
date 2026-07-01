@@ -27,6 +27,7 @@ class UpdateExecutiveRequest extends FormRequest
             'status'             => ['required', 'in:probation,active,inactive'],
             'notes'              => ['nullable', 'string', 'max:1000'],
             'photo'              => ['nullable', 'image', 'max:2048'],
+            'monthly_admission_target' => ['required', 'integer', 'min:0'],
         ];
     }
 }

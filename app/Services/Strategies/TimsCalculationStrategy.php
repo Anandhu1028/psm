@@ -110,26 +110,7 @@ class TimsCalculationStrategy implements CalculationStrategyInterface
         return ['total' => abs($total), 'breakdown' => $breakdown];
     }
 
-    public function calculateRecovery(array $context, Collection $recoveryRules, int $maxRecovery): array
-    {
-        $total     = 0;
-        $breakdown = [];
 
-        foreach ($recoveryRules as $rule) {
-            $result = $this->applyRule($rule, $context);
-            if ($result !== null && $result['points'] > 0) {
-                $total     += $result['points'];
-                $breakdown[] = $result;
-            }
-        }
-
-        // Enforce max daily recovery cap
-        if ($total > $maxRecovery) {
-            $total = $maxRecovery;
-        }
-
-        return ['total' => $total, 'breakdown' => $breakdown];
-    }
 
     // ── Private Helpers ────────────────────────────────────────────────────────
 

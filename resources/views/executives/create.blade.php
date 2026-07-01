@@ -77,6 +77,10 @@
                         <option value="inactive"  {{ old('status') === 'inactive' ? 'selected' : '' }}>Inactive</option>
                     </select>
                 </div>
+                <div class="col-md-4">
+                    <label class="form-label">Monthly Admission Target <span class="text-danger">*</span></label>
+                    <input type="number" name="monthly_admission_target" class="form-control" min="0" value="{{ old('monthly_admission_target', 0) }}" required>
+                </div>
             </div>
         </div>
 

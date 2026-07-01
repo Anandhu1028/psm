@@ -24,6 +24,12 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ExecutiveRepositoryInterface::class,  EloquentExecutiveRepository::class);
         $this->app->bind(DailyAuditRepositoryInterface::class, EloquentDailyAuditRepository::class);
         $this->app->bind(RuleRepositoryInterface::class,       EloquentRuleRepository::class);
+
+        // Recovery engine services — singletons so history queries are not duplicated
+        $this->app->singleton(\App\Services\Recovery\RecoveryHistoryService::class);
+        $this->app->singleton(\App\Services\Recovery\RecoveryEligibilityService::class);
+        $this->app->singleton(\App\Services\Recovery\RecoveryCalculationService::class);
+        $this->app->singleton(\App\Services\Recovery\RecoveryTransactionService::class);
     }
 
     public function boot(): void

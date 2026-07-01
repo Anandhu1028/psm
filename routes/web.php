@@ -37,6 +37,7 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Point History ──────────────────────────────────────────────────────────
     Route::get('point-history', [PointHistoryController::class, 'index'])->name('point_history.index');
+    Route::get('point-history/export', [PointHistoryController::class, 'export'])->name('point_history.export');
 
     // ── Leaderboards ───────────────────────────────────────────────────────────
     Route::get('leaderboards',         [LeaderboardController::class, 'index'])->name('leaderboards.index');
@@ -48,8 +49,10 @@ Route::middleware(['auth'])->group(function () {
 
     // ── Executives ─────────────────────────────────────────────────────────────
     Route::get('executives',                    [ExecutiveController::class, 'index'])->name('executives.index');
+    Route::get('executives/export',             [ExecutiveController::class, 'export'])->name('executives.export');
     Route::get('executives/create',             [ExecutiveController::class, 'create'])->name('executives.create');
     Route::post('executives',                   [ExecutiveController::class, 'store'])->name('executives.store');
+    Route::get('executives/{executive}/export', [ExecutiveController::class, 'exportProfile'])->name('executives.export_profile');
     Route::get('executives/{executive}',        [ExecutiveController::class, 'show'])->name('executives.show');
     Route::get('executives/{executive}/edit',   [ExecutiveController::class, 'edit'])->name('executives.edit');
     Route::put('executives/{executive}',        [ExecutiveController::class, 'update'])->name('executives.update');

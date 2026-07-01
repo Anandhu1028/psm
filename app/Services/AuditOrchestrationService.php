@@ -2,17 +2,16 @@
 
 namespace App\Services;
 
-use App\Contracts\CalculationStrategyInterface;
 use App\Models\AuditLog;
 use App\Models\DailyAudit;
 use App\Models\Executive;
 use App\Models\PointTransaction;
 use App\Models\TierHistory;
 use App\Repositories\Contracts\RuleRepositoryInterface;
-use App\Services\StrategyResolver;
-use App\Services\TierEngineService;
-use App\Services\ScoreEngineService;
-use App\Services\LeaderboardService;
+use App\Services\Recovery\RecoveryCalculationService;
+use App\Services\Recovery\RecoveryEligibilityService;
+use App\Services\Recovery\RecoveryHistoryService;
+use App\Services\Recovery\RecoveryTransactionService;
 use App\Events\AuditSubmitted;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -22,21 +21,23 @@ use Illuminate\Support\Facades\DB;
  *
  * Single entry point for the entire audit workflow.
  * Controllers call this — never any other service directly.
- *
- * Execution order (spec §12):
- * Load Rules → KPI Validate → Positive Points → Negative Points
- * → Recovery Points → Final Score → Transactions → Monthly Score
- * → Tier → Leaderboard → Audit Log → Event
  */
 class AuditOrchestrationService
 {
     public function __construct(
-        private RuleRepositoryInterface $rules,
-        private StrategyResolver        $strategyResolver,
-        private TierEngineService       $tierEngine,
-        private ScoreEngineService      $scoreEngine,
-        private LeaderboardService      $leaderboard,
+        private RuleRepositoryInterface    $rules,
+        private StrategyResolver           $strategyResolver,
+        private TierEngineService          $tierEngine,
+        private ScoreEngineService         $scoreEngine,
+        private LeaderboardService         $leaderboard,
+        // ── Recovery engine services ───────────────────────────────────────
+        private RecoveryEligibilityService  $recoveryEligibility,
+        private RecoveryCalculationService  $recoveryCalculation,
+        private RecoveryTransactionService  $recoveryTransaction,
+        private RecoveryHistoryService      $recoveryHistory,
     ) {}
+
+    // ── Public API ─────────────────────────────────────────────────────────────
 
     /**
      * Preview score without writing to DB.
@@ -54,15 +55,39 @@ class AuditOrchestrationService
         $negativeRules = $this->rules->negativeRules($company->id);
         $recoveryRules = $this->rules->recoveryRules($company->id);
 
+        // Stage 1 – Positive
         $kpiResult      = $strategy->validateKpi($context, $kpiRules);
         $positiveResult = $strategy->calculatePositive($context, $positiveRules);
+
+        // Stage 2 – Negative
         $negativeResult = $strategy->calculateNegative($context, $negativeRules, $selectedViolations);
 
-        $maxRecovery    = (int) ($this->rules->byCategory($company->id, 'recovery_cap')
-                            ->first()?->threshold_value ?? 20);
-        $recoveryResult = $strategy->calculateRecovery($context, $recoveryRules, $maxRecovery);
+        $auditDate   = \Carbon\Carbon::parse($audit->audit_date);
+        $startOfWeek = $auditDate->clone()->startOfWeek(\Carbon\Carbon::MONDAY);
+
+        // Rule 5 checks previous days of the current week only (not today, not future)
+        $weekRangeEnd = $auditDate->clone()->subDay();
+        $pastDebitsThisWeek = false;
+        if ($weekRangeEnd->gte($startOfWeek)) {
+            $query = DB::table('point_transactions')
+                ->where('executive_id', $audit->executive_id)
+                ->where('type', 'debit')
+                ->whereBetween('audit_date', [$startOfWeek->toDateString(), $weekRangeEnd->toDateString()]);
+
+            if ($audit->id) {
+                $query->where('daily_audit_id', '!=', $audit->id);
+            }
+
+            $pastDebitsThisWeek = $query->exists();
+        }
+        $context['has_week_deductions'] = $pastDebitsThisWeek || ($negativeResult['total'] > 0);
+
+        // Stage 3 & 4 – Recovery (gated by eligibility)
+        $recoveryResult = $this->runRecoveryEngine($audit, $context, $recoveryRules);
 
         $finalScore = $positiveResult['total'] - $negativeResult['total'] + $recoveryResult['total'];
+
+        $remainingBalance = $this->recoveryHistory->getRemainingBalance($audit->executive_id, $auditDate);
 
         return [
             'kpi'             => $kpiResult,
@@ -70,6 +95,10 @@ class AuditOrchestrationService
             'negative_points' => $negativeResult['total'],
             'recovery_points' => $recoveryResult['total'],
             'final_score'     => $finalScore,
+            'kpi_passed'      => $kpiResult['passed'],
+            'recovery_breakdown' => $recoveryResult['breakdown'] ?? [],
+            'remaining_recoverable_balance' => $remainingBalance,
+            'recovery_capped_amount' => $recoveryResult['capped_amount'] ?? 0,
             'breakdown'       => [
                 'positive' => $positiveResult['breakdown'],
                 'negative' => $negativeResult['breakdown'],
@@ -89,7 +118,7 @@ class AuditOrchestrationService
             $company   = $executive->company;
             $strategy  = $this->strategyResolver->resolve($company);
 
-            // ── 1. Build context & calculate all points ────────────────────────
+            // ── Build context ────────────────────────────────────────────────
             $context  = $strategy->buildContext($audit);
             $context['selected_violations'] = $selectedViolations;
 
@@ -98,20 +127,48 @@ class AuditOrchestrationService
             $negativeRules = $this->rules->negativeRules($company->id);
             $recoveryRules = $this->rules->recoveryRules($company->id);
 
+            // ── Stage 1: Positive Points ─────────────────────────────────────
             $kpiResult      = $strategy->validateKpi($context, $kpiRules);
             $positiveResult = $strategy->calculatePositive($context, $positiveRules);
+
+            // ── Stage 2: Negative Deductions ─────────────────────────────────
             $negativeResult = $strategy->calculateNegative($context, $negativeRules, $selectedViolations);
 
-            $maxRecovery    = (int) ($this->rules->byCategory($company->id, 'recovery_cap')
-                                ->first()?->threshold_value ?? 20);
-            $recoveryResult = $strategy->calculateRecovery($context, $recoveryRules, $maxRecovery);
+            $auditDate   = \Carbon\Carbon::parse($audit->audit_date);
+            $startOfWeek = $auditDate->clone()->startOfWeek(\Carbon\Carbon::MONDAY);
+
+            // Rule 5 checks previous days of the current week only (not today, not future)
+            $weekRangeEnd = $auditDate->clone()->subDay();
+            $pastDebitsThisWeek = false;
+            if ($weekRangeEnd->gte($startOfWeek)) {
+                $query = DB::table('point_transactions')
+                    ->where('executive_id', $audit->executive_id)
+                    ->where('type', 'debit')
+                    ->whereBetween('audit_date', [$startOfWeek->toDateString(), $weekRangeEnd->toDateString()]);
+
+                if ($audit->id) {
+                    $query->where('daily_audit_id', '!=', $audit->id);
+                }
+
+                $pastDebitsThisWeek = $query->exists();
+            }
+            $context['has_week_deductions'] = $pastDebitsThisWeek || ($negativeResult['total'] > 0);
+
+            // ── Stage 3 & 4: Recovery Engine (gated) ─────────────────────────
+            $recoveryResult = $this->runRecoveryEngine($audit, $context, $recoveryRules);
 
             $finalScore = $positiveResult['total'] - $negativeResult['total'] + $recoveryResult['total'];
 
-            // ── 2. Delete previous transactions for this audit (re-submit) ─────
-            PointTransaction::where('daily_audit_id', $audit->id)->delete();
+            // ── Delete previous transactions for this audit (re-submit) ───────
+            PointTransaction::where('daily_audit_id', $audit->id)
+                ->where('category', '!=', 'recovery')
+                ->delete();
 
-            // ── 3. Save scores onto the audit ──────────────────────────────────
+            PointTransaction::where('daily_audit_id', $audit->id)
+                ->where('category', 'recovery')
+                ->delete();
+
+            // ── Save scores onto the audit ────────────────────────────────────
             $audit->positive_points  = $positiveResult['total'];
             $audit->negative_points  = $negativeResult['total'];
             $audit->recovery_points  = $recoveryResult['total'];
@@ -122,7 +179,7 @@ class AuditOrchestrationService
             $audit->status           = 'pending';
             $audit->save();
 
-            // ── 4. Create permanent point transactions ─────────────────────────
+            // ── Create positive & negative transactions ───────────────────────
             $runningTotal = $executive->current_score;
 
             foreach ($positiveResult['breakdown'] as $item) {
@@ -131,21 +188,24 @@ class AuditOrchestrationService
             }
 
             foreach ($negativeResult['breakdown'] as $item) {
-                $runningTotal += $item['points']; // item['points'] is already negative
+                $runningTotal += $item['points'];
                 $this->createTransaction($audit, $executive, $item, 'debit', $runningTotal);
             }
 
-            foreach ($recoveryResult['breakdown'] as $item) {
-                $runningTotal += $item['points'];
-                $this->createTransaction($audit, $executive, $item, 'credit', $runningTotal);
-            }
+            // ── Stage 4 persist: Recovery via dedicated service ───────────────
+            $runningTotal = $this->recoveryTransaction->persist(
+                $audit,
+                $executive,
+                $recoveryResult['breakdown'],
+                $runningTotal
+            );
 
-            // ── 5. Update executive's cumulative score ─────────────────────────
+            // ── Update executive's cumulative score ───────────────────────────
             $oldScore = $executive->current_score;
             $newScore = $this->scoreEngine->recalculateCurrentScore($executive);
             $executive->refresh();
 
-            // ── 6. Determine and update tier ───────────────────────────────────
+            // ── Determine and update tier ─────────────────────────────────────
             $oldTier = $executive->current_tier;
             $newTier = $this->tierEngine->determineTier($executive, $newScore);
             $executive->current_tier = $newTier;
@@ -164,20 +224,20 @@ class AuditOrchestrationService
                 ]);
             }
 
-            // ── 7. Update monthly score ────────────────────────────────────────
+            // ── Update monthly score ──────────────────────────────────────────
             $this->scoreEngine->updateMonthlyScore($executive, $audit);
 
-            // ── 8. Update streak counts ────────────────────────────────────────
+            // ── Update streak counts ──────────────────────────────────────────
             $this->updateStreaks($executive, $audit);
 
-            // ── 9. Refresh leaderboard ─────────────────────────────────────────
+            // ── Refresh leaderboard ───────────────────────────────────────────
             $this->leaderboard->refresh(
                 $company->id,
                 $audit->audit_date->year,
                 $audit->audit_date->month,
             );
 
-            // ── 10. Record audit log ───────────────────────────────────────────
+            // ── Record audit log ──────────────────────────────────────────────
             AuditLog::create([
                 'auditable_type' => DailyAudit::class,
                 'auditable_id'   => $audit->id,
@@ -195,8 +255,10 @@ class AuditOrchestrationService
                 'ip_address'     => request()->ip(),
             ]);
 
-            // ── 11. Fire event (async leaderboard + notifications) ─────────────
+            // ── Fire event ────────────────────────────────────────────────────
             event(new AuditSubmitted($audit, $executive));
+
+            $remainingBalance = $this->recoveryHistory->getRemainingBalance($executive->id, $auditDate);
 
             return [
                 'audit'           => $audit->fresh(),
@@ -208,6 +270,9 @@ class AuditOrchestrationService
                 'kpi_passed'      => $kpiResult['passed'],
                 'new_tier'        => $newTier,
                 'tier_changed'    => $oldTier !== $newTier,
+                'recovery_breakdown' => $recoveryResult['breakdown'] ?? [],
+                'remaining_recoverable_balance' => $remainingBalance,
+                'recovery_capped_amount' => $recoveryResult['capped_amount'] ?? 0,
                 'breakdown'       => [
                     'positive' => $positiveResult['breakdown'],
                     'negative' => $negativeResult['breakdown'],
@@ -227,7 +292,7 @@ class AuditOrchestrationService
         DB::transaction(function () use ($audit) {
             $executive = Executive::lockForUpdate()->find($audit->executive_id);
 
-            // Remove transactions for this audit
+            // Remove ALL transactions for this audit (positive, negative, recovery)
             PointTransaction::where('daily_audit_id', $audit->id)->delete();
 
             // Recalculate score from remaining transactions
@@ -267,23 +332,51 @@ class AuditOrchestrationService
         });
     }
 
-    // ── Private helpers ────────────────────────────────────────────────────────
+    // ── Private: Recovery Engine Pipeline ─────────────────────────────────────
+
+    /**
+     * Four-stage Recovery Engine.
+     */
+    private function runRecoveryEngine(
+        DailyAudit $audit,
+        array      $context,
+        \Illuminate\Support\Collection $recoveryRules
+    ): array {
+        $auditDate   = \Carbon\Carbon::parse($audit->audit_date);
+        $executiveId = $audit->executive_id;
+
+        // ── Stage 3: Eligibility Gate ────────────────────────────────────────
+        if (! $this->recoveryEligibility->canReceiveRecoveryPoints($executiveId, $auditDate, $audit->id)) {
+            return $this->recoveryCalculation->calculate($context, $recoveryRules, 0);
+        }
+
+        // ── Stage 4: Calculate effective cap = min(dailyCap, remainingBalance) ─
+        $dailyCap        = (int) ($this->rules->byCategory($audit->executive->company_id, 'recovery_cap')
+                                ->first()?->threshold_value ?? 20);
+        $remainingBalance = $this->recoveryHistory->getRemainingBalance($executiveId, $auditDate);
+        $effectiveCap     = min($dailyCap, $remainingBalance);
+
+        // ── Stage 4: Evaluate recovery achievement rules ──────────────────────
+        return $this->recoveryCalculation->calculate($context, $recoveryRules, $effectiveCap);
+    }
+
+    // ── Private Helpers ────────────────────────────────────────────────────────
 
     private function createTransaction(DailyAudit $audit, Executive $executive, array $item, string $type, int $runningTotal): void
     {
         PointTransaction::create([
-            'company_id'    => $executive->company_id,
-            'executive_id'  => $executive->id,
-            'daily_audit_id'=> $audit->id,
-            'rule_id'       => $item['rule_id'] ?? null,
-            'audit_date'    => $audit->audit_date,
-            'category'      => $item['category'],
-            'rule_code'     => $item['rule_code'] ?? null,
-            'rule_name'     => $item['rule_name'] ?? $item['message'],
-            'points'        => abs($item['points']),
-            'type'          => $type,
-            'running_total' => $runningTotal,
-            'created_by'    => Auth::id(),
+            'company_id'     => $executive->company_id,
+            'executive_id'   => $executive->id,
+            'daily_audit_id' => $audit->id,
+            'rule_id'        => $item['rule_id'] ?? null,
+            'audit_date'     => $audit->audit_date,
+            'category'       => $item['category'],
+            'rule_code'      => $item['rule_code'] ?? null,
+            'rule_name'      => $item['rule_name'] ?? $item['message'],
+            'points'         => abs($item['points']),
+            'type'           => $type,
+            'running_total'  => $runningTotal,
+            'created_by'     => Auth::id(),
         ]);
     }
 

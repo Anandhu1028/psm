@@ -7,6 +7,8 @@ use App\Models\DailyAudit;
 use App\Models\Executive;
 use App\Models\PointTransaction;
 use App\Repositories\Contracts\DailyAuditRepositoryInterface;
+use App\Services\MonthlyPerformanceRankingService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -15,10 +17,14 @@ class DashboardController extends Controller
         private DailyAuditRepositoryInterface $audits,
     ) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $companies       = Company::withCount(['executives' => fn($q) => $q->where('status', '!=', 'inactive')])->get();
         $totalExecutives = Executive::where('status', '!=', 'inactive')->count();
+        $selectedCompanyId = $request->input('company_id');
+        $selectedZoneId = $request->input('zone_id');
+        $selectedMonth = (int) ($request->input('month') ?? now()->month);
+        $selectedYear = (int) ($request->input('year') ?? now()->year);
         $todayAudits     = $this->audits->todayCount();
         $todayPoints     = $this->audits->todayPointsSummary();
 
@@ -49,11 +55,15 @@ class DashboardController extends Controller
             ->limit(5)
             ->get();
 
+        $monthlyPerformance = app(MonthlyPerformanceRankingService::class)
+            ->calculate($selectedMonth, $selectedYear, $selectedCompanyId, $selectedZoneId)
+            ->take(5);
+
         return view('dashboard.index', compact(
             'companies', 'totalExecutives', 'todayAudits', 'todayPoints',
             'topPerformer', 'lowestPerformer', 'recentAudits',
             'monthlyChart', 'zonePerformance', 'companyLeaderboards',
-            'recentViolations',
+            'recentViolations', 'monthlyPerformance', 'selectedCompanyId', 'selectedZoneId', 'selectedMonth', 'selectedYear',
         ));
     }
 

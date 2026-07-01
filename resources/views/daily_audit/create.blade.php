@@ -1018,7 +1018,7 @@
             </div>
             <div class="ca-step-body">
                 <div class="row g-3">
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="ca-label">Connected Calls <span class="ca-required">*</span></label>
                         <div class="ca-input-wrap">
                             <i class="ca-input-icon fa-solid fa-phone" style="color:#6366f1;"></i>
@@ -1027,7 +1027,7 @@
                         </div>
                         <div class="ca-field-hint"><i class="fa-solid fa-circle-info"></i> KPI minimum: 40 calls</div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="ca-label">Confirmed Meetings <span class="ca-required">*</span></label>
                         <div class="ca-input-wrap">
                             <i class="ca-input-icon fa-solid fa-calendar-check" style="color:#6366f1;"></i>
@@ -1036,7 +1036,7 @@
                         </div>
                         <div class="ca-field-hint"><i class="fa-solid fa-circle-info"></i> KPI minimum: 1 meeting</div>
                     </div>
-                    <div class="col-md-4">
+                    <div class="col-md-3">
                         <label class="ca-label">Meetings Attended</label>
                         <div class="ca-input-wrap">
                             <i class="ca-input-icon fa-solid fa-handshake" style="color:#10b981;"></i>
@@ -1044,6 +1044,15 @@
                                 min="0" max="99" value="{{ old('meetings_attended', 0) }}" required>
                         </div>
                         <div class="ca-field-hint"><i class="fa-solid fa-plus"></i> +4 pts per attended meeting</div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="ca-label">Admissions Converted Today <span class="ca-required">*</span></label>
+                        <div class="ca-input-wrap">
+                            <i class="ca-input-icon fa-solid fa-hospital-user" style="color:#10b981;"></i>
+                            <input type="number" name="admissions_today" id="admissionsToday" class="ca-input"
+                                min="0" value="{{ old('admissions_today', 0) }}" required>
+                        </div>
+                        <div class="ca-field-hint"><i class="fa-solid fa-circle-info"></i> Used for monthly conversion calculations</div>
                     </div>
                 </div>
 
@@ -1361,6 +1370,16 @@
 
                 <div id="previewKpi" style="display:none;"></div>
 
+                <div id="previewDetailedBreakdown" style="margin-top: 15px; border-top: 1px solid #f1f5f9; padding-top: 15px; display: none;">
+                    <div style="font-weight: 600; font-size: 0.85rem; color: #1e293b; margin-bottom: 8px;">Recovery Breakdown:</div>
+                    <div id="previewDetailedRecoveryRules" style="font-size: 0.8rem; color: #475569;">
+                        <!-- dynamic items -->
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-top: 10px; border-top: 1px dashed #e2e8f0; padding-top: 8px;" id="previewDetailedBalance">
+                        <!-- remaining balance and cap info -->
+                    </div>
+                </div>
+
                 <div class="ca-score-note">
                     <i class="fa-solid fa-circle-info" style="color:#c4b5fd;flex-shrink:0;"></i>
                     Preview only — final score calculated server-side on submit.
@@ -1506,6 +1525,7 @@
             connected_calls:       document.getElementById('connectedCalls').value,
             confirmed_meetings:    document.getElementById('confirmedMeetings').value,
             meetings_attended:     document.getElementById('meetingsAttended').value,
+            admissions_today:      document.getElementById('admissionsToday')?.value ?? 0,
             rolling_day:           document.getElementById('rollingDay')?.value ?? '',
             rolling_window_days:   document.getElementById('rollingWindowDays')?.value ?? '',
             rolling_meeting_count: document.getElementById('rollingMeetingCount')?.value ?? '',
@@ -1549,6 +1569,43 @@
             } else {
                 kpiEl.className  = 'ca-kpi-result fail';
                 kpiEl.innerHTML  = '<i class="fa-solid fa-circle-xmark"></i> KPI Failed';
+            }
+
+            // Render detailed recovery breakdown
+            const breakdownContainer = document.getElementById('previewDetailedBreakdown');
+            const rulesContainer = document.getElementById('previewDetailedRecoveryRules');
+            const balanceContainer = document.getElementById('previewDetailedBalance');
+
+            if (data.recovery_breakdown && data.recovery_breakdown.length > 0) {
+                breakdownContainer.style.display = 'block';
+                rulesContainer.innerHTML = '';
+                
+                data.recovery_breakdown.forEach(item => {
+                    const row = document.createElement('div');
+                    row.style.display = 'flex';
+                    row.style.justifyContent = 'space-between';
+                    row.style.marginBottom = '4px';
+                    
+                    const nameSpan = document.createElement('span');
+                    nameSpan.textContent = item.rule_name;
+                    
+                    const pointsSpan = document.createElement('span');
+                    pointsSpan.style.fontWeight = '600';
+                    pointsSpan.style.color = item.points > 0 ? '#10b981' : '#64748b';
+                    pointsSpan.textContent = '+' + item.points;
+                    
+                    row.appendChild(nameSpan);
+                    row.appendChild(pointsSpan);
+                    rulesContainer.appendChild(row);
+                });
+
+                let balanceHtml = `<div>Remaining Recoverable Balance: <span style="font-weight:600;">${data.remaining_recoverable_balance ?? 0} pts</span></div>`;
+                if (data.recovery_capped_amount > 0) {
+                    balanceHtml += `<div style="color:#e11d48; margin-top:2px;">Capped: <span style="font-weight:600;">-${data.recovery_capped_amount} pts</span> (Daily Cap 20)</div>`;
+                }
+                balanceContainer.innerHTML = balanceHtml;
+            } else {
+                breakdownContainer.style.display = 'none';
             }
 
             // KPI banner in step 2

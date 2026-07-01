@@ -48,54 +48,70 @@
     <nav class="pms-nav">
         <div class="nav-section-label">Main</div>
 
+        @can('view_dashboard')
         <a href="{{ route('dashboard') }}" class="pms-nav-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">
             <i class="fa-solid fa-gauge-high nav-icon"></i>
             <span>Dashboard</span>
         </a>
+        @endcan
 
         <!-- <a href="{{ route('daily_audit.create') }}" class="pms-nav-link {{ request()->routeIs('daily_audit.create') ? 'active' : '' }}">
             <i class="fa-solid fa-circle-plus nav-icon"></i>
             <span>Enter Daily Audit</span>
         </a> -->
 
+        @can('enter_daily_audit')
         <a href="{{ route('daily_audit.index') }}" class="pms-nav-link {{ request()->routeIs('daily_audit.index') ? 'active' : '' }}">
             <i class="fa-solid fa-clipboard-list nav-icon"></i>
             <span>Daily Audit</span>
         </a>
+        @endcan
 
         <div class="nav-section-label mt-3">Analytics</div>
 
+        @can('view_leaderboards')
         <a href="{{ route('leaderboards.index') }}" class="pms-nav-link {{ request()->routeIs('leaderboards.*') ? 'active' : '' }}">
             <i class="fa-solid fa-trophy nav-icon"></i>
             <span>Leaderboard</span>
         </a>
+        @endcan
 
+        @can('view_point_history')
         <a href="{{ route('point_history.index') }}" class="pms-nav-link {{ request()->routeIs('point_history.*') ? 'active' : '' }}">
             <i class="fa-solid fa-coins nav-icon"></i>
             <span>Point History</span>
         </a>
+        @endcan
 
+        @can('view_reports')
         <a href="{{ route('reports.index') }}" class="pms-nav-link {{ request()->routeIs('reports.*') ? 'active' : '' }}">
             <i class="fa-solid fa-file-lines nav-icon"></i>
             <span>Reports</span>
         </a>
+        @endcan
 
         <div class="nav-section-label mt-3">Management</div>
 
+        @canany(['view_executives','manage_executives'])
         <a href="{{ route('executives.index') }}" class="pms-nav-link {{ request()->routeIs('executives.*') ? 'active' : '' }}">
             <i class="fa-solid fa-users nav-icon"></i>
             <span>Executives</span>
         </a>
+        @endcanany
 
+        @canany(['view_zones','manage_zones'])
         <a href="{{ route('zones.index') }}" class="pms-nav-link {{ request()->routeIs('zones.*') ? 'active' : '' }}">
             <i class="fa-solid fa-map-location-dot nav-icon"></i>
             <span>Zones</span>
         </a>
+        @endcanany
 
+        @if(auth()->user()->can('view_companies') || auth()->user()->hasAnyRole(['Super Admin','CRO','GM']))
         <a href="{{ route('companies.index') }}" class="pms-nav-link {{ request()->routeIs('companies.*') ? 'active' : '' }}">
             <i class="fa-solid fa-building nav-icon"></i>
             <span>Companies</span>
         </a>
+        @endif
 
         @can('manage_users')
         <a href="{{ route('users.index') }}" class="pms-nav-link {{ request()->routeIs('users.*') ? 'active' : '' }}">

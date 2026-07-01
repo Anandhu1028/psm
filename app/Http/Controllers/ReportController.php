@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ArrayExport;
 use App\Models\Company;
 use App\Models\DailyAudit;
 use App\Models\Executive;
 use App\Models\PointTransaction;
 use App\Models\Zone;
+use App\Services\MonthlyPerformanceRankingService;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +39,7 @@ class ReportController extends Controller
 
     public function export(Request $request)
     {
-        $format    = $request->format ?? 'pdf';
+        $format    = $request->input('format', 'pdf');
         $type      = $request->type ?? 'daily';
         $dateFrom  = $request->date_from ?? now()->startOfMonth()->toDateString();
         $dateTo    = $request->date_to   ?? now()->toDateString();
@@ -51,10 +53,42 @@ class ReportController extends Controller
             return $pdf->download("{$filename}.pdf");
         }
 
-        // Excel export — simple CSV-like response
-        $headers = ['Content-Type' => 'text/csv', 'Content-Disposition' => "attachment; filename={$filename}.csv"];
-        $rows    = $this->toCsv($data, $type);
-        return response($rows, 200, $headers);
+        $rows = $this->formatExportRows($data);
+
+        if ($format === 'csv') {
+            return Excel::download(new ArrayExport($rows), "{$filename}.csv", \Maatwebsite\Excel\Excel::CSV);
+        }
+
+        return Excel::download(new ArrayExport($rows), "{$filename}.xlsx");
+    }
+
+    private function formatExportRows(array $data): array
+    {
+        return array_map(fn($row) => $this->flattenExportData((array) $row), $data);
+    }
+
+    private function flattenExportData(array $data, string $prefix = ''): array
+    {
+        $flattened = [];
+
+        foreach ($data as $key => $value) {
+            $column = $prefix ? "{$prefix}.{$key}" : $key;
+
+            if (is_array($value)) {
+                foreach ($this->flattenExportData($value, $column) as $nestedKey => $nestedValue) {
+                    $flattened[$nestedKey] = $nestedValue;
+                }
+                continue;
+            }
+
+            if (is_object($value)) {
+                $value = method_exists($value, 'toArray') ? $value->toArray() : (string) $value;
+            }
+
+            $flattened[$column] = $value;
+        }
+
+        return $flattened;
     }
 
     private function buildReport(string $type, string $from, string $to, ?string $companyId, ?string $zoneId, ?string $execId): array
@@ -139,24 +173,59 @@ class ReportController extends Controller
 
     private function monthlyReport($companyId): array
     {
-        return DB::table('monthly_scores')
-            ->join('executives', 'monthly_scores.executive_id', '=', 'executives.id')
-            ->join('zones', 'executives.zone_id', '=', 'zones.id')
-            ->join('companies', 'monthly_scores.company_id', '=', 'companies.id')
-            ->when($companyId, fn($q) => $q->where('monthly_scores.company_id', $companyId))
-            ->selectRaw('executives.name, executives.employee_id, zones.name as zone, companies.name as company, monthly_scores.year, monthly_scores.month, monthly_scores.net_score, monthly_scores.positive_points, monthly_scores.negative_points, monthly_scores.recovery_points')
-            ->orderByDesc('monthly_scores.year')->orderByDesc('monthly_scores.month')
-            ->get()->toArray();
-    }
+        $month = request()->input('month', now()->month);
+        $year  = request()->input('year', now()->year);
+        $zoneId = request()->input('zone_id');
 
-    private function toCsv(array $data, string $type): string
-    {
-        if (empty($data)) return "No data\n";
-        $headers = array_keys((array) $data[0]);
-        $csv     = implode(',', $headers) . "\n";
-        foreach ($data as $row) {
-            $csv .= implode(',', array_map(fn($v) => '"' . str_replace('"', '""', (string) $v) . '"', (array) $row)) . "\n";
-        }
-        return $csv;
+        $ranking = app(MonthlyPerformanceRankingService::class);
+
+        return $ranking->calculate($month, $year, $companyId, $zoneId)
+            ->map(function ($row) use ($year, $month) {
+                $exec = $row['executive'];
+
+                // Sum positive (credit) and negative (debit) points for the month
+                $positive = (int) DB::table('point_transactions')
+                    ->where('executive_id', $exec->id)
+                    ->whereYear('audit_date', $year)
+                    ->whereMonth('audit_date', $month)
+                    ->where('type', 'credit')
+                    ->sum('points');
+
+                $negative = (int) DB::table('point_transactions')
+                    ->where('executive_id', $exec->id)
+                    ->whereYear('audit_date', $year)
+                    ->whereMonth('audit_date', $month)
+                    ->where('type', 'debit')
+                    ->sum('points');
+
+                $net = $positive - $negative;
+
+                return (object) [
+                    'executive_id'  => $exec->id,
+                    'name'          => $exec->name,
+                    'employee_id'   => $exec->employee_id,
+                    'company'       => $exec->company?->name,
+                    'zone'          => $exec->zone?->name,
+                    'monthly_target'=> $row['target'],
+                    'admissions'    => $row['admissions'],
+                    'remaining'     => $row['remaining'],
+                    'achievement'   => $row['achievement'],
+                    'eligible'      => $row['eligible'],
+                    'rank'          => $row['rank'],
+                    'bonus_awarded' => DB::table('point_transactions')
+                        ->where('executive_id', $exec->id)
+                        ->where('category', 'quality_bonus')
+                        ->whereYear('audit_date', $year)
+                        ->whereMonth('audit_date', $month)
+                        ->exists() ? '+15' : null,
+                    'year'          => $year,
+                    'month'         => $month,
+                    'positive_points'=> $positive,
+                    'negative_points'=> $negative,
+                    'net_score'     => $net,
+                ];
+            })
+            ->values()
+            ->toArray();
     }
 }

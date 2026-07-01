@@ -8,41 +8,75 @@ use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
-    public function run(): void
+    public function run()
     {
-        // Reset cached roles/permissions
-        app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
-
-        $permissions = [
-            'view_dashboard',
-            'enter_daily_audit',
-            'verify_recovery',
-            'manage_executives',
-            'manage_users',
-            'configure_rules',
-            'view_reports',
-            'manage_companies',
-            'manage_zones',
-            'view_leaderboards',
-            'view_point_history',
+        // Permission list
+        $perms = [
+            'view dashboard',
+            'view executives', 'manage executives',
+            'view zones', 'manage zones',
+            'view companies', 'manage companies',
+            'view daily audit', 'create daily audit', 'edit daily audit', 'delete daily audit',
+            'view audit history',
+            'view reports',
+            'view leaderboard',
+            'view monthly ranking',
+            'manage rule engine',
+            'manage recovery engine',
+            'manage quality bonus',
+            'view transactions',
+            'manage users', 'manage roles', 'manage settings'
         ];
 
-        foreach ($permissions as $perm) {
-            Permission::firstOrCreate(['name' => $perm, 'guard_name' => 'web']);
+        foreach ($perms as $p) {
+            Permission::firstOrCreate(['name' => $p]);
         }
 
+        // Roles mapping (names taken from app config or desired mapping)
         $roles = [
-            'Super Admin' => $permissions, // all permissions
-            'CRO'         => ['view_dashboard', 'enter_daily_audit', 'verify_recovery', 'manage_executives', 'view_reports', 'manage_zones', 'view_leaderboards', 'view_point_history'],
-            'GM'          => ['view_dashboard', 'enter_daily_audit', 'view_reports', 'view_leaderboards', 'view_point_history'],
-            'AGM'         => ['view_dashboard', 'enter_daily_audit', 'view_reports', 'view_leaderboards', 'view_point_history'],
-            'Zone Manager'=> ['view_dashboard', 'enter_daily_audit', 'view_reports', 'view_leaderboards', 'view_point_history'],
-            'Team Leader' => ['view_dashboard', 'view_reports', 'view_leaderboards'],
+            'Super Admin',
+            'CRO',
+            'GM',
+            'AGM',
+            'Zone Manager',
+            'Team Leader',
         ];
 
-        foreach ($roles as $roleName => $perms) {
-            $role = Role::firstOrCreate(['name' => $roleName, 'guard_name' => 'web']);
-            $role->syncPermissions($perms);
+        foreach ($roles as $r) {
+            Role::firstOrCreate(['name' => $r]);
         }
+
+        // Assign permissions per role
+        // Super Admin: everything
+        $super = Role::where('name', 'Super Admin')->first();
+        $super->syncPermissions(Permission::all());
+
+        // CRO: broad access except user/role/system settings
+        $cro = Role::where('name', 'CRO')->first();
+        $croPerms = Permission::whereNotIn('name', ['manage users', 'manage roles', 'manage settings'])->get();
+        $cro->syncPermissions($croPerms);
+
+        // GM & AGM: read-only management access
+        $gm = Role::where('name', 'GM')->first();
+        $agm = Role::where('name', 'AGM')->first();
+        $gmRead = Permission::whereIn('name', [
+            'view dashboard', 'view reports', 'view leaderboard', 'view monthly ranking', 'view executives'
+        ])->get();
+        $gm->syncPermissions($gmRead);
+        $agm->syncPermissions($gmRead);
+
+        // Zone Manager: zone-scoped operations
+        $zm = Role::where('name', 'Zone Manager')->first();
+        $zmPerms = Permission::whereIn('name', [
+            'view dashboard', 'view daily audit', 'view audit history', 'view reports', 'view transactions', 'view leaderboard', 'view zones'
+        ])->get();
+        $zm->syncPermissions($zmPerms);
+
+        // Team Leader: team-scoped operations (read/write daily audit)
+        $tl = Role::where('name', 'Team Leader')->first();
+        $tlPerms = Permission::whereIn('name', [
+            'view dashboard', 'view daily audit', 'create daily audit', 'view audit history', 'view reports', 'view leaderboard'
+        ])->get();
+        $tl->syncPermissions($tlPerms);
     }
 }

@@ -31,6 +31,7 @@ class Executive extends Model
         'best_call_streak',
         'best_meeting_streak',
         'streak_last_updated',
+        'monthly_admission_target',
     ];
 
     protected $casts = [
@@ -43,6 +44,7 @@ class Executive extends Model
         'best_meeting_streak'  => 'integer',
         'current_score'        => 'integer',
         'monthly_score'        => 'integer',
+        'monthly_admission_target' => 'integer',
     ];
 
     // ── Relationships ──────────────────────────────────────────────────────────

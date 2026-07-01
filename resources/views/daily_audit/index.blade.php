@@ -408,8 +408,132 @@
 
         .ah-search-input::placeholder { color: #c4b5fd; }
 
-        /* Table */
-        .ah-table-scroll { overflow-x: auto; }
+        /* Table: allow vertical scroll inside card and horizontal overflow */
+        .ah-table-scroll { max-height: 520px; overflow: auto; }
+
+        /* ══════════════════════════════════════════
+           Select2 avatar dropdown — FIXED ALIGNMENT
+           Single unified ".s2-item" row is reused for
+           both the closed selection box and the open
+           dropdown options, so both share one set of
+           flex rules and never fall out of alignment.
+        ══════════════════════════════════════════ */
+        .select2-container--bootstrap-5 .select2-selection--single {
+            height: 44px !important;
+            padding: 0 14px !important;
+            border-radius: 11px;
+            background: #fafbff;
+            border: 1.5px solid #edf0f7;
+            box-shadow: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .select2-container--bootstrap-5.select2-container--focus .select2-selection--single,
+        .select2-container--bootstrap-5.select2-container--open .select2-selection--single {
+            border-color: #6366f1;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__rendered {
+            display: flex !important;
+            align-items: center;
+            padding: 0 !important;
+            margin: 0 !important;
+            line-height: 1;
+            width: 100%;
+            color: #2d3748 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__placeholder {
+            color: #94a3b8 !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__arrow {
+            height: 44px !important;
+            top: 0 !important;
+            right: 10px !important;
+        }
+
+        .select2-container--bootstrap-5 .select2-selection__clear {
+            margin-right: 6px;
+        }
+
+        /* Shared row used everywhere an executive is rendered */
+        .select2-container--bootstrap-5 .s2-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+            min-width: 0; /* allows text-overflow to work inside a flex child */
+        }
+
+        .select2-container--bootstrap-5 .s2-avatar,
+        .select2-container--bootstrap-5 .s2-initials {
+            flex: 0 0 28px;
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+        }
+
+        .select2-container--bootstrap-5 .s2-avatar {
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .select2-container--bootstrap-5 .s2-initials {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.62rem;
+            background: #eef2ff;
+            color: #4338ca;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .select2-container--bootstrap-5 .s2-text {
+            flex: 1 1 auto;
+            min-width: 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            font-weight: 600;
+            font-size: 0.83rem;
+            color: #2d3748;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option {
+            padding: 9px 12px;
+            color: #0f172a;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option .s2-text {
+            font-weight: 700;
+        }
+
+        .select2-container--bootstrap-5 .select2-results__option--highlighted .s2-text {
+            color: #fff;
+        }
+
+        .select2-container--bootstrap-5 .select2-dropdown {
+            border-radius: 12px;
+            border: 1.5px solid #edf0f7;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+            overflow: hidden;
+            z-index: 3000; /* must sit above .ah-modal-bg (2000) */
+        }
+
+        .select2-container--bootstrap-5 .select2-search--dropdown {
+            padding: 10px;
+        }
+
+        .select2-container--bootstrap-5 .select2-search--dropdown .select2-search__field {
+            border-radius: 9px !important;
+            border: 1.5px solid #edf0f7 !important;
+        }
 
         .ah-tbl {
             width: 100%;
@@ -781,7 +905,7 @@
             width: 100%;
             max-width: 620px;
             box-shadow: 0 32px 80px rgba(0, 0, 0, 0.18), 0 2px 12px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
+            overflow: visible;
             animation: modalIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
         }
 
@@ -797,6 +921,7 @@
             padding: 24px 28px 20px;
             background: #fafaff;
             border-bottom: 1px solid #f0f2fa;
+            border-radius: 22px 22px 0 0;
         }
 
         .ah-modal-head-left { display: flex; align-items: center; gap: 13px; }
@@ -845,7 +970,12 @@
             color: #e11d48;
         }
 
-        .ah-modal-body { padding: 28px; }
+        .ah-modal-body {
+            padding: 28px;
+            max-height: 60vh;
+            overflow-y: auto;
+            overflow-x: visible;
+        }
 
         .ah-modal-section { margin-bottom: 24px; }
         .ah-modal-section:last-child { margin-bottom: 0; }
@@ -1226,6 +1356,8 @@
                             <th>Date</th>
                             <th style="text-align:center;">Calls</th>
                             <th style="text-align:center;">Meetings</th>
+                            <th style="text-align:center;">Admissions</th>
+                            <th style="text-align:center;">Target</th>
                             <th style="text-align:center;">Positive</th>
                             <th style="text-align:center;">Negative</th>
                             <th style="text-align:center;">Recovery</th>
@@ -1264,6 +1396,8 @@
 
                                 <td style="text-align:center;"><span class="ah-num">{{ $audit->connected_calls }}</span></td>
                                 <td style="text-align:center;"><span class="ah-num">{{ $audit->confirmed_meetings }}</span></td>
+                                <td style="text-align:center;"><span class="ah-num">{{ $audit->admissions_today ?? 0 }}</span></td>
+                                <td style="text-align:center;"><span class="ah-num">{{ $audit->executive->monthly_admission_target ?? 0 }}</span></td>
 
                                 <td style="text-align:center;"><span class="ah-chip ah-chip-pos"><i class="fa-solid fa-plus"></i>{{ $audit->positive_points }}</span></td>
                                 <td style="text-align:center;"><span class="ah-chip ah-chip-neg"><i class="fa-solid fa-minus"></i>{{ $audit->negative_points }}</span></td>
@@ -1305,7 +1439,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="12" style="padding:0;border:none;">
+                                <td colspan="14" style="padding:0;border:none;">
                                     <div class="ah-empty">
                                         <div class="ah-empty-blob"><i class="fa-solid fa-clipboard-list"></i></div>
                                         <div class="ah-empty-h">No audit records for {{ $displayLabel }}</div>
@@ -1324,10 +1458,19 @@
             {{-- ══ PAGINATION ═══════════════════════════════════════════ --}}
             @if($audits->hasPages())
                 <div class="ah-pager">
-                    <span class="ah-pager-info">
-                        Showing {{ $audits->firstItem() }}–{{ $audits->lastItem() }} of {{ $audits->total() }} records
-                    </span>
-                    {{ $audits->appends(request()->query())->links() }}
+                    <span class="ah-pager-info">Showing {{ $audits->firstItem() }}–{{ $audits->lastItem() }} of {{ $audits->total() }} records</span>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        {{-- Standard numeric links (Laravel) --}}
+                        {{ $audits->appends(request()->query())->links() }}
+
+                        {{-- Prominent Prev / Next buttons for quick navigation --}}
+                        @if($audits->previousPageUrl())
+                            <a href="{{ $audits->previousPageUrl() }}" class="btn-ah-date" style="padding:8px 12px;">&larr; Prev</a>
+                        @endif
+                        @if($audits->nextPageUrl())
+                            <a href="{{ $audits->nextPageUrl() }}" class="btn-ah-date has-date" style="padding:8px 12px;">Next &rarr;</a>
+                        @endif
+                    </div>
                 </div>
             @endif
 
@@ -1389,7 +1532,10 @@
                                 <select name="executive_id" class="form-select select2-modal">
                                     <option value="">All Executives</option>
                                     @foreach($executives as $e)
-                                        <option value="{{ $e->id }}" {{ request('executive_id') == $e->id ? 'selected' : '' }}>{{ $e->name }}</option>
+                                        @php $avatar = $e->photo ? asset('storage/' . $e->photo) : null; @endphp
+                                        <option value="{{ $e->id }}"
+                                            data-avatar="{{ $avatar }}"
+                                            {{ request('executive_id') == $e->id ? 'selected' : '' }}>{{ $e->name }}</option>
                                     @endforeach
                                 </select>
                             </div>
@@ -1502,13 +1648,64 @@
             });
         });
 
-        // ── Select2 ───────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════
+        // Select2 with avatar templates — FIXED
+        // One shared "s2-item" markup builder is used for BOTH the
+        // dropdown list AND the closed/selected value, so the same
+        // CSS flex rules apply everywhere and nothing breaks layout
+        // when an executive with (or without) a photo is chosen.
+        // ══════════════════════════════════════════════════════════════
         $(function () {
+            function avatarMarkup(data, el) {
+                const avatar   = $(el).data('avatar') || '';
+                const initials = (data.text || '')
+                    .split(' ')
+                    .filter(Boolean)
+                    .slice(0, 2)
+                    .map(s => s.charAt(0))
+                    .join('')
+                    .toUpperCase();
+
+                return avatar
+                    ? '<img src="' + avatar + '" class="s2-avatar" alt="">'
+                    : '<div class="s2-initials">' + initials + '</div>';
+            }
+
+            function execTemplate(data) {
+                if (!data.id) { return data.text; }
+                const el = data.element || {};
+                return $(
+                    '<div class="s2-item">' +
+                        avatarMarkup(data, el) +
+                        '<span class="s2-text">' + data.text + '</span>' +
+                    '</div>'
+                );
+            }
+
+            function selTemplate(data) {
+                if (!data.id) { return data.text; }
+                const el = data.element || {};
+                return $(
+                    '<span class="s2-item">' +
+                        avatarMarkup(data, el) +
+                        '<span class="s2-text">' + data.text + '</span>' +
+                    '</span>'
+                );
+            }
+
             $('.select2-modal').select2({
                 theme: 'bootstrap-5',
                 width: '100%',
                 placeholder: 'All Executives',
-                dropdownParent: $('#filterModalBg .ah-modal'),
+                // IMPORTANT: dropdownParent must NOT be an element that has a
+                // CSS transform in its ancestry (the modal uses `transform`
+                // in its open animation). A transformed ancestor creates a
+                // new positioning context and Select2's offset math breaks,
+                // which is what threw the dropdown to a random corner of
+                // the page. Attaching to <body> avoids that entirely.
+                dropdownParent: $('body'),
+                templateResult: execTemplate,
+                templateSelection: selTemplate,
             });
         });
     </script>

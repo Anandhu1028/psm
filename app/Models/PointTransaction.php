@@ -86,6 +86,7 @@ class PointTransaction extends Model
             'positive' => '<span class="badge bg-success-subtle text-success">Positive</span>',
             'negative' => '<span class="badge bg-danger-subtle text-danger">Negative</span>',
             'recovery' => '<span class="badge bg-info-subtle text-info">Recovery</span>',
+            'quality_bonus' => '<span class="badge bg-violet-subtle text-violet">Quality Bonus</span>',
             default    => '<span class="badge bg-secondary-subtle text-secondary">KPI</span>',
         };
     }
